@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shivish — Vibe Coder</title>
+  <meta name="description" content="Shivish — vibe coder. Building things for the web." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --fog-bg: #080d0a;
+      --text-primary: rgba(255,255,255,0.95);
+      --text-muted: rgba(255,255,255,0.45);
+      --text-mid: rgba(255,255,255,0.65);
+    }
+    html { scroll-behavior: smooth; cursor: none; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--fog-bg); color: var(--text-primary); overflow-x: hidden; cursor: none; }
+
+    /* ── CURSOR ── */
+    #cursor { position: fixed; top: 0; left: 0; width: 12px; height: 12px; background: #fff; border-radius: 50%; pointer-events: none; z-index: 99999; transform: translate(-50%,-50%); mix-blend-mode: difference; transition: width 0.2s, height 0.2s; }
+    #cursor-trail { position: fixed; top: 0; left: 0; width: 36px; height: 36px; border: 1px solid rgba(255,255,255,0.3); border-radius: 50%; pointer-events: none; z-index: 99998; transform: translate(-50%,-50%); transition: width 0.3s, height 0.3s, border-color 0.3s; }
+    #cursor.hover { width: 20px; height: 20px; }
+    #cursor-trail.hover { width: 60px; height: 60px; border-color: rgba(255,255,255,0.6); }
+
+    /* ── GLASS 3D ── */
+    .glass {
+      --filter-glass3d: blur(32px) brightness(0.85) saturate(2.5);
+      --color-glass3d: hsl(189 80% 10% / 0.2);
+      --noise-glass3d: url("https://www.transparenttextures.com/patterns/egg-shell.png");
+      position: relative;
+      z-index: 4;
+      box-shadow:
+        0 0 0.75px hsl(205 20% 10% / 0.2),
+        0.7px 0.8px 1.2px -0.4px hsl(205 20% 10% / 0.1),
+        1.3px 1.5px 2.2px -0.8px hsl(205 20% 10% / 0.1),
+        2.3px 2.6px 3.9px -1.2px hsl(205 20% 10% / 0.1),
+        3.9px 4.4px 6.6px -1.7px hsl(205 20% 10% / 0.1),
+        6.5px 7.2px 10.9px -2.1px hsl(205 20% 10% / 0.1),
+        8px 9px 14px -2.5px hsl(205 20% 10% / 0.2);
+    }
+    .glass::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      border-radius: inherit;
+      overflow: hidden;
+      z-index: 3;
+      -webkit-backdrop-filter: var(--filter-glass3d);
+      backdrop-filter: var(--filter-glass3d);
+      background-color: var(--color-glass3d);
+      background-image: var(--noise-glass3d);
+      background-size: 100px;
+      background-repeat: repeat;
+    }
+    .glass::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      border-radius: inherit;
+      overflow: hidden;
+      z-index: 5;
+      box-shadow:
+        inset 2px 2px 1px -3px hsl(205 20% 90% / 0.8),
+        inset 4px 4px 2px -6px hsl(205 20% 90% / 0.3),
+        inset 1.5px 1.5px 1.5px -0.75px hsl(205 20% 90% / 0.15),
+        inset 1.5px 1.5px 0.25px hsl(205 20% 90% / 0.03),
+        inset 0 0 0.25px 0.5px hsl(205 20% 90% / 0.03);
+    }
+    .glass > * { position: relative; z-index: 6; }
+
+    /* ── FOG ── */
+    #fogCanvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+
+    /* ── NAV ── */
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 20px 24px; }
+    .nav-inner { border-radius: 9999px; padding: 12px 28px; display: flex; align-items: center; justify-content: space-between; max-width: 900px; margin: 0 auto; }
+    .nav-logo { font-family: 'Instrument Serif', serif; font-size: 20px; color: var(--text-primary); text-decoration: none; }
+    .nav-links { display: flex; gap: 28px; list-style: none; }
+    .nav-links a { color: var(--text-mid); font-size: 13px; text-decoration: none; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text-primary); }
+    .nav-cta { border-radius: 9999px; padding: 8px 20px; color: var(--text-primary); font-size: 13px; text-decoration: none; display: flex; align-items: center; gap: 6px; transition: background 0.2s; }
+    .nav-cta:hover { background: rgba(255,255,255,0.06); }
+
+    main { position: relative; z-index: 10; }
+
+    /* ── REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1); }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* ── HERO ── */
+    #hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 120px 24px 80px; }
+    .hero-tag { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 24px; opacity: 0; animation: fadeUp 0.8s ease forwards 0.3s; }
+    .hero-tag span { display: inline-block; width: 6px; height: 6px; background: #4ade80; border-radius: 50%; margin-right: 8px; vertical-align: middle; box-shadow: 0 0 8px #4ade80; animation: pulse 2s ease infinite; }
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+    .hero-name { font-family: 'Instrument Serif', serif; font-size: clamp(64px,12vw,120px); font-weight: 400; line-height: 0.95; letter-spacing: -0.03em; color: var(--text-primary); opacity: 0; animation: fadeUp 0.9s ease forwards 0.5s; }
+    .hero-name em { font-style: italic; color: rgba(255,255,255,0.3); }
+    .hero-desc { margin-top: 28px; font-size: 15px; color: var(--text-muted); font-weight: 300; line-height: 1.7; max-width: 340px; opacity: 0; animation: fadeUp 0.9s ease forwards 0.7s; }
+    .hero-btns { margin-top: 40px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; opacity: 0; animation: fadeUp 0.9s ease forwards 0.9s; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)} }
+
+    .btn-primary { border-radius: 9999px; padding: 14px 32px; background: #fff; color: #000; font-size: 14px; font-weight: 500; text-decoration: none; display: inline-block; transition: opacity 0.2s, transform 0.3s cubic-bezier(0.16,1,0.3,1); }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-ghost { border-radius: 9999px; padding: 14px 32px; color: var(--text-primary); font-size: 14px; text-decoration: none; display: inline-block; transition: background 0.2s, transform 0.3s cubic-bezier(0.16,1,0.3,1); }
+    .btn-ghost:hover { background: rgba(255,255,255,0.06); }
+
+    /* ── MARQUEE ── */
+    .marquee-wrap { overflow: hidden; border-top: 0.5px solid rgba(255,255,255,0.06); border-bottom: 0.5px solid rgba(255,255,255,0.06); padding: 20px 0; position: relative; z-index: 10; }
+    .marquee-track { display: flex; gap: 48px; width: max-content; animation: marquee 20s linear infinite; }
+    .marquee-track span { font-family: 'Instrument Serif', serif; font-style: italic; font-size: 18px; color: rgba(255,255,255,0.2); white-space: nowrap; }
+    .marquee-track span.accent { color: rgba(255,255,255,0.5); }
+    @keyframes marquee { from{transform:translateX(0)}to{transform:translateX(-50%)} }
+
+    /* ── SECTIONS ── */
+    section { max-width: 900px; margin: 0 auto; padding: 120px 24px; }
+    .section-label { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 40px; }
+    .section-title { font-family: 'Instrument Serif', serif; font-size: clamp(36px,5vw,60px); font-weight: 400; line-height: 1.05; letter-spacing: -0.02em; margin-bottom: 20px; }
+    .section-title em { font-style: italic; color: rgba(255,255,255,0.3); }
+
+    /* ── PROJECTS ── */
+    .projects-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap: 16px; margin-top: 48px; }
+    .project-card { border-radius: 20px; padding: 28px; transition: transform 0.4s cubic-bezier(0.16,1,0.3,1); cursor: none; text-decoration: none; display: block; }
+    .project-card:hover { transform: translateY(-6px); }
+    .project-chip { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 16px; }
+    .project-title { font-family: 'Instrument Serif', serif; font-size: 26px; font-weight: 400; color: var(--text-primary); margin-bottom: 10px; }
+    .project-desc { font-size: 13px; color: var(--text-muted); line-height: 1.65; font-weight: 300; }
+    .project-footer { margin-top: 24px; display: flex; align-items: center; justify-content: space-between; }
+    .project-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tag { font-size: 11px; padding: 4px 10px; border-radius: 9999px; border: 0.5px solid rgba(255,255,255,0.15); color: var(--text-muted); }
+    .project-arrow { color: var(--text-muted); font-size: 18px; transition: transform 0.3s cubic-bezier(0.16,1,0.3,1), color 0.2s; }
+    .project-card:hover .project-arrow { transform: translate(4px,-4px); color: var(--text-primary); }
+
+    /* ── STATS ── */
+    .stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-top: 48px; }
+    .stat-card { border-radius: 20px; padding: 28px; text-align: center; }
+    .stat-number { font-family: 'Instrument Serif', serif; font-size: 48px; font-weight: 400; color: var(--text-primary); line-height: 1; }
+    .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 8px; letter-spacing: 0.05em; }
+
+    /* ── ABOUT ── */
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 48px; align-items: start; }
+    .about-text { font-size: 15px; color: var(--text-mid); line-height: 1.8; font-weight: 300; }
+    .about-text p + p { margin-top: 16px; }
+    .skills-list { display: flex; flex-direction: column; gap: 10px; }
+    .skill-item { border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; transition: transform 0.3s cubic-bezier(0.16,1,0.3,1); }
+    .skill-item:hover { transform: translateX(6px); }
+    .skill-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.3); flex-shrink: 0; }
+    .skill-name { font-size: 13px; color: var(--text-mid); }
+
+    /* ── CONTACT ── */
+    #contact { text-align: center; }
+    .contact-email { display: inline-block; margin-top: 40px; font-family: 'Instrument Serif', serif; font-size: clamp(24px,4vw,44px); font-style: italic; color: rgba(255,255,255,0.4); text-decoration: none; transition: color 0.4s, letter-spacing 0.4s; }
+    .contact-email:hover { color: var(--text-primary); letter-spacing: 0.02em; }
+    .social-row { display: flex; justify-content: center; gap: 12px; margin-top: 40px; }
+    .social-btn { border-radius: 50%; padding: 14px; color: var(--text-muted); text-decoration: none; display: flex; transition: all 0.3s cubic-bezier(0.16,1,0.3,1); }
+    .social-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); transform: translateY(-4px); }
+
+    footer { position: relative; z-index: 10; text-align: center; padding: 40px 24px; font-size: 12px; color: var(--text-muted); border-top: 0.5px solid rgba(255,255,255,0.06); }
+    .icon { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .about-grid { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-trail"></div>
+<canvas id="fogCanvas"></canvas>
+
+<nav>
+  <div class="nav-inner glass">
+    <a href="#hero" class="nav-logo">S.</a>
+    <ul class="nav-links">
+      <li><a href="#projects">Work</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <a href="https://github.com/shiiiviiish" target="_blank" class="nav-cta glass">
+      <svg class="icon" style="width:15px;height:15px;" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+      GitHub
+    </a>
+  </div>
+</nav>
+
+<main>
+  <div id="hero">
+    <p class="hero-tag"><span></span>Available for work</p>
+    <h1 class="hero-name">Shivish<br><em>vibe coder.</em></h1>
+    <p class="hero-desc">Building things for the web. One project at a time. Learning in public.</p>
+    <div class="hero-btns">
+      <a href="#projects" class="btn-primary magnetic">See my work</a>
+      <a href="#contact" class="btn-ghost glass magnetic">Say hello →</a>
+    </div>
+  </div>
+
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <span>HTML & CSS</span><span class="accent">·</span><span>JavaScript</span><span class="accent">·</span><span>TypeScript</span><span class="accent">·</span><span class="accent">Vibe Coder</span><span class="accent">·</span><span>Vercel</span><span class="accent">·</span><span>GitHub</span><span class="accent">·</span><span>Building in Public</span><span class="accent">·</span><span>Ludhiana, Punjab</span><span class="accent">·</span><span>HTML & CSS</span><span class="accent">·</span><span>JavaScript</span><span class="accent">·</span><span>TypeScript</span><span class="accent">·</span><span class="accent">Vibe Coder</span><span class="accent">·</span><span>Vercel</span><span class="accent">·</span><span>GitHub</span><span class="accent">·</span><span>Building in Public</span><span class="accent">·</span><span>Ludhiana, Punjab</span><span class="accent">·</span>
+    </div>
+  </div>
+
+  <section id="projects">
+    <p class="section-label reveal">Selected Work</p>
+    <h2 class="section-title reveal reveal-delay-1">Things I've<br><em>built.</em></h2>
+    <div class="projects-grid">
+      <a href="https://hta-seven.vercel.app/" target="_blank" class="project-card glass reveal reveal-delay-2">
+        <p class="project-chip">Client Project · 2025</p>
+        <h3 class="project-title">Happiness Through Art</h3>
+        <p class="project-desc">Portfolio website for artist Kavya Atray. Designed and built end-to-end — layout, deployment, everything.</p>
+        <div class="project-footer">
+          <div class="project-tags"><span class="tag">TypeScript</span><span class="tag">Vercel</span></div>
+          <span class="project-arrow">↗</span>
+        </div>
+      </a>
+      <a href="https://shivish.in" class="project-card glass reveal reveal-delay-3">
+        <p class="project-chip">Personal · 2025</p>
+        <h3 class="project-title">This Portfolio</h3>
+        <p class="project-desc">Designed and coded from scratch. Liquid glass UI, animated fog background, custom cursor. Zero frameworks.</p>
+        <div class="project-footer">
+          <div class="project-tags"><span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">JS</span></div>
+          <span class="project-arrow">↗</span>
+        </div>
+      </a>
+      <a href="https://github.com/shiiiviiish" target="_blank" class="project-card glass reveal reveal-delay-4">
+        <p class="project-chip">Coming Soon</p>
+        <h3 class="project-title">Next Project</h3>
+        <p class="project-desc">Something new is cooking. Watch this space — or the GitHub.</p>
+        <div class="project-footer">
+          <div class="project-tags"><span class="tag">???</span></div>
+          <span class="project-arrow">↗</span>
+        </div>
+      </a>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card glass reveal reveal-delay-1"><div class="stat-number" data-count="2">0</div><div class="stat-label">Projects Shipped</div></div>
+      <div class="stat-card glass reveal reveal-delay-2"><div class="stat-number" data-count="88">0</div><div class="stat-label">GitHub Commits</div></div>
+      <div class="stat-card glass reveal reveal-delay-3"><div class="stat-number" data-count="3">0</div><div class="stat-label">Weeks Coding</div></div>
+    </div>
+  </section>
+
+  <section id="about">
+    <p class="section-label reveal">About</p>
+    <h2 class="section-title reveal reveal-delay-1">Who's<br><em>Shivish?</em></h2>
+    <div class="about-grid">
+      <div class="about-text reveal reveal-delay-2">
+        <p>I'm a student who codes for the vibe of it. Started building websites to upskill — ended up actually loving the craft.</p>
+        <p>Currently learning, shipping real projects, and figuring out the web one line of code at a time.</p>
+        <p>Based in Ludhiana, Punjab. Always building something.</p>
+      </div>
+      <div class="skills-list reveal reveal-delay-3">
+        <div class="skill-item glass"><span class="skill-dot"></span><span class="skill-name">HTML & CSS</span></div>
+        <div class="skill-item glass"><span class="skill-dot"></span><span class="skill-name">JavaScript</span></div>
+        <div class="skill-item glass"><span class="skill-dot"></span><span class="skill-name">TypeScript (learning)</span></div>
+        <div class="skill-item glass"><span class="skill-dot"></span><span class="skill-name">Git & GitHub</span></div>
+        <div class="skill-item glass"><span class="skill-dot"></span><span class="skill-name">Vercel · Deployment</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <p class="section-label reveal">Contact</p>
+    <h2 class="section-title reveal reveal-delay-1">Let's<br><em>talk.</em></h2>
+    <a href="mailto:hello@shivish.in" class="contact-email reveal reveal-delay-2">hello@shivish.in</a>
+    <div class="social-row reveal reveal-delay-3">
+      <a href="https://github.com/shiiiviiish" target="_blank" class="social-btn glass" aria-label="GitHub">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+      </a>
+    </div>
+  </section>
+</main>
+
+<footer><p>Built by Shivish · shivish.in</p></footer>
+
+<script>
+const canvas=document.getElementById('fogCanvas'),ctx=canvas.getContext('2d');
+let W,H,particles=[];
+function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+function makeP(){return{x:Math.random()*W,y:Math.random()*H,r:Math.random()*280+100,dx:(Math.random()-0.5)*0.22,dy:(Math.random()-0.5)*0.1,alpha:Math.random()*0.055+0.015,warm:Math.random()>0.5};}
+resize();particles=Array.from({length:22},makeP);
+function drawFog(){
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#080d0a';ctx.fillRect(0,0,W,H);
+  for(const p of particles){const c=p.warm?'100,180,130':'60,140,110';const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r);g.addColorStop(0,`rgba(${c},${p.alpha})`);g.addColorStop(1,`rgba(${c},0)`);ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();p.x+=p.dx;p.y+=p.dy;if(p.x<-p.r)p.x=W+p.r;if(p.x>W+p.r)p.x=-p.r;if(p.y<-p.r)p.y=H+p.r;if(p.y>H+p.r)p.y=-p.r;}
+  requestAnimationFrame(drawFog);
+}
+drawFog();
+window.addEventListener('resize',resize);
+
+const cursor=document.getElementById('cursor'),trail=document.getElementById('cursor-trail');
+let mX=0,mY=0,tX=0,tY=0;
+document.addEventListener('mousemove',e=>{mX=e.clientX;mY=e.clientY;cursor.style.left=mX+'px';cursor.style.top=mY+'px';});
+function animTrail(){tX+=(mX-tX)*0.12;tY+=(mY-tY)*0.12;trail.style.left=tX+'px';trail.style.top=tY+'px';requestAnimationFrame(animTrail);}
+animTrail();
+document.querySelectorAll('a,button,.project-card,.skill-item').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cursor.classList.add('hover');trail.classList.add('hover');});
+  el.addEventListener('mouseleave',()=>{cursor.classList.remove('hover');trail.classList.remove('hover');});
+});
+
+document.querySelectorAll('.magnetic').forEach(btn=>{
+  btn.addEventListener('mousemove',e=>{const r=btn.getBoundingClientRect();btn.style.transform=`translate(${(e.clientX-r.left-r.width/2)*0.25}px,${(e.clientY-r.top-r.height/2)*0.25}px)`;});
+  btn.addEventListener('mouseleave',()=>{btn.style.transform='';});
+});
+
+const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible');});},{threshold:0.15});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+const cobs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){const el=x.target,t=parseInt(el.dataset.count);let c=0;const s=t/60;const ti=setInterval(()=>{c+=s;if(c>=t){el.textContent=t;clearInterval(ti);}else{el.textContent=Math.floor(c);}},16);cobs.unobserve(el);}});},{threshold:0.5});
+document.querySelectorAll('[data-count]').forEach(el=>cobs.observe(el));
+</script>
+</body>
+</html>

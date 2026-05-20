@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shivish — Vibe Coder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { cursor: none; scroll-behavior: smooth; }
+    body { background: #080d0a; font-family: 'DM Sans', sans-serif; color: #fff; overflow-x: hidden; cursor: none; }
+
+    #cursor { position: fixed; width: 12px; height: 12px; background: #fff; border-radius: 50%; pointer-events: none; z-index: 99999; transform: translate(-50%,-50%); mix-blend-mode: difference; transition: width 0.2s, height 0.2s; }
+    #cursor-trail { position: fixed; width: 36px; height: 36px; border: 1px solid rgba(255,255,255,0.25); border-radius: 50%; pointer-events: none; z-index: 99998; transform: translate(-50%,-50%); }
+
+    #fogCanvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+    .hero-scene {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      z-index: 10;
+    }
+
+    .ground {
+      position: absolute;
+      bottom: 20%;
+      left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), rgba(255,255,255,0.06), transparent);
+    }
+
+    .skid {
+      position: absolute;
+      bottom: 20.5%;
+      left: 0;
+      width: 0;
+      height: 3px;
+      border-radius: 3px;
+      background: linear-gradient(90deg, transparent, rgba(100,200,140,0.4), rgba(100,200,140,0.2), transparent);
+      transition: width 1.6s cubic-bezier(0.16,1,0.3,1) 0.7s;
+    }
+    .skid2 {
+      position: absolute;
+      bottom: 21.5%;
+      left: 3%;
+      width: 0;
+      height: 2px;
+      border-radius: 2px;
+      background: linear-gradient(90deg, transparent, rgba(100,200,140,0.25), transparent);
+      transition: width 1.8s cubic-bezier(0.16,1,0.3,1) 0.9s;
+    }
+    .skid.go { width: 42%; }
+    .skid2.go { width: 34%; }
+
+    .smoke {
+      position: absolute;
+      bottom: 18%;
+      left: -5%;
+      width: 35%;
+      height: 80px;
+      background: radial-gradient(ellipse at 20% center, rgba(100,200,140,0.1) 0%, transparent 65%);
+      opacity: 0;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: opacity 1.2s 0.4s, transform 1.8s cubic-bezier(0.16,1,0.3,1) 0.4s;
+    }
+    .smoke.go { opacity: 1; transform: scaleX(1); }
+
+    .car-wrap {
+      position: absolute;
+      bottom: 12%;
+      left: -70%;
+      width: clamp(300px, 45vw, 520px);
+      z-index: 6;
+      transition: left 1.4s cubic-bezier(0.16,1,0.3,1), transform 1.2s ease, opacity 0.6s;
+    }
+    .car-wrap img {
+      width: 100%;
+      mix-blend-mode: screen;
+      filter: brightness(1.15) contrast(1.05) saturate(0.85);
+      transform: perspective(800px) rotateY(12deg);
+      transition: transform 0.8s ease;
+    }
+    .car-wrap.go { left: 3%; }
+    .car-wrap.go img { transform: perspective(800px) rotateY(8deg) rotate(0deg); }
+
+    .face-center {
+      position: relative;
+      z-index: 12;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 28px;
+      transition: transform 0.6s ease, opacity 0.6s ease;
+    }
+
+    .face-ring {
+      width: clamp(220px, 28vw, 300px);
+      height: clamp(220px, 28vw, 300px);
+      border-radius: 50%;
+      overflow: hidden;
+      border: 1px solid rgba(100,200,140,0.12);
+      box-shadow: 0 0 60px rgba(100,200,140,0.06), 0 0 0 8px rgba(100,200,140,0.03);
+      position: relative;
+    }
+    .face-ring img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      transform: scale(1.05);
+    }
+
+    .hero-text { text-align: center; }
+    .hero-tag { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 16px; display: flex; align-items: center; justify-content: center; gap: 8px; opacity: 0; animation: fu 0.8s ease forwards 1.8s; }
+    .hero-tag .dot { width: 6px; height: 6px; background: #4ade80; border-radius: 50%; box-shadow: 0 0 8px #4ade80; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+    .hero-name { font-family: 'Instrument Serif', serif; font-size: clamp(48px, 8vw, 96px); font-weight: 400; line-height: 0.95; letter-spacing: -0.03em; opacity: 0; animation: fu 0.9s ease forwards 2s; }
+    .hero-name em { font-style: italic; color: rgba(255,255,255,0.28); }
+    .hero-sub { font-size: 14px; color: rgba(255,255,255,0.4); margin-top: 14px; font-weight: 300; opacity: 0; animation: fu 0.9s ease forwards 2.2s; }
+    @keyframes fu { from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)} }
+
+    .hero-btns { margin-top: 28px; display: flex; gap: 12px; justify-content: center; opacity: 0; animation: fu 0.9s ease forwards 2.4s; }
+    .btn-w { border-radius: 9999px; padding: 12px 28px; background: #fff; color: #000; font-size: 13px; font-weight: 500; text-decoration: none; transition: opacity 0.2s; }
+    .btn-w:hover { opacity: 0.85; }
+    .btn-g { border-radius: 9999px; padding: 12px 28px; color: #fff; font-size: 13px; text-decoration: none; border: 0.5px solid rgba(255,255,255,0.15); backdrop-filter: blur(8px); transition: background 0.2s; }
+    .btn-g:hover { background: rgba(255,255,255,0.06); }
+
+    .scroll-hint { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); font-size: 10px; letter-spacing: 0.2em; color: rgba(255,255,255,0.25); text-transform: uppercase; display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 0; animation: fu 1s ease forwards 3s; z-index: 20; }
+    .scroll-line { width: 1px; height: 36px; background: linear-gradient(to bottom, rgba(255,255,255,0.25), transparent); animation: sp 1.5s ease infinite; }
+    @keyframes sp { 0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom} }
+
+    .rest-of-site { position: relative; z-index: 10; }
+
+    .glass {
+      --filter-glass3d: blur(32px) brightness(0.85) saturate(2.5);
+      --color-glass3d: hsl(189 80% 10% / 0.2);
+      --noise-glass3d: url("https://www.transparenttextures.com/patterns/egg-shell.png");
+      position: relative; z-index: 4;
+      box-shadow: 0 0 0.75px hsl(205 20% 10% / 0.2), 2.3px 2.6px 3.9px -1.2px hsl(205 20% 10% / 0.1), 8px 9px 14px -2.5px hsl(205 20% 10% / 0.2);
+    }
+    .glass::before { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; overflow: hidden; z-index: 3; -webkit-backdrop-filter: var(--filter-glass3d); backdrop-filter: var(--filter-glass3d); background-color: var(--color-glass3d); background-image: var(--noise-glass3d); background-size: 100px; background-repeat: repeat; }
+    .glass::after { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; overflow: hidden; z-index: 5; box-shadow: inset 2px 2px 1px -3px hsl(205 20% 90% / 0.8), inset 1.5px 1.5px 1.5px -0.75px hsl(205 20% 90% / 0.15); }
+    .glass > * { position: relative; z-index: 6; }
+
+    section { max-width: 900px; margin: 0 auto; padding: 100px 24px; }
+    .section-label { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 40px; }
+    .section-title { font-family: 'Instrument Serif', serif; font-size: clamp(36px,5vw,60px); font-weight: 400; line-height: 1.05; letter-spacing: -0.02em; margin-bottom: 20px; }
+    .section-title em { font-style: italic; color: rgba(255,255,255,0.28); }
+
+    .projects-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap: 16px; margin-top: 48px; }
+    .project-card { border-radius: 20px; padding: 28px; text-decoration: none; display: block; transition: transform 0.4s cubic-bezier(0.16,1,0.3,1); }
+    .project-card:hover { transform: translateY(-6px); }
+    .project-chip { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 14px; }
+    .project-title { font-family: 'Instrument Serif', serif; font-size: 24px; color: #fff; margin-bottom: 10px; }
+    .project-desc { font-size: 13px; color: rgba(255,255,255,0.4); line-height: 1.65; font-weight: 300; }
+    .project-footer { margin-top: 20px; display: flex; align-items: center; justify-content: space-between; }
+    .tags { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tag { font-size: 11px; padding: 3px 10px; border-radius: 9999px; border: 0.5px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.35); }
+    .arrow { color: rgba(255,255,255,0.35); font-size: 16px; transition: transform 0.3s, color 0.2s; }
+    .project-card:hover .arrow { transform: translate(3px,-3px); color: #fff; }
+
+    .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1); }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .d1{transition-delay:0.1s}.d2{transition-delay:0.2s}.d3{transition-delay:0.3s}.d4{transition-delay:0.4s}
+
+    .marquee-wrap { overflow: hidden; border-top: 0.5px solid rgba(255,255,255,0.05); border-bottom: 0.5px solid rgba(255,255,255,0.05); padding: 18px 0; position: relative; z-index: 10; }
+    .marquee-track { display: flex; gap: 48px; width: max-content; animation: mq 22s linear infinite; }
+    .marquee-track span { font-family: 'Instrument Serif', serif; font-style: italic; font-size: 17px; color: rgba(255,255,255,0.18); white-space: nowrap; }
+    .marquee-track span.a { color: rgba(255,255,255,0.45); }
+    @keyframes mq { from{transform:translateX(0)}to{transform:translateX(-50%)} }
+
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 48px; }
+    .about-text { font-size: 15px; color: rgba(255,255,255,0.6); line-height: 1.8; font-weight: 300; }
+    .about-text p+p { margin-top: 16px; }
+    .skills-list { display: flex; flex-direction: column; gap: 10px; }
+    .skill-item { border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; transition: transform 0.3s cubic-bezier(0.16,1,0.3,1); }
+    .skill-item:hover { transform: translateX(6px); }
+    .skill-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.25); }
+    .skill-name { font-size: 13px; color: rgba(255,255,255,0.6); }
+
+    #contact { text-align: center; }
+    .contact-email { display: inline-block; margin-top: 40px; font-family: 'Instrument Serif', serif; font-size: clamp(22px,4vw,44px); font-style: italic; color: rgba(255,255,255,0.35); text-decoration: none; transition: color 0.4s, letter-spacing 0.4s; }
+    .contact-email:hover { color: #fff; letter-spacing: 0.02em; }
+    .social-row { display: flex; justify-content: center; gap: 12px; margin-top: 36px; }
+    .social-btn { border-radius: 50%; padding: 14px; color: rgba(255,255,255,0.4); text-decoration: none; display: flex; transition: all 0.3s cubic-bezier(0.16,1,0.3,1); }
+    .social-btn:hover { color: #fff; background: rgba(255,255,255,0.05); transform: translateY(-4px); }
+
+    .stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-top: 48px; }
+    .stat-card { border-radius: 20px; padding: 28px; text-align: center; }
+    .stat-num { font-family: 'Instrument Serif', serif; font-size: 48px; color: #fff; line-height: 1; }
+    .stat-lbl { font-size: 12px; color: rgba(255,255,255,0.35); margin-top: 8px; letter-spacing: 0.05em; }
+
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 20px 24px; }
+    .nav-inner { border-radius: 9999px; padding: 12px 28px; display: flex; align-items: center; justify-content: space-between; max-width: 900px; margin: 0 auto; }
+    .nav-logo { font-family: 'Instrument Serif', serif; font-size: 20px; color: #fff; text-decoration: none; }
+    .nav-links { display: flex; gap: 28px; list-style: none; }
+    .nav-links a { color: rgba(255,255,255,0.6); font-size: 13px; text-decoration: none; transition: color 0.2s; }
+    .nav-links a:hover { color: #fff; }
+    .nav-gh { border-radius: 9999px; padding: 8px 20px; color: #fff; font-size: 13px; text-decoration: none; display: flex; align-items: center; gap: 6px; }
+    .nav-gh:hover { background: rgba(255,255,255,0.06); }
+    .icon { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    footer { position: relative; z-index: 10; text-align: center; padding: 40px 24px; font-size: 12px; color: rgba(255,255,255,0.25); border-top: 0.5px solid rgba(255,255,255,0.05); }
+    @media(max-width:640px){ .nav-links{display:none} .about-grid{grid-template-columns:1fr} .stats-row{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-trail"></div>
+<canvas id="fogCanvas"></canvas>
+
+<nav>
+  <div class="nav-inner glass">
+    <a href="#hero" class="nav-logo">S.</a>
+    <ul class="nav-links">
+      <li><a href="#projects">Work</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <a href="https://github.com/shiiiviiish" target="_blank" class="nav-gh glass">
+      <svg class="icon" style="width:15px;height:15px;" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+      GitHub
+    </a>
+  </div>
+</nav>
+
+<div class="hero-scene" id="hero">
+  <div class="ground"></div>
+  <div class="skid" id="skid1"></div>
+  <div class="skid2" id="skid2"></div>
+  <div class="smoke" id="smoke"></div>
+
+  <div class="car-wrap" id="car">
+    <img src="src/images/porsche.png" alt="Porsche 911"/>
+  </div>
+
+  <div class="face-center" id="faceCenter">
+    <div class="face-ring">
+      <img src="src/images/shivishanimated.png" alt="Shivish"/>
+    </div>
+    <div class="hero-text">
+      <div class="hero-tag"><span class="dot"></span>Available for work</div>
+      <h1 class="hero-name">Shivish<br><em>vibe coder.</em></h1>
+      <p class="hero-sub">Building things for the web. One project at a time.</p>
+      <div class="hero-btns">
+        <a href="#projects" class="btn-w">See my work</a>
+        <a href="#contact" class="btn-g">Say hello →</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</div>
+
+<div class="rest-of-site">
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <span>HTML & CSS</span><span class="a">·</span><span>JavaScript</span><span class="a">·</span><span>TypeScript</span><span class="a">·</span><span class="a">Vibe Coder</span><span class="a">·</span><span>Vercel</span><span class="a">·</span><span>GitHub</span><span class="a">·</span><span>Building in Public</span><span class="a">·</span><span>Ludhiana, Punjab</span><span class="a">·</span><span>HTML & CSS</span><span class="a">·</span><span>JavaScript</span><span class="a">·</span><span>TypeScript</span><span class="a">·</span><span class="a">Vibe Coder</span><span class="a">·</span><span>Vercel</span><span class="a">·</span><span>GitHub</span><span class="a">·</span><span>Building in Public</span><span class="a">·</span><span>Ludhiana, Punjab</span><span class="a">·</span>
+    </div>
+  </div>
+
+  <section id="projects">
+    <p class="section-label reveal">Selected Work</p>
+    <h2 class="section-title reveal d1">Things I've<br><em>built.</em></h2>
+    <div class="projects-grid">
+      <a href="https://hta-seven.vercel.app/" target="_blank" class="project-card glass reveal d2">
+        <p class="project-chip">Client Project · 2025</p>
+        <h3 class="project-title">Happiness Through Art</h3>
+        <p class="project-desc">Portfolio website for artist Kavya Atray. Designed and built end-to-end — layout, deployment, everything.</p>
+        <div class="project-footer"><div class="tags"><span class="tag">TypeScript</span><span class="tag">Vercel</span></div><span class="arrow">↗</span></div>
+      </a>
+      <a href="https://shivish.in" class="project-card glass reveal d3">
+        <p class="project-chip">Personal · 2025</p>
+        <h3 class="project-title">This Portfolio</h3>
+        <p class="project-desc">Designed and coded from scratch. Liquid glass UI, fog background, drift animation. Zero frameworks.</p>
+        <div class="project-footer"><div class="tags"><span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">JS</span></div><span class="arrow">↗</span></div>
+      </a>
+      <a href="https://github.com/shiiiviiish" target="_blank" class="project-card glass reveal d4">
+        <p class="project-chip">Coming Soon</p>
+        <h3 class="project-title">Next Project</h3>
+        <p class="project-desc">Something new is cooking. Watch this space — or the GitHub.</p>
+        <div class="project-footer"><div class="tags"><span class="tag">???</span></div><span class="arrow">↗</span></div>
+      </a>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card glass reveal d1"><div class="stat-num" data-count="2">0</div><div class="stat-lbl">Projects Shipped</div></div>
+      <div class="stat-card glass reveal d2"><div class="stat-num" data-count="88">0</div><div class="stat-lbl">GitHub Commits</div></div>
+      <div class="stat-card glass reveal d3"><div class="stat-num" data-count="3">0</div><div class="stat-lbl">Weeks Coding</div></div>
+    </div>
+  </section>
+
+  <section id="about">
+    <p class="section-label reveal">About</p>
+    <h2 class="section-title reveal d1">Who's<br><em>Shivish?</em></h2>
+    <div class="about-grid">
+      <div class="about-text reveal d2">
+        <p>I'm a student who codes for the vibe of it. Started building websites to upskill — ended up actually loving the craft.</p>
+        <p>Currently learning, shipping real projects, and figuring out the web one line of code at a time.</p>
+        <p>Based in Ludhiana, Punjab. Always building something.</p>
+      </div>
+      <div class="skills-list reveal d3">
+        <div class="skill-item glass"><span class="skill-dot"></span><span class="skill-name">HTML & CSS</span></div>
+        <div class="skill-item glass"><span class="skill-dot"></span><span class="skill-name">JavaScript</span></div>
+        <div class="skill-item glass"><span class="skill-dot"></span><span class="skill-name">TypeScript (learning)</span></div>
+        <div class="skill-item glass"><span class="skill-dot"></span><span class="skill-name">Git & GitHub</span></div>
+        <div class="skill-item glass"><span class="skill-dot"></span><span class="skill-name">Vercel · Deployment</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <p class="section-label reveal">Contact</p>
+    <h2 class="section-title reveal d1">Let's<br><em>talk.</em></h2>
+    <a href="mailto:hello@shivish.in" class="contact-email reveal d2">hello@shivish.in</a>
+    <div class="social-row reveal d3">
+      <a href="https://github.com/shiiiviiish" target="_blank" class="social-btn glass" aria-label="GitHub">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+      </a>
+    </div>
+  </section>
+</div>
+
+<footer><p>Built by Shivish · shivish.in</p></footer>
+
+<script>
+const canvas=document.getElementById('fogCanvas'),ctx=canvas.getContext('2d');
+let W,H,ps=[];
+function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+function mp(){return{x:Math.random()*W,y:Math.random()*H,r:Math.random()*280+100,dx:(Math.random()-0.5)*0.22,dy:(Math.random()-0.5)*0.1,a:Math.random()*0.055+0.015,w:Math.random()>0.5};}
+resize();ps=Array.from({length:22},mp);
+function df(){ctx.clearRect(0,0,W,H);ctx.fillStyle='#080d0a';ctx.fillRect(0,0,W,H);for(const p of ps){const c=p.w?'100,180,130':'60,140,110';const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r);g.addColorStop(0,`rgba(${c},${p.a})`);g.addColorStop(1,`rgba(${c},0)`);ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();p.x+=p.dx;p.y+=p.dy;if(p.x<-p.r)p.x=W+p.r;if(p.x>W+p.r)p.x=-p.r;if(p.y<-p.r)p.y=H+p.r;if(p.y>H+p.r)p.y=-p.r;}requestAnimationFrame(df);}
+df();window.addEventListener('resize',resize);
+
+const cursor=document.getElementById('cursor'),trail=document.getElementById('cursor-trail');
+let mX=0,mY=0,tX=0,tY=0;
+document.addEventListener('mousemove',e=>{mX=e.clientX;mY=e.clientY;cursor.style.left=mX+'px';cursor.style.top=mY+'px';});
+function at(){tX+=(mX-tX)*0.1;tY+=(mY-tY)*0.1;trail.style.left=tX+'px';trail.style.top=tY+'px';requestAnimationFrame(at);}
+at();
+document.querySelectorAll('a,button,.project-card,.skill-item').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cursor.style.width='20px';cursor.style.height='20px';});
+  el.addEventListener('mouseleave',()=>{cursor.style.width='12px';cursor.style.height='12px';});
+});
+
+const car=document.getElementById('car');
+const smoke=document.getElementById('smoke');
+const s1=document.getElementById('skid1');
+const s2=document.getElementById('skid2');
+const face=document.getElementById('faceCenter');
+
+setTimeout(()=>{
+  car.style.transition='left 1.4s cubic-bezier(0.16,1,0.3,1), transform 1s ease';
+  car.style.left='3%';
+  car.querySelector('img').style.transform='perspective(800px) rotateY(8deg) rotate(-3deg)';
+  smoke.classList.add('go');
+  setTimeout(()=>{
+    s1.classList.add('go');
+    s2.classList.add('go');
+  },500);
+  setTimeout(()=>{
+    car.style.transition='left 0.7s cubic-bezier(0.34,1.56,0.64,1), transform 0.5s ease';
+    car.querySelector('img').style.transform='perspective(800px) rotateY(8deg) rotate(0deg)';
+  },1400);
+},600);
+
+window.addEventListener('scroll',()=>{
+  const scrollY=window.scrollY;
+  const vh=window.innerHeight;
+  const progress=Math.min(scrollY/(vh*0.55),1);
+  car.style.transform=`translateY(${progress*160}px)`;
+  car.style.opacity=String(1-progress*1.2);
+  smoke.style.opacity=String((1-progress)*0.8);
+  face.style.transform=`translateY(${progress*-24}px)`;
+  face.style.opacity=String(1-progress*0.4);
+});
+
+const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible');});},{threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+const cobs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){const el=x.target,t=parseInt(el.dataset.count);let c=0;const s=t/60;const ti=setInterval(()=>{c+=s;if(c>=t){el.textContent=t;clearInterval(ti);}else{el.textContent=Math.floor(c);}},16);cobs.unobserve(el);}});},{threshold:0.5});
+document.querySelectorAll('[data-count]').forEach(el=>cobs.observe(el));
+</script>
+</body>
+</html>
