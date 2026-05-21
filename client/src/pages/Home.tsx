@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import WhoIsShivish from '../components/WhoIsShivish.tsx'
 
 function WordPullUp({ text, delay = 0, style }: { text: string; delay?: number; style?: React.CSSProperties }) {
   const ref = useRef(null)
@@ -158,52 +159,8 @@ export default function Home() {
         </div>
       </div>
 
-      {/* WHO IS SHIVISH */}
-      <section style={{maxWidth:1100,margin:'0 auto',padding:'120px 48px',position:'relative',zIndex:10}}>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:80,alignItems:'center'}}>
-          {/* Face */}
-          <motion.div initial={{opacity:0,x:-40}} whileInView={{opacity:1,x:0}} viewport={{once:true}} transition={{duration:1,ease:[0.16,1,0.3,1]}}
-            style={{display:'flex',justifyContent:'center'}}>
-            <div style={{width:'clamp(200px,28vw,320px)',height:'clamp(200px,28vw,320px)',borderRadius:'50%',overflow:'hidden',border:'1px solid rgba(100,200,140,0.12)',boxShadow:'0 0 80px rgba(100,200,140,0.06)'}}>
-              <img src="/images/shivishanimated.png" alt="Shivish" style={{width:'100%',height:'100%',objectFit:'cover',objectPosition:'center top',transform:'scale(1.05)'}}/>
-            </div>
-          </motion.div>
-
-          {/* Text */}
-          <div>
-            <motion.p initial={{opacity:0,y:16}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{duration:0.7}}
-              style={{fontSize:11,letterSpacing:'0.2em',textTransform:'uppercase',color:'rgba(232,228,217,0.3)',marginBottom:32}}>Who is Shivish?</motion.p>
-            <h2 style={{fontFamily:serif,fontSize:'clamp(36px,4vw,56px)',fontWeight:400,lineHeight:1.05,letterSpacing:'-0.02em',marginBottom:28}}>
-              <WordPullUp text="19. Student." delay={0}/>
-              <WordPullUp text="Builder." delay={0.1}/>
-              <WordPullUp text="Vibe coder." delay={0.2} style={{color:'rgba(232,228,217,0.3)',fontStyle:'italic'}}/>
-            </h2>
-            <motion.p initial={{opacity:0,y:16}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{delay:0.3,duration:0.8}}
-              style={{fontSize:15,color:'rgba(232,228,217,0.5)',lineHeight:1.8,fontWeight:300,marginBottom:32}}>
-              BTech student from Chandigarh. I started coding to upskill — ended up loving the craft. When I'm not building websites, I'm editing videos, shooting photos, or going down AI rabbit holes.
-            </motion.p>
-            <motion.div initial={{opacity:0,y:16}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{delay:0.4,duration:0.8}}>
-              <Link to="/about" style={{fontSize:13,color:'rgba(232,228,217,0.45)',textDecoration:'none',letterSpacing:'0.08em',textTransform:'uppercase',transition:'color 0.2s',borderBottom:'0.5px solid rgba(232,228,217,0.2)',paddingBottom:2}}
-                onMouseEnter={e=>(e.currentTarget.style.color='#e8e4d9')} onMouseLeave={e=>(e.currentTarget.style.color='rgba(232,228,217,0.45)')}>
-                Full story →
-              </Link>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* STATS */}
-      <section style={{maxWidth:1100,margin:'0 auto',padding:'0 48px 120px',position:'relative',zIndex:10}}>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:1,borderTop:'0.5px solid rgba(232,228,217,0.06)',borderBottom:'0.5px solid rgba(232,228,217,0.06)'}}>
-          {stats.map((s,i)=>(
-            <motion.div key={i} initial={{opacity:0,y:20}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{delay:i*0.1,duration:0.7}}
-              style={{padding:'48px 32px',borderRight:i<3?'0.5px solid rgba(232,228,217,0.06)':'none'}}>
-              <div style={{fontFamily:serif,fontSize:'clamp(48px,6vw,72px)',fontWeight:400,color:'#e8e4d9',lineHeight:1,marginBottom:8}}>{s.num}</div>
-              <div style={{fontSize:12,color:'rgba(232,228,217,0.3)',letterSpacing:'0.1em',textTransform:'uppercase'}}>{s.label}</div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
+{/* WHO IS SHIVISH */}
+<WhoIsShivish />
 
       {/* WHAT I DO */}
       <section style={{maxWidth:1100,margin:'0 auto',padding:'0 48px 120px',position:'relative',zIndex:10}}>
