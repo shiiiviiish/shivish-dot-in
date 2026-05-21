@@ -30,64 +30,85 @@
       bottom: 20%;
       left: 0; right: 0;
       height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), rgba(255,255,255,0.06), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), rgba(255,255,255,0.05), transparent);
     }
 
+    /* Skid marks — appear behind photo center */
     .skid {
       position: absolute;
       bottom: 20.5%;
-      left: 0;
+      right: 30%;
       width: 0;
       height: 3px;
       border-radius: 3px;
-      background: linear-gradient(90deg, transparent, rgba(100,200,140,0.4), rgba(100,200,140,0.2), transparent);
-      transition: width 1.6s cubic-bezier(0.16,1,0.3,1) 0.7s;
+      background: linear-gradient(90deg, transparent, rgba(100,200,140,0.35), transparent);
+      transition: width 1.6s cubic-bezier(0.16,1,0.3,1) 1s;
+      transform-origin: right;
     }
     .skid2 {
       position: absolute;
       bottom: 21.5%;
-      left: 3%;
+      right: 28%;
       width: 0;
       height: 2px;
       border-radius: 2px;
-      background: linear-gradient(90deg, transparent, rgba(100,200,140,0.25), transparent);
-      transition: width 1.8s cubic-bezier(0.16,1,0.3,1) 0.9s;
+      background: linear-gradient(90deg, transparent, rgba(100,200,140,0.2), transparent);
+      transition: width 1.8s cubic-bezier(0.16,1,0.3,1) 1.1s;
+      transform-origin: right;
     }
-    .skid.go { width: 42%; }
-    .skid2.go { width: 34%; }
+    .skid.go { width: 36%; }
+    .skid2.go { width: 28%; }
 
+    /* Smoke behind photo */
     .smoke {
       position: absolute;
       bottom: 18%;
-      left: -5%;
-      width: 35%;
-      height: 80px;
-      background: radial-gradient(ellipse at 20% center, rgba(100,200,140,0.1) 0%, transparent 65%);
+      left: 35%;
+      width: 30%;
+      height: 70px;
+      background: radial-gradient(ellipse at center, rgba(100,200,140,0.1) 0%, transparent 70%);
       opacity: 0;
-      transform: scaleX(0);
-      transform-origin: left;
-      transition: opacity 1.2s 0.4s, transform 1.8s cubic-bezier(0.16,1,0.3,1) 0.4s;
+      transform: scale(0);
+      transform-origin: center;
+      transition: opacity 1s 0.9s, transform 1.2s cubic-bezier(0.16,1,0.3,1) 0.9s;
+      z-index: 5;
     }
-    .smoke.go { opacity: 1; transform: scaleX(1); }
+    .smoke.go { opacity: 1; transform: scale(1); }
 
+    /* Car — starts right, ends centered-behind photo */
     .car-wrap {
       position: absolute;
-      bottom: 12%;
-      left: -70%;
-      width: clamp(300px, 45vw, 520px);
-      z-index: 6;
-      transition: left 1.4s cubic-bezier(0.16,1,0.3,1), transform 1.2s ease, opacity 0.6s;
+      bottom: 10%;
+      right: -70%;
+      width: clamp(280px, 40vw, 480px);
+      z-index: 4; /* behind face (z-index 12) */
+      transition: right 1.6s cubic-bezier(0.16,1,0.3,1), bottom 1.6s cubic-bezier(0.16,1,0.3,1), transform 1.2s ease, opacity 0.5s;
     }
     .car-wrap img {
       width: 100%;
       mix-blend-mode: screen;
-      filter: brightness(1.15) contrast(1.05) saturate(0.85);
-      transform: perspective(800px) rotateY(12deg);
+      filter: brightness(1.1) contrast(1.05) saturate(0.85);
+      transform: perspective(800px) rotateY(-12deg) scaleX(-1);
       transition: transform 0.8s ease;
     }
-    .car-wrap.go { left: 3%; }
-    .car-wrap.go img { transform: perspective(800px) rotateY(8deg) rotate(0deg); }
+    /* Phase 1: comes from right */
+    .car-wrap.phase1 {
+      right: 20%;
+      bottom: 10%;
+    }
+    .car-wrap.phase1 img {
+      transform: perspective(800px) rotateY(-8deg) scaleX(-1) rotate(2deg);
+    }
+    /* Phase 2: settles behind photo */
+    .car-wrap.phase2 {
+      right: 28%;
+      bottom: 8%;
+    }
+    .car-wrap.phase2 img {
+      transform: perspective(800px) rotateY(-5deg) scaleX(-1) rotate(0deg);
+    }
 
+    /* Face — z-index higher than car so car goes behind */
     .face-center {
       position: relative;
       z-index: 12;
@@ -99,13 +120,12 @@
     }
 
     .face-ring {
-      width: clamp(220px, 28vw, 300px);
-      height: clamp(220px, 28vw, 300px);
+      width: clamp(200px, 26vw, 280px);
+      height: clamp(200px, 26vw, 280px);
       border-radius: 50%;
       overflow: hidden;
       border: 1px solid rgba(100,200,140,0.12);
       box-shadow: 0 0 60px rgba(100,200,140,0.06), 0 0 0 8px rgba(100,200,140,0.03);
-      position: relative;
     }
     .face-ring img {
       width: 100%;
@@ -116,21 +136,20 @@
     }
 
     .hero-text { text-align: center; }
-    .hero-tag { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 16px; display: flex; align-items: center; justify-content: center; gap: 8px; opacity: 0; animation: fu 0.8s ease forwards 1.8s; }
+    .hero-tag { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 16px; display: flex; align-items: center; justify-content: center; gap: 8px; opacity: 0; animation: fu 0.8s ease forwards 2.2s; }
     .hero-tag .dot { width: 6px; height: 6px; background: #4ade80; border-radius: 50%; box-shadow: 0 0 8px #4ade80; animation: pulse 2s infinite; }
     @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
-    .hero-name { font-family: 'Instrument Serif', serif; font-size: clamp(48px, 8vw, 96px); font-weight: 400; line-height: 0.95; letter-spacing: -0.03em; opacity: 0; animation: fu 0.9s ease forwards 2s; }
+    .hero-name { font-family: 'Instrument Serif', serif; font-size: clamp(48px,8vw,96px); font-weight: 400; line-height: 0.95; letter-spacing: -0.03em; opacity: 0; animation: fu 0.9s ease forwards 2.4s; }
     .hero-name em { font-style: italic; color: rgba(255,255,255,0.28); }
-    .hero-sub { font-size: 14px; color: rgba(255,255,255,0.4); margin-top: 14px; font-weight: 300; opacity: 0; animation: fu 0.9s ease forwards 2.2s; }
+    .hero-sub { font-size: 14px; color: rgba(255,255,255,0.4); margin-top: 14px; font-weight: 300; opacity: 0; animation: fu 0.9s ease forwards 2.6s; }
     @keyframes fu { from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)} }
-
-    .hero-btns { margin-top: 28px; display: flex; gap: 12px; justify-content: center; opacity: 0; animation: fu 0.9s ease forwards 2.4s; }
+    .hero-btns { margin-top: 28px; display: flex; gap: 12px; justify-content: center; opacity: 0; animation: fu 0.9s ease forwards 2.8s; }
     .btn-w { border-radius: 9999px; padding: 12px 28px; background: #fff; color: #000; font-size: 13px; font-weight: 500; text-decoration: none; transition: opacity 0.2s; }
     .btn-w:hover { opacity: 0.85; }
     .btn-g { border-radius: 9999px; padding: 12px 28px; color: #fff; font-size: 13px; text-decoration: none; border: 0.5px solid rgba(255,255,255,0.15); backdrop-filter: blur(8px); transition: background 0.2s; }
     .btn-g:hover { background: rgba(255,255,255,0.06); }
 
-    .scroll-hint { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); font-size: 10px; letter-spacing: 0.2em; color: rgba(255,255,255,0.25); text-transform: uppercase; display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 0; animation: fu 1s ease forwards 3s; z-index: 20; }
+    .scroll-hint { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); font-size: 10px; letter-spacing: 0.2em; color: rgba(255,255,255,0.25); text-transform: uppercase; display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 0; animation: fu 1s ease forwards 3.2s; z-index: 20; }
     .scroll-line { width: 1px; height: 36px; background: linear-gradient(to bottom, rgba(255,255,255,0.25), transparent); animation: sp 1.5s ease infinite; }
     @keyframes sp { 0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom} }
 
@@ -274,19 +293,19 @@
       <a href="https://hta-seven.vercel.app/" target="_blank" class="project-card glass reveal d2">
         <p class="project-chip">Client Project · 2025</p>
         <h3 class="project-title">Happiness Through Art</h3>
-        <p class="project-desc">Portfolio website for artist Kavya Atray. Designed and built end-to-end — layout, deployment, everything.</p>
+        <p class="project-desc">Portfolio for artist Kavya Atray. Built end-to-end — layout, deployment, everything.</p>
         <div class="project-footer"><div class="tags"><span class="tag">TypeScript</span><span class="tag">Vercel</span></div><span class="arrow">↗</span></div>
       </a>
       <a href="https://shivish.in" class="project-card glass reveal d3">
         <p class="project-chip">Personal · 2025</p>
         <h3 class="project-title">This Portfolio</h3>
-        <p class="project-desc">Designed and coded from scratch. Liquid glass UI, fog background, drift animation. Zero frameworks.</p>
+        <p class="project-desc">Liquid glass, fog, drift animation, custom cursor. Zero frameworks.</p>
         <div class="project-footer"><div class="tags"><span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">JS</span></div><span class="arrow">↗</span></div>
       </a>
       <a href="https://github.com/shiiiviiish" target="_blank" class="project-card glass reveal d4">
         <p class="project-chip">Coming Soon</p>
         <h3 class="project-title">Next Project</h3>
-        <p class="project-desc">Something new is cooking. Watch this space — or the GitHub.</p>
+        <p class="project-desc">Something new is cooking. Watch the GitHub.</p>
         <div class="project-footer"><div class="tags"><span class="tag">???</span></div><span class="arrow">↗</span></div>
       </a>
     </div>
@@ -355,30 +374,35 @@ const s1=document.getElementById('skid1');
 const s2=document.getElementById('skid2');
 const face=document.getElementById('faceCenter');
 
+// Phase 1 — car sweeps in fast from right
 setTimeout(()=>{
-  car.style.transition='left 1.4s cubic-bezier(0.16,1,0.3,1), transform 1s ease';
-  car.style.left='3%';
-  car.querySelector('img').style.transform='perspective(800px) rotateY(8deg) rotate(-3deg)';
-  smoke.classList.add('go');
+  car.classList.add('phase1');
   setTimeout(()=>{
-    s1.classList.add('go');
-    s2.classList.add('go');
-  },500);
-  setTimeout(()=>{
-    car.style.transition='left 0.7s cubic-bezier(0.34,1.56,0.64,1), transform 0.5s ease';
-    car.querySelector('img').style.transform='perspective(800px) rotateY(8deg) rotate(0deg)';
-  },1400);
-},600);
+    // Phase 2 — car settles behind photo
+    car.classList.remove('phase1');
+    car.classList.add('phase2');
+    // skid marks + smoke appear as car brakes
+    smoke.classList.add('go');
+    setTimeout(()=>{ s1.classList.add('go'); s2.classList.add('go'); }, 200);
+  }, 1600);
+}, 500);
 
+// Scroll — car exits downward
 window.addEventListener('scroll',()=>{
   const scrollY=window.scrollY;
   const vh=window.innerHeight;
-  const progress=Math.min(scrollY/(vh*0.55),1);
-  car.style.transform=`translateY(${progress*160}px)`;
-  car.style.opacity=String(1-progress*1.2);
-  smoke.style.opacity=String((1-progress)*0.8);
-  face.style.transform=`translateY(${progress*-24}px)`;
-  face.style.opacity=String(1-progress*0.4);
+  const progress=Math.min(scrollY/(vh*0.5),1);
+
+  // car slides down and fades
+  car.style.transform=`translateY(${progress*200}px)`;
+  car.style.opacity=String(Math.max(0, 1-progress*1.4));
+
+  // smoke fades
+  smoke.style.opacity=String(Math.max(0,(1-progress*2)*0.8));
+
+  // face lifts slightly
+  face.style.transform=`translateY(${progress*-20}px)`;
+  face.style.opacity=String(1-progress*0.35);
 });
 
 const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible');});},{threshold:0.12});

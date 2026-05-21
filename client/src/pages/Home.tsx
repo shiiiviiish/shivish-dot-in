@@ -21,11 +21,31 @@ function WordPullUp({ text, delay = 0, style }: { text: string; delay?: number; 
   )
 }
 
+const serif = "'Instrument Serif', serif"
+const navLinks = [['work','/work'],['about','/about'],['contact','/contact']]
+
+function Nav() {
+  return (
+    <nav style={{position:'fixed',top:0,left:0,right:0,zIndex:50,padding:'24px 48px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+      <motion.div initial={{opacity:0,y:-10}} animate={{opacity:1,y:0}} transition={{duration:0.8,delay:0.2}}
+        style={{fontFamily:serif,fontSize:22,color:'#e8e4d9',letterSpacing:'-0.02em'}}>Shivish</motion.div>
+      <motion.div initial={{opacity:0,y:-10}} animate={{opacity:1,y:0}} transition={{duration:0.8,delay:0.4}}
+        style={{display:'flex',gap:36,alignItems:'center'}}>
+        {navLinks.map(([l,p])=>(
+          <Link key={l} to={p} style={{color:'rgba(232,228,217,0.45)',fontSize:13,textDecoration:'none',textTransform:'uppercase',letterSpacing:'0.12em',transition:'color 0.3s'}}
+            onMouseEnter={e=>(e.currentTarget.style.color='#e8e4d9')} onMouseLeave={e=>(e.currentTarget.style.color='rgba(232,228,217,0.45)')}>{l}</Link>
+        ))}
+        <a href="https://github.com/shiiiviiish" target="_blank" style={{color:'rgba(232,228,217,0.45)',fontSize:13,textDecoration:'none',textTransform:'uppercase',letterSpacing:'0.12em',transition:'color 0.3s'}}
+          onMouseEnter={e=>(e.currentTarget.style.color='#e8e4d9')} onMouseLeave={e=>(e.currentTarget.style.color='rgba(232,228,217,0.45)')}>GitHub ↗</a>
+      </motion.div>
+    </nav>
+  )
+}
+
 export default function Home() {
   const fogRef = useRef<HTMLCanvasElement>(null)
   const cursorRef = useRef<HTMLDivElement>(null)
   const trailRef = useRef<HTMLDivElement>(null)
-  const serif = "'Instrument Serif', serif"
 
   useEffect(() => {
     const canvas = fogRef.current; if (!canvas) return
@@ -64,26 +84,20 @@ export default function Home() {
     {icon:'⬡',label:'Shoot',desc:'Photography — street, portrait, aesthetic. Capturing moments that matter.'},
   ]
 
+  const stats = [
+    {num:'2',label:'Projects Shipped'},
+    {num:'88',label:'GitHub Commits'},
+    {num:'19',label:'Years Old'},
+    {num:'∞',label:'Vibes'},
+  ]
+
   return (
     <div style={{background:'#07100d',color:'#e8e4d9',minHeight:'100vh',overflowX:'hidden',cursor:'none',fontFamily:"'DM Sans',sans-serif"}}>
       <div ref={cursorRef} style={{position:'fixed',width:12,height:12,background:'#4ade80',borderRadius:'50%',pointerEvents:'none',zIndex:99999,transform:'translate(-50%,-50%)',left:'-100px',top:'-100px',boxShadow:'0 0 12px rgba(100,200,140,0.8),0 0 28px rgba(100,200,140,0.4)'}}/>
       <div ref={trailRef} style={{position:'fixed',width:44,height:44,border:'1px solid rgba(100,200,140,0.25)',borderRadius:'50%',pointerEvents:'none',zIndex:99998,transform:'translate(-50%,-50%)',left:'-100px',top:'-100px'}}/>
       <canvas ref={fogRef} style={{position:'fixed',inset:0,width:'100%',height:'100%',zIndex:0,pointerEvents:'none'}}/>
 
-      {/* NAV */}
-      <nav style={{position:'fixed',top:0,left:0,right:0,zIndex:50,padding:'24px 48px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-        <motion.div initial={{opacity:0,y:-10}} animate={{opacity:1,y:0}} transition={{duration:0.8,delay:0.2}}
-          style={{fontFamily:serif,fontSize:22,color:'#e8e4d9',letterSpacing:'-0.02em'}}>Shivish</motion.div>
-        <motion.div initial={{opacity:0,y:-10}} animate={{opacity:1,y:0}} transition={{duration:0.8,delay:0.4}}
-          style={{display:'flex',gap:40,alignItems:'center'}}>
-          {[['work','/work'],['about','/about'],['contact','/contact']].map(([l,p])=>(
-            <Link key={l} to={p} style={{color:'rgba(232,228,217,0.45)',fontSize:13,textDecoration:'none',textTransform:'uppercase',letterSpacing:'0.12em',transition:'color 0.3s'}}
-              onMouseEnter={e=>(e.currentTarget.style.color='#e8e4d9')} onMouseLeave={e=>(e.currentTarget.style.color='rgba(232,228,217,0.45)')}>{l}</Link>
-          ))}
-          <a href="https://github.com/shiiiviiish" target="_blank" style={{color:'rgba(232,228,217,0.45)',fontSize:13,textDecoration:'none',textTransform:'uppercase',letterSpacing:'0.12em',transition:'color 0.3s'}}
-            onMouseEnter={e=>(e.currentTarget.style.color='#e8e4d9')} onMouseLeave={e=>(e.currentTarget.style.color='rgba(232,228,217,0.45)')}>GitHub ↗</a>
-        </motion.div>
-      </nav>
+      <Nav/>
 
       {/* HERO */}
       <section style={{position:'relative',minHeight:'100vh',display:'flex',flexDirection:'column',justifyContent:'flex-end',zIndex:10,overflow:'hidden',padding:16}}>
@@ -144,8 +158,55 @@ export default function Home() {
         </div>
       </div>
 
-      {/* WHAT I DO */}
+      {/* WHO IS SHIVISH */}
       <section style={{maxWidth:1100,margin:'0 auto',padding:'120px 48px',position:'relative',zIndex:10}}>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:80,alignItems:'center'}}>
+          {/* Face */}
+          <motion.div initial={{opacity:0,x:-40}} whileInView={{opacity:1,x:0}} viewport={{once:true}} transition={{duration:1,ease:[0.16,1,0.3,1]}}
+            style={{display:'flex',justifyContent:'center'}}>
+            <div style={{width:'clamp(200px,28vw,320px)',height:'clamp(200px,28vw,320px)',borderRadius:'50%',overflow:'hidden',border:'1px solid rgba(100,200,140,0.12)',boxShadow:'0 0 80px rgba(100,200,140,0.06)'}}>
+              <img src="/images/shivishanimated.png" alt="Shivish" style={{width:'100%',height:'100%',objectFit:'cover',objectPosition:'center top',transform:'scale(1.05)'}}/>
+            </div>
+          </motion.div>
+
+          {/* Text */}
+          <div>
+            <motion.p initial={{opacity:0,y:16}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{duration:0.7}}
+              style={{fontSize:11,letterSpacing:'0.2em',textTransform:'uppercase',color:'rgba(232,228,217,0.3)',marginBottom:32}}>Who is Shivish?</motion.p>
+            <h2 style={{fontFamily:serif,fontSize:'clamp(36px,4vw,56px)',fontWeight:400,lineHeight:1.05,letterSpacing:'-0.02em',marginBottom:28}}>
+              <WordPullUp text="19. Student." delay={0}/>
+              <WordPullUp text="Builder." delay={0.1}/>
+              <WordPullUp text="Vibe coder." delay={0.2} style={{color:'rgba(232,228,217,0.3)',fontStyle:'italic'}}/>
+            </h2>
+            <motion.p initial={{opacity:0,y:16}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{delay:0.3,duration:0.8}}
+              style={{fontSize:15,color:'rgba(232,228,217,0.5)',lineHeight:1.8,fontWeight:300,marginBottom:32}}>
+              BTech student from Chandigarh. I started coding to upskill — ended up loving the craft. When I'm not building websites, I'm editing videos, shooting photos, or going down AI rabbit holes.
+            </motion.p>
+            <motion.div initial={{opacity:0,y:16}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{delay:0.4,duration:0.8}}>
+              <Link to="/about" style={{fontSize:13,color:'rgba(232,228,217,0.45)',textDecoration:'none',letterSpacing:'0.08em',textTransform:'uppercase',transition:'color 0.2s',borderBottom:'0.5px solid rgba(232,228,217,0.2)',paddingBottom:2}}
+                onMouseEnter={e=>(e.currentTarget.style.color='#e8e4d9')} onMouseLeave={e=>(e.currentTarget.style.color='rgba(232,228,217,0.45)')}>
+                Full story →
+              </Link>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* STATS */}
+      <section style={{maxWidth:1100,margin:'0 auto',padding:'0 48px 120px',position:'relative',zIndex:10}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:1,borderTop:'0.5px solid rgba(232,228,217,0.06)',borderBottom:'0.5px solid rgba(232,228,217,0.06)'}}>
+          {stats.map((s,i)=>(
+            <motion.div key={i} initial={{opacity:0,y:20}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{delay:i*0.1,duration:0.7}}
+              style={{padding:'48px 32px',borderRight:i<3?'0.5px solid rgba(232,228,217,0.06)':'none'}}>
+              <div style={{fontFamily:serif,fontSize:'clamp(48px,6vw,72px)',fontWeight:400,color:'#e8e4d9',lineHeight:1,marginBottom:8}}>{s.num}</div>
+              <div style={{fontSize:12,color:'rgba(232,228,217,0.3)',letterSpacing:'0.1em',textTransform:'uppercase'}}>{s.label}</div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* WHAT I DO */}
+      <section style={{maxWidth:1100,margin:'0 auto',padding:'0 48px 120px',position:'relative',zIndex:10}}>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:80,alignItems:'start'}}>
           <div>
             <motion.p initial={{opacity:0,y:16}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{duration:0.7}}
@@ -172,15 +233,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* PROJECT TEASERS */}
+      {/* FEATURED PROJECT */}
       <section style={{maxWidth:1100,margin:'0 auto',padding:'0 48px 120px',position:'relative',zIndex:10}}>
-        <div style={{display:'flex',alignItems:'baseline',justifyContent:'space-between',marginBottom:60}}>
+        <div style={{display:'flex',alignItems:'baseline',justifyContent:'space-between',marginBottom:48}}>
           <motion.p initial={{opacity:0,y:16}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{duration:0.7}}
             style={{fontSize:11,letterSpacing:'0.2em',textTransform:'uppercase',color:'rgba(232,228,217,0.3)'}}>Selected Work</motion.p>
           <Link to="/work" style={{fontSize:13,color:'rgba(232,228,217,0.35)',textDecoration:'none',letterSpacing:'0.08em',textTransform:'uppercase',transition:'color 0.2s'}}
-            onMouseEnter={e=>(e.currentTarget.style.color='#e8e4d9')} onMouseLeave={e=>(e.currentTarget.style.color='rgba(232,228,217,0.35)')}>
-            All work ↗
-          </Link>
+            onMouseEnter={e=>(e.currentTarget.style.color='#e8e4d9')} onMouseLeave={e=>(e.currentTarget.style.color='rgba(232,228,217,0.35)')}>All work ↗</Link>
         </div>
         <div style={{display:'flex',flexDirection:'column'}}>
           {projects.map((p,i)=>(
@@ -200,13 +259,21 @@ export default function Home() {
             </motion.a>
           ))}
         </div>
+      </section>
 
-        <motion.div initial={{opacity:0,y:20}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{delay:0.3,duration:0.8}}
-          style={{marginTop:48,textAlign:'center'}}>
-          <Link to="/work" style={{display:'inline-block',borderRadius:9999,padding:'14px 36px',border:'0.5px solid rgba(232,228,217,0.15)',color:'rgba(232,228,217,0.6)',fontSize:13,textDecoration:'none',letterSpacing:'0.05em',transition:'all 0.3s'}}
-            onMouseEnter={e=>{e.currentTarget.style.color='#e8e4d9';e.currentTarget.style.borderColor='rgba(232,228,217,0.4)'}}
-            onMouseLeave={e=>{e.currentTarget.style.color='rgba(232,228,217,0.6)';e.currentTarget.style.borderColor='rgba(232,228,217,0.15)'}}>
-            See all projects →
+      {/* CONTACT TEASER */}
+      <section style={{maxWidth:1100,margin:'0 auto',padding:'0 48px 120px',position:'relative',zIndex:10}}>
+        <motion.div initial={{opacity:0,y:40}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{duration:1,ease:[0.16,1,0.3,1]}}
+          style={{borderTop:'0.5px solid rgba(232,228,217,0.06)',paddingTop:80,display:'flex',alignItems:'flex-end',justifyContent:'space-between',flexWrap:'wrap',gap:40}}>
+          <div>
+            <p style={{fontSize:11,letterSpacing:'0.2em',textTransform:'uppercase',color:'rgba(232,228,217,0.3)',marginBottom:24}}>Got a project?</p>
+            <h2 style={{fontFamily:serif,fontSize:'clamp(48px,7vw,96px)',fontWeight:400,lineHeight:0.9,letterSpacing:'-0.03em'}}>
+              Let's make<br/><em style={{color:'rgba(232,228,217,0.25)',fontStyle:'italic'}}>something.</em>
+            </h2>
+          </div>
+          <Link to="/contact" style={{borderRadius:9999,padding:'16px 36px',background:'#e8e4d9',color:'#07100d',fontSize:14,fontWeight:500,textDecoration:'none',flexShrink:0,transition:'opacity 0.2s'}}
+            onMouseEnter={e=>(e.currentTarget.style.opacity='0.85')} onMouseLeave={e=>(e.currentTarget.style.opacity='1')}>
+            Say hello →
           </Link>
         </motion.div>
       </section>
@@ -222,6 +289,7 @@ export default function Home() {
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
         @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
         @keyframes scrollPulse{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+        @media(max-width:768px){nav{padding:20px 24px!important}.hero-grid{grid-template-columns:1fr!important}}
       `}</style>
     </div>
   )
