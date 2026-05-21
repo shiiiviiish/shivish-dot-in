@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, ExternalLink, Star, Clock, Calendar } from 'lucide-react'
+import Nav from '../components/Nav'
 
 const projects = [
   {
@@ -87,28 +88,7 @@ export default function Work() {
       <div style={{position:'fixed',inset:0,zIndex:1,background:'linear-gradient(to bottom,rgba(0,0,0,0.5) 0%,transparent 40%)',pointerEvents:'none'}}/>
 
       {/* NAV */}
-      <nav style={{position:'relative',zIndex:50,display:'flex',alignItems:'center',justifyContent:'space-between',padding:'24px 48px'}}>
-        <Link to="/" className="animate-blur-fade-up" style={{fontFamily:serif,fontSize:22,color:'#fff',textDecoration:'none',letterSpacing:'-0.02em',animationDelay:'0ms'}}>
-          Shivish
-        </Link>
-        <div style={{display:'flex',gap:36,alignItems:'center'}} className="animate-blur-fade-up" >
-          {[['home','/'],['work','/work'],['about','/about'],['contact','/contact']].map(([l,path],i)=>(
-            <Link key={l} to={path} style={{
-              color:path==='/work'?'#fff':'rgba(255,255,255,0.5)',fontSize:13,textDecoration:'none',
-              textTransform:'uppercase',letterSpacing:'0.12em',transition:'color 0.3s',
-              animationDelay:`${(i+1)*50}ms`
-            }}
-              onMouseEnter={e=>(e.currentTarget.style.color='#fff')}
-              onMouseLeave={e=>(e.currentTarget.style.color=path==='/work'?'#fff':'rgba(255,255,255,0.5)')}>
-              {l}
-            </Link>
-          ))}
-          <a href="https://github.com/shiiiviiish" target="_blank" style={{color:'rgba(255,255,255,0.5)',fontSize:13,textDecoration:'none',textTransform:'uppercase',letterSpacing:'0.12em',transition:'color 0.3s'}}
-            onMouseEnter={e=>(e.currentTarget.style.color='#fff')} onMouseLeave={e=>(e.currentTarget.style.color='rgba(255,255,255,0.5)')}>
-            GitHub ↗
-          </a>
-        </div>
-      </nav>
+      <Nav />
 
       {/* Hero content at bottom */}
       <div style={{position:'relative',zIndex:10,display:'flex',flexDirection:'column',justifyContent:'flex-end',height:'calc(100vh - 88px)',padding:'0 48px 64px'}}>

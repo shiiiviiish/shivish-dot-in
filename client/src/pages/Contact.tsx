@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import Nav from '../components/Nav'
 
 export default function Contact() {
   const cursorRef = useRef<HTMLDivElement>(null)
@@ -20,14 +21,7 @@ export default function Contact() {
       <div ref={cursorRef} style={{position:'fixed',width:12,height:12,background:'#4ade80',borderRadius:'50%',pointerEvents:'none',zIndex:99999,transform:'translate(-50%,-50%)',left:'-100px',top:'-100px',boxShadow:'0 0 12px rgba(100,200,140,0.8)'}}/>
       <div ref={trailRef} style={{position:'fixed',width:44,height:44,border:'1px solid rgba(100,200,140,0.25)',borderRadius:'50%',pointerEvents:'none',zIndex:99998,transform:'translate(-50%,-50%)',left:'-100px',top:'-100px'}}/>
 
-      <nav style={{position:'fixed',top:0,left:0,right:0,zIndex:50,padding:'24px 48px',display:'flex',alignItems:'center',justifyContent:'space-between',background:'rgba(7,16,13,0.8)',backdropFilter:'blur(12px)'}}>
-        <Link to="/" style={{fontFamily:serif,fontSize:22,color:'#e8e4d9',textDecoration:'none',letterSpacing:'-0.02em'}}>Shivish</Link>
-        <div style={{display:'flex',gap:40}}>
-          {[['work','/work'],['about','/about'],['contact','/contact']].map(([l,p])=>(
-            <Link key={l} to={p} style={{color:p==='/contact'?'#e8e4d9':'rgba(232,228,217,0.45)',fontSize:13,textDecoration:'none',textTransform:'uppercase',letterSpacing:'0.12em'}}>{l}</Link>
-          ))}
-        </div>
-      </nav>
+      <Nav />
 
       <div style={{maxWidth:1100,margin:'0 auto',padding:'140px 48px 80px',flex:1,display:'flex',flexDirection:'column',justifyContent:'center'}}>
         <motion.p initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{duration:0.7}}

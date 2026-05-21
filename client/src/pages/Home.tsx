@@ -28,19 +28,7 @@ const navLinks = [['work','/work'],['about','/about'],['contact','/contact']]
 
 function Nav() {
   return (
-    <nav style={{position:'fixed',top:0,left:0,right:0,zIndex:50,padding:'24px 48px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-      <motion.div initial={{opacity:0,y:-10}} animate={{opacity:1,y:0}} transition={{duration:0.8,delay:0.2}}
-        style={{fontFamily:serif,fontSize:22,color:'#e8e4d9',letterSpacing:'-0.02em'}}>Shivish</motion.div>
-      <motion.div initial={{opacity:0,y:-10}} animate={{opacity:1,y:0}} transition={{duration:0.8,delay:0.4}}
-        style={{display:'flex',gap:36,alignItems:'center'}}>
-        {navLinks.map(([l,p])=>(
-          <Link key={l} to={p} style={{color:'rgba(232,228,217,0.45)',fontSize:13,textDecoration:'none',textTransform:'uppercase',letterSpacing:'0.12em',transition:'color 0.3s'}}
-            onMouseEnter={e=>(e.currentTarget.style.color='#e8e4d9')} onMouseLeave={e=>(e.currentTarget.style.color='rgba(232,228,217,0.45)')}>{l}</Link>
-        ))}
-        <a href="https://github.com/shiiiviiish" target="_blank" style={{color:'rgba(232,228,217,0.45)',fontSize:13,textDecoration:'none',textTransform:'uppercase',letterSpacing:'0.12em',transition:'color 0.3s'}}
-          onMouseEnter={e=>(e.currentTarget.style.color='#e8e4d9')} onMouseLeave={e=>(e.currentTarget.style.color='rgba(232,228,217,0.45)')}>GitHub ↗</a>
-      </motion.div>
-    </nav>
+    <Nav />
   )
 }
 

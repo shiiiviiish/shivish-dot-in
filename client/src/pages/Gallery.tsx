@@ -55,15 +55,7 @@ export default function Gallery() {
       <div ref={cursorRef} style={{position:'fixed',width:12,height:12,background:'#4ade80',borderRadius:'50%',pointerEvents:'none',zIndex:99999,transform:'translate(-50%,-50%)',left:'-100px',top:'-100px',boxShadow:'0 0 12px rgba(74,222,128,0.8)'}}/>
       <div ref={trailRef} style={{position:'fixed',width:40,height:40,border:'1px solid rgba(74,222,128,0.25)',borderRadius:'50%',pointerEvents:'none',zIndex:99998,transform:'translate(-50%,-50%)',left:'-100px',top:'-100px'}}/>
 
-      <nav style={{position:'fixed',top:0,left:0,right:0,zIndex:50,padding:'24px 48px',display:'flex',alignItems:'center',justifyContent:'space-between',background:'rgba(7,16,13,0.85)',backdropFilter:'blur(12px)'}}>
-        <Link to="/" style={{fontFamily:serif,fontSize:22,color:'#e8e4d9',textDecoration:'none'}}>Shivish</Link>
-        <div style={{display:'flex',gap:32}}>
-          {[['work','/work'],['gallery','/gallery'],['clients','/clients'],['about','/about'],['contact','/contact']].map(([l,p])=>(
-            <Link key={l} to={p} style={{color:p==='/gallery'?'#e8e4d9':'rgba(232,228,217,0.45)',fontSize:13,textDecoration:'none',textTransform:'uppercase',letterSpacing:'0.12em',transition:'color 0.3s'}}
-              onMouseEnter={e=>(e.currentTarget.style.color='#e8e4d9')} onMouseLeave={e=>(e.currentTarget.style.color=p==='/gallery'?'#e8e4d9':'rgba(232,228,217,0.45)')}>{l}</Link>
-          ))}
-        </div>
-      </nav>
+      <Nav />
 
       <div style={{maxWidth:1200,margin:'0 auto',padding:'140px 48px 80px'}}>
         {/* Header */}
