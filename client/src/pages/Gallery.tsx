@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion'
-import { Link } from 'react-router-dom'
+import { motion, AnimatePresence, useMotionValue, animate } from 'framer-motion'
+import {} from 'react-router-dom'
 import { Download, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import Nav from '../components/Nav'
 
@@ -81,7 +81,7 @@ export default function Gallery() {
   const center = activeIndex
   const left = (activeIndex + featured.length - 1) % featured.length
   const right = (activeIndex + 1) % featured.length
-  const back = (activeIndex + 2) % featured.length
+ 
 
   const getRole = (i: number) => {
     if (i === center) return 'center'
