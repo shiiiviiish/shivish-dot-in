@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Link } from 'react-router-dom'
+import {} from 'react-router-dom'
 import { Download, X, ChevronLeft, ChevronRight } from 'lucide-react'
+import Nav from '../components/Nav'
 
 const photos = [
   { id: 1, title: 'Urban Fog', category: 'Photography', color: '#0d1f17', accent: '#4ade80' },

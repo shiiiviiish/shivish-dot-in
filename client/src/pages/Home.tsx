@@ -24,7 +24,6 @@ function WordPullUp({ text, delay = 0, style }: { text: string; delay?: number; 
 }
 
 const serif = "'Instrument Serif', serif"
-const navLinks = [['work','/work'],['about','/about'],['contact','/contact']]
 
 function Nav() {
   return (
@@ -74,7 +73,6 @@ export default function Home() {
     {icon:'⬡',label:'Shoot',desc:'Photography — street, portrait, aesthetic. Capturing moments that matter.'},
   ]
 
-  const stats = []
 
   return (
     <div style={{background:'#07100d',color:'#e8e4d9',minHeight:'100vh',overflowX:'hidden',cursor:'none',fontFamily:"'DM Sans',sans-serif"}}>

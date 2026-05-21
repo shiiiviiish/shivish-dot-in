@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { Link } from 'react-router-dom'
+import {} from 'react-router-dom'
 import Nav from '../components/Nav'
 
 export default function Contact() {
