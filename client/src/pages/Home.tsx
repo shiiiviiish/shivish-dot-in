@@ -3,6 +3,7 @@ import { motion, useInView } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import WhoIsShivish from '../components/WhoIsShivish.tsx'
 
+
 function WordPullUp({ text, delay = 0, style }: { text: string; delay?: number; style?: React.CSSProperties }) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-60px' })
@@ -85,12 +86,7 @@ export default function Home() {
     {icon:'⬡',label:'Shoot',desc:'Photography — street, portrait, aesthetic. Capturing moments that matter.'},
   ]
 
-  const stats = [
-    {num:'2',label:'Projects Shipped'},
-    {num:'88',label:'GitHub Commits'},
-    {num:'19',label:'Years Old'},
-    {num:'∞',label:'Vibes'},
-  ]
+  const stats = []
 
   return (
     <div style={{background:'#07100d',color:'#e8e4d9',minHeight:'100vh',overflowX:'hidden',cursor:'none',fontFamily:"'DM Sans',sans-serif"}}>
