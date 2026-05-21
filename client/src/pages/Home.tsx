@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import WhoIsShivish from '../components/WhoIsShivish.tsx'
-
+import WhoIsShivish from '../components/WhoIsShivish'
+import Nav from '../components/Nav'
 
 function WordPullUp({ text, delay = 0, style }: { text: string; delay?: number; style?: React.CSSProperties }) {
   const ref = useRef(null)
@@ -25,17 +25,12 @@ function WordPullUp({ text, delay = 0, style }: { text: string; delay?: number; 
 
 const serif = "'Instrument Serif', serif"
 
-function Nav() {
-  return (
-    <Nav />
-  )
-}
-
 export default function Home() {
   const fogRef = useRef<HTMLCanvasElement>(null)
   const cursorRef = useRef<HTMLDivElement>(null)
   const trailRef = useRef<HTMLDivElement>(null)
 
+  // FOG
   useEffect(() => {
     const canvas = fogRef.current; if (!canvas) return
     const ctx = canvas.getContext('2d')!
@@ -49,17 +44,25 @@ export default function Home() {
       for(const p of ps){const c=p.warm?'80,160,110':'50,120,90';const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r);g.addColorStop(0,`rgba(${c},${p.a})`);g.addColorStop(1,`rgba(${c},0)`);ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();p.x+=p.dx;p.y+=p.dy;if(p.x<-p.r)p.x=W+p.r;if(p.x>W+p.r)p.x=-p.r;if(p.y<-p.r)p.y=H+p.r;if(p.y>H+p.r)p.y=-p.r}
       animId=requestAnimationFrame(draw)
     }
-    resize(); ps=Array.from({length:18},makeP); draw()
+    resize(); ps=Array.from({length:8},makeP); draw()
     window.addEventListener('resize',resize)
-    return ()=>{cancelAnimationFrame(animId);window.removeEventListener('resize',resize)}
+    return () => {
+      cancelAnimationFrame(animId)
+      window.removeEventListener('resize',resize)
+      ctx.clearRect(0,0,W,H)
+    }
   }, [])
 
+  // CURSOR
   useEffect(() => {
     let mX=0,mY=0,tX=0,tY=0,rafId:number
     const onMove=(e:MouseEvent)=>{mX=e.clientX;mY=e.clientY;if(cursorRef.current){cursorRef.current.style.left=mX+'px';cursorRef.current.style.top=mY+'px'}}
     const loop=()=>{tX+=(mX-tX)*0.08;tY+=(mY-tY)*0.08;if(trailRef.current){trailRef.current.style.left=tX+'px';trailRef.current.style.top=tY+'px'}rafId=requestAnimationFrame(loop)}
-    document.addEventListener('mousemove',onMove);loop()
-    return ()=>{document.removeEventListener('mousemove',onMove);cancelAnimationFrame(rafId)}
+    document.addEventListener('mousemove',onMove); loop()
+    return () => {
+      document.removeEventListener('mousemove',onMove)
+      cancelAnimationFrame(rafId)
+    }
   }, [])
 
   const projects = [
@@ -72,7 +75,6 @@ export default function Home() {
     {icon:'◎',label:'Edit',desc:'Motion graphics and video editing. Visual storytelling through cuts and effects.'},
     {icon:'⬡',label:'Shoot',desc:'Photography — street, portrait, aesthetic. Capturing moments that matter.'},
   ]
-
 
   return (
     <div style={{background:'#07100d',color:'#e8e4d9',minHeight:'100vh',overflowX:'hidden',cursor:'none',fontFamily:"'DM Sans',sans-serif"}}>
@@ -141,8 +143,8 @@ export default function Home() {
         </div>
       </div>
 
-{/* WHO IS SHIVISH */}
-<WhoIsShivish />
+      {/* WHO IS SHIVISH */}
+      <WhoIsShivish />
 
       {/* WHAT I DO */}
       <section style={{maxWidth:1100,margin:'0 auto',padding:'0 48px 120px',position:'relative',zIndex:10}}>
@@ -172,7 +174,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FEATURED PROJECT */}
+      {/* FEATURED PROJECTS */}
       <section style={{maxWidth:1100,margin:'0 auto',padding:'0 48px 120px',position:'relative',zIndex:10}}>
         <div style={{display:'flex',alignItems:'baseline',justifyContent:'space-between',marginBottom:48}}>
           <motion.p initial={{opacity:0,y:16}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{duration:0.7}}
@@ -228,7 +230,6 @@ export default function Home() {
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
         @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
         @keyframes scrollPulse{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
-        @media(max-width:768px){nav{padding:20px 24px!important}.hero-grid{grid-template-columns:1fr!important}}
       `}</style>
     </div>
   )
