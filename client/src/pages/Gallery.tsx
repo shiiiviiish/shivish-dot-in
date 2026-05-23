@@ -146,10 +146,8 @@ export default function Gallery() {
       <Nav/>
 
       {/* CAROUSEL */}
-      <motion.div
-        drag="x" dragConstraints={{left:0,right:0}} dragElastic={0.15}
-        onDragEnd={handleDragEnd}
-        onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}
+      <div
+  onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}
         style={{
           position:'relative', width:'100%', height:'100vh', overflow:'hidden',
           backgroundColor: featured[activeIndex].bg,
@@ -163,11 +161,19 @@ export default function Gallery() {
           backgroundSize:'200px 200px'}}/>
 
         {/* Ghost text */}
-        <div style={{position:'absolute',inset:0,display:'flex',alignItems:'flex-start',justifyContent:'center',paddingTop:'18%',pointerEvents:'none',zIndex:2}}>
-          <span style={{fontFamily:serif,fontStyle:'italic',fontSize:`clamp(60px,${isMobile?'16vw':'20vw'},280px)`,fontWeight:400,color:'rgba(232,228,217,0.05)',lineHeight:1,whiteSpace:'nowrap',letterSpacing:'-0.03em',userSelect:'none',transition:'all 650ms'}}>
-            {featured[activeIndex].title}
-          </span>
-        </div>
+        {/* Center arrows */}
+<div style={{position:'absolute',top:'50%',left:0,right:0,transform:'translateY(-50%)',zIndex:60,display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 24px',pointerEvents:'none'}}>
+  <button onClick={()=>navigate('prev')} style={{width:52,height:52,borderRadius:'50%',border:'1.5px solid rgba(232,228,217,0.4)',background:'rgba(7,16,13,0.4)',backdropFilter:'blur(8px)',color:'#e8e4d9',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',pointerEvents:'all',transition:'all 0.2s'}}
+    onMouseEnter={e=>{e.currentTarget.style.background='rgba(232,228,217,0.15)'}}
+    onMouseLeave={e=>{e.currentTarget.style.background='rgba(7,16,13,0.4)'}}>
+    ←
+  </button>
+  <button onClick={()=>navigate('next')} style={{width:52,height:52,borderRadius:'50%',border:'1.5px solid rgba(232,228,217,0.4)',background:'rgba(7,16,13,0.4)',backdropFilter:'blur(8px)',color:'#e8e4d9',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',pointerEvents:'all',transition:'all 0.2s'}}
+    onMouseEnter={e=>{e.currentTarget.style.background='rgba(232,228,217,0.15)'}}
+    onMouseLeave={e=>{e.currentTarget.style.background='rgba(7,16,13,0.4)'}}>
+    →
+  </button>
+</div>
 
         {/* Cards */}
         <div style={{position:'absolute',inset:0,zIndex:3,pointerEvents:'none'}}>
@@ -216,7 +222,7 @@ export default function Gallery() {
           {!isMobile && <p style={{fontSize:11,color:'rgba(232,228,217,0.25)',letterSpacing:'0.1em',marginTop:4,textTransform:'uppercase'}}>Drag or swipe</p>}
           {isMobile && <p style={{fontSize:10,color:'rgba(232,228,217,0.25)',letterSpacing:'0.08em',marginTop:4,textTransform:'uppercase'}}>Swipe</p>}
         </div>
-      </motion.div>
+      </div>
 
       {/* GRID */}
       <div style={{maxWidth:1200,margin:'0 auto',padding:isMobile?'60px 20px 60px':'100px 48px 80px'}}>

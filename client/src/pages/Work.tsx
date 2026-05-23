@@ -31,8 +31,11 @@ export default function Work() {
   const [active, setActive] = useState(0)
   const [key, setKey] = useState(0)
   const serif = "'Instrument Serif', serif"
+  const isMobile = window.innerWidth < 768
+  const touchStartX = useRef(0)
 
   useEffect(() => {
+    if (isMobile) return
     let mX=0,mY=0,tX=0,tY=0,rafId:number
     const onMove=(e:MouseEvent)=>{mX=e.clientX;mY=e.clientY;if(cursorRef.current){cursorRef.current.style.left=mX+'px';cursorRef.current.style.top=mY+'px'}}
     const loop=()=>{tX+=(mX-tX)*0.08;tY+=(mY-tY)*0.08;if(trailRef.current){trailRef.current.style.left=tX+'px';trailRef.current.style.top=tY+'px'}rafId=requestAnimationFrame(loop)}
@@ -63,122 +66,103 @@ export default function Work() {
     setKey(k=>k+1)
   }
 
+  const handleTouchStart=(e:React.TouchEvent)=>{touchStartX.current=e.touches[0].clientX}
+  const handleTouchEnd=(e:React.TouchEvent)=>{
+    const dx=e.changedTouches[0].clientX-touchStartX.current
+    if(Math.abs(dx)>50)navigate(dx<0?1:-1)
+  }
+
   const p=projects[active]
 
   return (
-    <div style={{background:'#000',height:'100vh',width:'100%',overflow:'hidden',cursor:'none',fontFamily:"'Inter',sans-serif",position:'relative'}}>
-      <div ref={cursorRef} style={{position:'fixed',width:12,height:12,background:'#4ade80',borderRadius:'50%',pointerEvents:'none',zIndex:99999,transform:'translate(-50%,-50%)',left:'-100px',top:'-100px',boxShadow:'0 0 12px rgba(74,222,128,0.8)'}}/>
-      <div ref={trailRef} style={{position:'fixed',width:40,height:40,border:'1px solid rgba(74,222,128,0.25)',borderRadius:'50%',pointerEvents:'none',zIndex:99998,transform:'translate(-50%,-50%)',left:'-100px',top:'-100px'}}/>
+    <div style={{background:'#000',height:'100vh',width:'100%',overflow:'hidden',fontFamily:"'Inter',sans-serif",position:'relative'}}>
+      {!isMobile && <>
+        <div ref={cursorRef} style={{position:'fixed',width:12,height:12,background:'#4ade80',borderRadius:'50%',pointerEvents:'none',zIndex:99999,transform:'translate(-50%,-50%)',left:'-100px',top:'-100px',boxShadow:'0 0 12px rgba(74,222,128,0.8)'}}/>
+        <div ref={trailRef} style={{position:'fixed',width:40,height:40,border:'1px solid rgba(74,222,128,0.25)',borderRadius:'50%',pointerEvents:'none',zIndex:99998,transform:'translate(-50%,-50%)',left:'-100px',top:'-100px'}}/>
+      </>}
 
-      {/* Background video */}
       <video ref={videoRef} autoPlay muted playsInline loop={false}
         style={{position:'fixed',inset:0,width:'100%',height:'100%',objectFit:'cover',zIndex:0,opacity:0}}>
         <source src="/videos/workportal.mp4" type="video/mp4"/>
       </video>
 
-      {/* Bottom blur overlay */}
-      <div style={{
-        position:'fixed',inset:0,zIndex:1,backdropFilter:'blur(20px)',WebkitBackdropFilter:'blur(20px)',
-        pointerEvents:'none',
-        maskImage:'linear-gradient(to top, black 0%, transparent 45%)',
-        WebkitMaskImage:'linear-gradient(to top, black 0%, transparent 45%)'
-      }}/>
-
-      {/* Dark gradient top */}
+      <div style={{position:'fixed',inset:0,zIndex:1,backdropFilter:'blur(20px)',WebkitBackdropFilter:'blur(20px)',pointerEvents:'none',maskImage:'linear-gradient(to top, black 0%, transparent 45%)',WebkitMaskImage:'linear-gradient(to top, black 0%, transparent 45%)'}}/>
       <div style={{position:'fixed',inset:0,zIndex:1,background:'linear-gradient(to bottom,rgba(0,0,0,0.5) 0%,transparent 40%)',pointerEvents:'none'}}/>
 
-      {/* NAV */}
-      <Nav />
+      <div style={{position:'relative',zIndex:50}}>
+        <Nav/>
+      </div>
 
-      {/* Hero content at bottom */}
-      <div style={{position:'relative',zIndex:10,display:'flex',flexDirection:'column',justifyContent:'flex-end',height:'calc(100vh - 88px)',padding:'0 48px 64px'}}>
-        <div style={{display:'flex',alignItems:'flex-end',justifyContent:'space-between',gap:32}}>
+      <div
+        onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}
+        style={{position:'relative',zIndex:10,display:'flex',flexDirection:'column',justifyContent:'flex-end',height:'calc(100vh - 72px)',padding:isMobile?'0 20px 32px':'0 48px 64px'}}>
+        <div className="work-bottom">
 
           {/* Left — project info */}
           <div style={{flex:1,maxWidth:700}} key={key}>
-            {/* Meta row */}
-            <div className="animate-blur-fade-up" style={{display:'flex',gap:24,marginBottom:24,animationDelay:'300ms'}}>
-              <span style={{display:'flex',alignItems:'center',gap:6,fontSize:13,color:'rgba(255,255,255,0.7)'}}>
-                <Star size={14} fill="white" color="white"/> {p.role}
-              </span>
-              <span style={{display:'flex',alignItems:'center',gap:6,fontSize:13,color:'rgba(255,255,255,0.7)'}}>
-                <Clock size={14}/> {p.type}
-              </span>
-              <span style={{display:'flex',alignItems:'center',gap:6,fontSize:13,color:'rgba(255,255,255,0.7)'}}>
-                <Calendar size={14}/> {p.year}
-              </span>
-              <span style={{fontSize:12,padding:'3px 10px',borderRadius:9999,border:'0.5px solid rgba(255,255,255,0.2)',color:'rgba(255,255,255,0.6)'}}>
-                {p.category}
-              </span>
+            <div className="animate-blur-fade-up" style={{display:'flex',gap:isMobile?12:24,marginBottom:isMobile?12:24,flexWrap:'wrap',animationDelay:'300ms'}}>
+              <span style={{display:'flex',alignItems:'center',gap:6,fontSize:13,color:'rgba(255,255,255,0.7)'}}><Star size={14} fill="white" color="white"/> {p.role}</span>
+              <span style={{display:'flex',alignItems:'center',gap:6,fontSize:13,color:'rgba(255,255,255,0.7)'}}><Clock size={14}/> {p.type}</span>
+              <span style={{display:'flex',alignItems:'center',gap:6,fontSize:13,color:'rgba(255,255,255,0.7)'}}><Calendar size={14}/> {p.year}</span>
+              <span style={{fontSize:12,padding:'3px 10px',borderRadius:9999,border:'0.5px solid rgba(255,255,255,0.2)',color:'rgba(255,255,255,0.6)'}}>{p.category}</span>
             </div>
 
-            {/* Title */}
             <h1 className="animate-blur-fade-up" style={{
-              fontFamily:serif,fontSize:'clamp(40px,7vw,96px)',fontWeight:400,
-              lineHeight:0.9,letterSpacing:'-0.04em',color:'#fff',marginBottom:20,
-              animationDelay:'400ms'
+              fontFamily:serif,fontSize:isMobile?'clamp(32px,9vw,56px)':'clamp(40px,7vw,96px)',
+              fontWeight:400,lineHeight:0.9,letterSpacing:'-0.04em',color:'#fff',
+              marginBottom:isMobile?12:20,animationDelay:'400ms'
             }}>{p.title}</h1>
 
-            {/* Description */}
             <p className="animate-blur-fade-up" style={{
-              fontSize:16,color:'rgba(255,255,255,0.55)',lineHeight:1.65,
-              maxWidth:560,marginBottom:32,fontWeight:300,animationDelay:'500ms'
+              fontSize:isMobile?13:16,color:'rgba(255,255,255,0.55)',lineHeight:1.65,
+              maxWidth:560,marginBottom:isMobile?16:32,fontWeight:300,animationDelay:'500ms'
             }}>{p.desc}</p>
 
-            {/* Tags + CTA */}
-            <div className="animate-blur-fade-up" style={{display:'flex',gap:12,alignItems:'center',flexWrap:'wrap',animationDelay:'600ms'}}>
-              <a href={p.url} target="_blank" style={{
-                display:'inline-flex',alignItems:'center',gap:8,
-                borderRadius:9999,padding:'12px 28px',background:'#fff',color:'#000',
-                fontSize:13,fontWeight:500,textDecoration:'none',transition:'opacity 0.2s'
-              }}
-                onMouseEnter={e=>(e.currentTarget.style.opacity='0.85')}
-                onMouseLeave={e=>(e.currentTarget.style.opacity='1')}>
+            <div className="animate-blur-fade-up" style={{display:'flex',gap:10,alignItems:'center',flexWrap:'wrap',animationDelay:'600ms'}}>
+              <a href={p.url} target="_blank" style={{display:'inline-flex',alignItems:'center',gap:8,borderRadius:9999,padding:isMobile?'10px 20px':'12px 28px',background:'#fff',color:'#000',fontSize:13,fontWeight:500,textDecoration:'none',transition:'opacity 0.2s'}}
+                onMouseEnter={e=>(e.currentTarget.style.opacity='0.85')} onMouseLeave={e=>(e.currentTarget.style.opacity='1')}>
                 <ExternalLink size={15}/> View Project
               </a>
-              <div className="liquid-glass" style={{borderRadius:9999,padding:'12px 28px',display:'flex',gap:8,flexWrap:'wrap'}}>
-                {p.tags.map(t=>(
-                  <span key={t} style={{fontSize:12,color:'rgba(255,255,255,0.7)',letterSpacing:'0.05em'}}>{t}</span>
-                ))}
+              <div className="liquid-glass" style={{borderRadius:9999,padding:isMobile?'10px 16px':'12px 28px',display:'flex',gap:8,flexWrap:'wrap'}}>
+                {p.tags.map(t=><span key={t} style={{fontSize:12,color:'rgba(255,255,255,0.7)',letterSpacing:'0.05em'}}>{t}</span>)}
               </div>
             </div>
           </div>
 
-          {/* Right — navigation + counter */}
-          <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:16}}>
+          {/* Right — nav */}
+          <div style={{display:'flex',flexDirection:'column',alignItems:isMobile?'flex-start':'flex-end',gap:12,marginTop:isMobile?20:0}}>
             <div className="animate-blur-fade-up" style={{fontSize:12,color:'rgba(255,255,255,0.3)',letterSpacing:'0.1em',textTransform:'uppercase',animationDelay:'700ms'}}>
               {String(active+1).padStart(2,'0')} / {String(projects.length).padStart(2,'0')}
             </div>
-            <div style={{display:'flex',gap:12}} className="animate-blur-fade-up">
-              <button onClick={()=>navigate(-1)} className="liquid-glass"
-                style={{borderRadius:9999,padding:'12px 20px',display:'flex',alignItems:'center',gap:6,color:'#fff',background:'transparent',border:'none',cursor:'none',fontSize:13,transition:'opacity 0.2s',animationDelay:'800ms'}}
-                onMouseEnter={e=>(e.currentTarget.style.opacity='0.7')} onMouseLeave={e=>(e.currentTarget.style.opacity='1')}>
-                <ChevronLeft size={18}/> Prev
+            <div style={{display:'flex',gap:10}} >
+              <button onClick={()=>navigate(-1)} className="liquid-glass animate-blur-fade-up"
+                style={{borderRadius:9999,padding:'10px 18px',display:'flex',alignItems:'center',gap:6,color:'#fff',background:'transparent',border:'none',cursor:isMobile?'pointer':'none',fontSize:13,animationDelay:'800ms'}}>
+                <ChevronLeft size={18}/> {!isMobile && 'Prev'}
               </button>
-              <button onClick={()=>navigate(1)} className="liquid-glass"
-                style={{borderRadius:9999,padding:'12px 20px',display:'flex',alignItems:'center',gap:6,color:'#fff',background:'transparent',border:'none',cursor:'none',fontSize:13,transition:'opacity 0.2s',animationDelay:'900ms'}}
-                onMouseEnter={e=>(e.currentTarget.style.opacity='0.7')} onMouseLeave={e=>(e.currentTarget.style.opacity='1')}>
-                Next <ChevronRight size={18}/>
+              <button onClick={()=>navigate(1)} className="liquid-glass animate-blur-fade-up"
+                style={{borderRadius:9999,padding:'10px 18px',display:'flex',alignItems:'center',gap:6,color:'#fff',background:'transparent',border:'none',cursor:isMobile?'pointer':'none',fontSize:13,animationDelay:'900ms'}}>
+                {!isMobile && 'Next'} <ChevronRight size={18}/>
               </button>
             </div>
-            <Link to="/contact" className="animate-blur-fade-up" style={{fontSize:12,color:'rgba(255,255,255,0.35)',textDecoration:'none',textTransform:'uppercase',letterSpacing:'0.1em',transition:'color 0.2s',animationDelay:'1000ms'}}
+            {!isMobile && <Link to="/contact" className="animate-blur-fade-up" style={{fontSize:12,color:'rgba(255,255,255,0.35)',textDecoration:'none',textTransform:'uppercase',letterSpacing:'0.1em',transition:'color 0.2s',animationDelay:'1000ms'}}
               onMouseEnter={e=>(e.currentTarget.style.color='#fff')} onMouseLeave={e=>(e.currentTarget.style.color='rgba(255,255,255,0.35)')}>
               Say hello →
-            </Link>
+            </Link>}
           </div>
         </div>
       </div>
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');
-        *{cursor:none;box-sizing:border-box;margin:0;padding:0}
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        .work-bottom { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; }
+        @media (min-width: 769px) { * { cursor: none; } }
+        @media (max-width: 768px) { .work-bottom { flex-direction: column; align-items: flex-start; } }
 
         .liquid-glass {
           background: rgba(255,255,255,0.01);
-          background-blend-mode: luminosity;
           backdrop-filter: blur(4px);
           -webkit-backdrop-filter: blur(4px);
-          border: none;
           box-shadow: inset 0 1px 1px rgba(255,255,255,0.1);
           position: relative;
           overflow: hidden;
