@@ -4,7 +4,6 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { Download, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import Nav from '../components/Nav'
 
-// ── Photo data ───────────────────────────────────────────────────────────────
 const photos = [
   { id: 1, title: 'Urban Fog',    category: 'Photography', color: '#0d1f17', accent: '#4ade80' },
   { id: 2, title: 'Night Lights', category: 'Editing',     color: '#0f1525', accent: '#60a5fa' },
@@ -17,11 +16,6 @@ const photos = [
   { id: 9, title: 'Portrait',     category: 'Photography', color: '#1f1212', accent: '#f87171' },
 ]
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-function hexToThreeColor(hex: string) {
-  return new THREE.Color(hex)
-}
-
 function makeRoundedRectTexture(
   w: number, h: number, r: number,
   bg: string, accent: string, title: string, category: string
@@ -31,7 +25,6 @@ function makeRoundedRectTexture(
   canvas.height = h
   const ctx = canvas.getContext('2d')!
 
-  // Rounded rect clip
   const path = new Path2D()
   path.moveTo(r, 0)
   path.lineTo(w - r, 0)
@@ -47,24 +40,20 @@ function makeRoundedRectTexture(
   ctx.save()
   ctx.clip(path)
 
-  // Background
   ctx.fillStyle = bg
   ctx.fillRect(0, 0, w, h)
 
-  // Accent glow
-  const grd = ctx.createRadialGradient(w * 0.3, h * 0.3, 0, w * 0.3, h * 0.3, w * 0.7)
   const ac = new THREE.Color(accent)
+  const grd = ctx.createRadialGradient(w * 0.3, h * 0.3, 0, w * 0.3, h * 0.3, w * 0.7)
   grd.addColorStop(0, `rgba(${Math.round(ac.r*255)},${Math.round(ac.g*255)},${Math.round(ac.b*255)},0.25)`)
   grd.addColorStop(1, 'rgba(0,0,0,0)')
   ctx.fillStyle = grd
   ctx.fillRect(0, 0, w, h)
 
-  // Border
   ctx.strokeStyle = 'rgba(232,228,217,0.12)'
   ctx.lineWidth = 2
   ctx.stroke(path)
 
-  // Dot
   ctx.fillStyle = accent
   ctx.globalAlpha = 0.6
   ctx.beginPath()
@@ -72,14 +61,12 @@ function makeRoundedRectTexture(
   ctx.fill()
   ctx.globalAlpha = 1
 
-  // Title
   ctx.fillStyle = 'rgba(232,228,217,0.9)'
   ctx.font = `italic ${Math.round(w * 0.1)}px Georgia, serif`
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
   ctx.fillText(title, w / 2, h * 0.55)
 
-  // Category
   ctx.fillStyle = 'rgba(232,228,217,0.3)'
   ctx.font = `${Math.round(w * 0.065)}px sans-serif`
   ctx.fillText(category.toUpperCase(), w / 2, h * 0.72)
@@ -88,17 +75,16 @@ function makeRoundedRectTexture(
   return new THREE.CanvasTexture(canvas)
 }
 
-// ── Main Component ────────────────────────────────────────────────────────────
 export default function Gallery() {
-  const mountRef    = useRef<HTMLDivElement>(null)
-  const sceneRef    = useRef<{
+  const mountRef = useRef<HTMLDivElement>(null)
+  const sceneRef = useRef<{
     renderer: THREE.WebGLRenderer
     scene: THREE.Scene
     camera: THREE.PerspectiveCamera
     cards: THREE.Mesh[]
     cardData: typeof photos
-    helixAngle: number        // current helix Y rotation
-    targetHelixAngle: number  // where we want to be
+    helixAngle: number
+    targetHelixAngle: number
     scrollY: number
     rafId: number
     particleSystem: THREE.Points | null
@@ -111,10 +97,10 @@ export default function Gallery() {
     isMobile: boolean
   } | null>(null)
 
-  const [selected,   setSelected]   = useState<number | null>(null)
-  const [isMobile,   setIsMobile]   = useState(window.innerWidth < 768)
-  const [phase,      setPhase]      = useState<'loading' | 'done'>('loading')
-  const [hoveredId,  setHoveredId]  = useState<number | null>(null)
+  const [selected,  setSelected]  = useState<number | null>(null)
+  const [isMobile,  setIsMobile]  = useState(window.innerWidth < 768)
+  const [phase,     setPhase]     = useState<'loading' | 'done'>('loading')
+  const [hoveredId, setHoveredId] = useState<number | null>(null)
   const serif = "'Instrument Serif', serif"
 
   useEffect(() => {
@@ -123,7 +109,6 @@ export default function Gallery() {
     return () => window.removeEventListener('resize', check)
   }, [])
 
-  // ── Three.js setup ──────────────────────────────────────────────────────
   useEffect(() => {
     const mount = mountRef.current
     if (!mount) return
@@ -131,39 +116,32 @@ export default function Gallery() {
     const W = mount.clientWidth
     const H = mount.clientHeight
 
-    // Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
     renderer.setSize(W, H)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     renderer.setClearColor(0x07100d, 1)
     mount.appendChild(renderer.domElement)
 
-    // Scene + camera
     const scene  = new THREE.Scene()
     const camera = new THREE.PerspectiveCamera(60, W / H, 0.1, 200)
     camera.position.set(0, 0, 14)
 
-    // Fog
     scene.fog = new THREE.FogExp2(0x07100d, 0.045)
-
-    // Ambient + directional light
     scene.add(new THREE.AmbientLight(0xffffff, 0.6))
     const dir = new THREE.DirectionalLight(0x4ade80, 0.8)
     dir.position.set(5, 10, 5)
     scene.add(dir)
 
-    // ── DNA helix positions ─────────────────────────────────────────────
     const HELIX_RADIUS = isMobile ? 2.8 : 3.8
-    const HELIX_PITCH  = 2.2   // vertical distance per full turn
+    const HELIX_PITCH  = 2.2
     const TURNS        = 1.8
     const N            = photos.length
 
-    // Each photo gets a position on one of two strands
     const helixPositions = photos.map((_, i) => {
-      const t      = i / (N - 1)           // 0 → 1
+      const t      = i / (N - 1)
       const angle  = t * Math.PI * 2 * TURNS
       const y      = (t - 0.5) * HELIX_PITCH * TURNS * 1.6
-      const strand = i % 2 === 0 ? 1 : -1  // alternate strands
+      const strand = i % 2 === 0 ? 1 : -1
       return new THREE.Vector3(
         Math.cos(angle + strand * Math.PI * 0.5) * HELIX_RADIUS,
         y,
@@ -171,21 +149,18 @@ export default function Gallery() {
       )
     })
 
-    // ── Particle system (pre-helix explosion) ──────────────────────────
     const PARTICLE_COUNT = 600
     const pPositions = new Float32Array(PARTICLE_COUNT * 3)
     const pColors    = new Float32Array(PARTICLE_COUNT * 3)
     const accentColors = photos.map(p => new THREE.Color(p.accent))
 
     for (let i = 0; i < PARTICLE_COUNT; i++) {
-      // Start: random sphere burst
       const theta = Math.random() * Math.PI * 2
       const phi   = Math.acos(2 * Math.random() - 1)
       const r     = 6 + Math.random() * 8
       pPositions[i * 3]     = r * Math.sin(phi) * Math.cos(theta)
       pPositions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta)
       pPositions[i * 3 + 2] = r * Math.cos(phi)
-
       const c = accentColors[i % accentColors.length]
       pColors[i * 3]     = c.r
       pColors[i * 3 + 1] = c.g
@@ -195,25 +170,16 @@ export default function Gallery() {
     const pGeo = new THREE.BufferGeometry()
     pGeo.setAttribute('position', new THREE.BufferAttribute(pPositions, 3))
     pGeo.setAttribute('color',    new THREE.BufferAttribute(pColors, 3))
-    const pMat = new THREE.PointsMaterial({
-      size: 0.12, vertexColors: true, transparent: true,
-      opacity: 1, sizeAttenuation: true,
-    })
+    const pMat = new THREE.PointsMaterial({ size: 0.12, vertexColors: true, transparent: true, opacity: 1, sizeAttenuation: true })
     const particleSystem = new THREE.Points(pGeo, pMat)
     scene.add(particleSystem)
 
-    // Particle targets: converge toward helix positions
     const particleTargets = Array.from({ length: PARTICLE_COUNT }, (_, i) =>
       helixPositions[i % helixPositions.length].clone().add(
-        new THREE.Vector3(
-          (Math.random() - 0.5) * 0.4,
-          (Math.random() - 0.5) * 0.4,
-          (Math.random() - 0.5) * 0.4,
-        )
+        new THREE.Vector3((Math.random()-0.5)*0.4, (Math.random()-0.5)*0.4, (Math.random()-0.5)*0.4)
       )
     )
 
-    // ── Photo cards ────────────────────────────────────────────────────
     const cardW = isMobile ? 1.6 : 2.0
     const cardH = cardW * 0.72
     const cards: THREE.Mesh[] = []
@@ -223,23 +189,16 @@ export default function Gallery() {
       const geo  = new THREE.PlaneGeometry(cardW, cardH)
       const mat  = new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: 0 })
       const mesh = new THREE.Mesh(geo, mat)
-
-      // Start at particle-cloud position, will animate to helix
       mesh.position.copy(helixPositions[i])
       mesh.position.x += (Math.random() - 0.5) * 12
       mesh.position.y += (Math.random() - 0.5) * 12
       mesh.position.z += (Math.random() - 0.5) * 12
       mesh.userData = { photoId: photo.id, targetPos: helixPositions[i], index: i }
-
-      // Face outward from helix center
       mesh.lookAt(new THREE.Vector3(0, helixPositions[i].y, 0))
-
       scene.add(mesh)
       cards.push(mesh)
     })
 
-    // ── Helix backbone (two strands of dots) ───────────────────────────
-    const backboneGeo = new THREE.BufferGeometry()
     const backbonePoints: number[] = []
     const BACKBONE_SEGMENTS = 120
     for (let strand = 0; strand < 2; strand++) {
@@ -247,190 +206,135 @@ export default function Gallery() {
         const t     = i / BACKBONE_SEGMENTS
         const angle = t * Math.PI * 2 * TURNS + strand * Math.PI
         const y     = (t - 0.5) * HELIX_PITCH * TURNS * 1.6
-        backbonePoints.push(
-          Math.cos(angle) * HELIX_RADIUS,
-          y,
-          Math.sin(angle) * HELIX_RADIUS,
-        )
+        backbonePoints.push(Math.cos(angle) * HELIX_RADIUS, y, Math.sin(angle) * HELIX_RADIUS)
       }
     }
+    const backboneGeo = new THREE.BufferGeometry()
     backboneGeo.setAttribute('position', new THREE.Float32BufferAttribute(backbonePoints, 3))
     const backboneMat = new THREE.PointsMaterial({ color: 0x4ade80, size: 0.04, transparent: true, opacity: 0.25 })
-    const backbone = new THREE.Points(backboneGeo, backboneMat)
-    scene.add(backbone)
+    scene.add(new THREE.Points(backboneGeo, backboneMat))
 
-    // ── Rungs (connecting lines between strands) ───────────────────────
     const rungMat = new THREE.LineBasicMaterial({ color: 0x4ade80, transparent: true, opacity: 0.08 })
-    const RUNG_COUNT = 28
-    for (let i = 0; i <= RUNG_COUNT; i++) {
-      const t      = i / RUNG_COUNT
-      const angle  = t * Math.PI * 2 * TURNS
-      const y      = (t - 0.5) * HELIX_PITCH * TURNS * 1.6
-      const p1     = new THREE.Vector3(Math.cos(angle) * HELIX_RADIUS, y, Math.sin(angle) * HELIX_RADIUS)
-      const p2     = new THREE.Vector3(Math.cos(angle + Math.PI) * HELIX_RADIUS, y, Math.sin(angle + Math.PI) * HELIX_RADIUS)
-      const rGeo   = new THREE.BufferGeometry().setFromPoints([p1, p2])
-      scene.add(new THREE.Line(rGeo, rungMat))
+    for (let i = 0; i <= 28; i++) {
+      const t     = i / 28
+      const angle = t * Math.PI * 2 * TURNS
+      const y     = (t - 0.5) * HELIX_PITCH * TURNS * 1.6
+      const p1    = new THREE.Vector3(Math.cos(angle) * HELIX_RADIUS, y, Math.sin(angle) * HELIX_RADIUS)
+      const p2    = new THREE.Vector3(Math.cos(angle + Math.PI) * HELIX_RADIUS, y, Math.sin(angle + Math.PI) * HELIX_RADIUS)
+      scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([p1, p2]), rungMat))
     }
 
-    // ── Store refs ─────────────────────────────────────────────────────
     sceneRef.current = {
-      renderer, scene, camera, cards,
-      cardData: photos,
-      helixAngle: 0, targetHelixAngle: 0,
-      scrollY: 0,
-      rafId: 0,
-      particleSystem,
-      particleTargets,
-      particlePhase: 'exploding',
-      particleT: 0,
+      renderer, scene, camera, cards, cardData: photos,
+      helixAngle: 0, targetHelixAngle: 0, scrollY: 0, rafId: 0,
+      particleSystem, particleTargets,
+      particlePhase: 'exploding', particleT: 0,
       mouse: new THREE.Vector2(-999, -999),
       raycaster: new THREE.Raycaster(),
-      hoveredCard: null,
-      isMobile,
+      hoveredCard: null, isMobile,
     }
 
-    // ── Scroll handler ─────────────────────────────────────────────────
     const onScroll = () => {
-      const s = sceneRef.current
-      if (!s) return
+      const s = sceneRef.current; if (!s) return
       const maxScroll = document.body.scrollHeight - window.innerHeight
       const t = maxScroll > 0 ? window.scrollY / maxScroll : 0
-      s.targetHelixAngle = t * Math.PI * 4  // 2 full rotations on full scroll
+      s.targetHelixAngle = t * Math.PI * 4
     }
     window.addEventListener('scroll', onScroll)
 
-    // ── Mouse move ─────────────────────────────────────────────────────
     const onMouseMove = (e: MouseEvent) => {
-      const s = sceneRef.current
-      if (!s) return
+      const s = sceneRef.current; if (!s) return
       const rect = mount.getBoundingClientRect()
       s.mouse.x =  ((e.clientX - rect.left) / rect.width)  * 2 - 1
       s.mouse.y = -((e.clientY - rect.top)  / rect.height) * 2 + 1
     }
     mount.addEventListener('mousemove', onMouseMove)
 
-    // ── Click handler ──────────────────────────────────────────────────
     const onClick = (e: MouseEvent) => {
-      const s = sceneRef.current
-      if (!s || s.particlePhase !== 'done') return
+      const s = sceneRef.current; if (!s || s.particlePhase !== 'done') return
       const rect = mount.getBoundingClientRect()
       const mouse = new THREE.Vector2(
-         ((e.clientX - rect.left) / rect.width)  * 2 - 1,
-        -((e.clientY - rect.top)  / rect.height) * 2 + 1,
+        ((e.clientX - rect.left) / rect.width)  * 2 - 1,
+       -((e.clientY - rect.top)  / rect.height) * 2 + 1,
       )
       s.raycaster.setFromCamera(mouse, s.camera)
       const hits = s.raycaster.intersectObjects(s.cards)
-      if (hits.length > 0) {
-        const id = hits[0].object.userData.photoId as number
-        setSelected(id)
-      }
+      if (hits.length > 0) setSelected(hits[0].object.userData.photoId as number)
     }
     mount.addEventListener('click', onClick)
 
-    // ── Touch scroll (mobile) ──────────────────────────────────────────
     let touchStartY = 0
     const onTouchStart = (e: TouchEvent) => { touchStartY = e.touches[0].clientY }
     const onTouchMove  = (e: TouchEvent) => {
-      const s = sceneRef.current
-      if (!s) return
-      const dy = touchStartY - e.touches[0].clientY
-      s.targetHelixAngle += dy * 0.004
+      const s = sceneRef.current; if (!s) return
+      s.targetHelixAngle += (touchStartY - e.touches[0].clientY) * 0.004
       touchStartY = e.touches[0].clientY
     }
     mount.addEventListener('touchstart', onTouchStart, { passive: true })
     mount.addEventListener('touchmove',  onTouchMove,  { passive: true })
 
-    // ── Animation loop ─────────────────────────────────────────────────
     const clock = new THREE.Clock()
-    let introT = 0  // 0 → 1 over ~2.5s
+    let introT = 0
 
     const animate = () => {
-      const s = sceneRef.current
-      if (!s) return
+      const s = sceneRef.current; if (!s) return
       s.rafId = requestAnimationFrame(animate)
       const delta = clock.getDelta()
-      introT = Math.min(introT + delta * 0.38, 1)  // intro speed
+      introT = Math.min(introT + delta * 0.38, 1)
 
-      // ── Phase: particles explode outward then resolve into helix ──
       if (s.particlePhase === 'exploding') {
         s.particleT += delta * 0.6
         const pPos = pGeo.attributes.position.array as Float32Array
         const t    = Math.min(s.particleT, 1)
         const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
-
         for (let i = 0; i < PARTICLE_COUNT; i++) {
-          // Spiral outward
-          const orig = {
-            x: pPos[i * 3],
-            y: pPos[i * 3 + 1],
-            z: pPos[i * 3 + 2],
-          }
           const scale = 1 + ease * 0.5
-          pPos[i * 3]     = orig.x * scale
-          pPos[i * 3 + 1] = orig.y * scale
-          pPos[i * 3 + 2] = orig.z * scale
+          pPos[i*3]   *= scale; pPos[i*3+1] *= scale; pPos[i*3+2] *= scale
         }
         pGeo.attributes.position.needsUpdate = true
+        if (s.particleT >= 1) { s.particlePhase = 'resolving'; s.particleT = 0 }
 
-        if (s.particleT >= 1) {
-          s.particlePhase = 'resolving'
-          s.particleT     = 0
-        }
       } else if (s.particlePhase === 'resolving') {
         s.particleT += delta * 0.55
         const t    = Math.min(s.particleT, 1)
-        const ease = 1 - Math.pow(1 - t, 3)  // ease out cubic
+        const ease = 1 - Math.pow(1 - t, 3)
         const pPos = pGeo.attributes.position.array as Float32Array
         ;(pMat as THREE.PointsMaterial).opacity = 1 - ease * 0.85
-
         for (let i = 0; i < PARTICLE_COUNT; i++) {
           const tgt = s.particleTargets[i]
-          pPos[i * 3]     += (tgt.x - pPos[i * 3])     * ease * 0.08
-          pPos[i * 3 + 1] += (tgt.y - pPos[i * 3 + 1]) * ease * 0.08
-          pPos[i * 3 + 2] += (tgt.z - pPos[i * 3 + 2]) * ease * 0.08
+          pPos[i*3]   += (tgt.x - pPos[i*3])   * ease * 0.08
+          pPos[i*3+1] += (tgt.y - pPos[i*3+1]) * ease * 0.08
+          pPos[i*3+2] += (tgt.z - pPos[i*3+2]) * ease * 0.08
         }
         pGeo.attributes.position.needsUpdate = true
-
-        // Fade in cards as particles resolve
-        s.cards.forEach((card, i) => {
+        // ── fix: unused i removed ──
+        cards.forEach((card) => {
           const mat = card.material as THREE.MeshBasicMaterial
           mat.opacity = Math.min(mat.opacity + delta * 0.6, ease)
         })
-
         if (s.particleT >= 1) {
           s.particlePhase = 'done'
           s.scene.remove(s.particleSystem!)
-          s.cards.forEach(card => {
-            ;(card.material as THREE.MeshBasicMaterial).opacity = 1
-          })
+          cards.forEach((card) => { ;(card.material as THREE.MeshBasicMaterial).opacity = 1 })
           setPhase('done')
         }
       }
 
-      // ── Smooth helix rotation ───────────────────────────────────────
       s.helixAngle += (s.targetHelixAngle - s.helixAngle) * 0.06
-
-      // Rotate the whole helix group (cards + backbone + rungs)
-      // We rotate scene children that are part of the helix
       s.scene.children.forEach(obj => {
         if (obj !== s.particleSystem && obj.type !== 'AmbientLight' && obj.type !== 'DirectionalLight') {
           obj.rotation.y = s.helixAngle
         }
       })
 
-      // ── Gentle auto-spin when not scrolling ────────────────────────
-      if (s.particlePhase === 'done') {
-        s.targetHelixAngle += delta * 0.08
-      }
+      if (s.particlePhase === 'done') s.targetHelixAngle += delta * 0.08
 
-      // ── Camera subtle parallax to mouse ────────────────────────────
       if (!s.isMobile && s.particlePhase === 'done') {
         camera.position.x += (s.mouse.x * 1.5 - camera.position.x) * 0.03
         camera.position.y += (s.mouse.y * 1.0 - camera.position.y) * 0.03
         camera.lookAt(0, 0, 0)
       }
 
-      // ── Card settle animation (intro) ──────────────────────────────
       if (s.particlePhase !== 'done') {
         s.cards.forEach((card, i) => {
           const delay = i / N * 0.4
@@ -441,28 +345,19 @@ export default function Gallery() {
         })
       }
 
-      // ── Hover detection ────────────────────────────────────────────
       if (s.particlePhase === 'done' && !s.isMobile) {
         s.raycaster.setFromCamera(s.mouse, camera)
         const hits = s.raycaster.intersectObjects(s.cards)
         const hit  = hits.length > 0 ? hits[0].object as THREE.Mesh : null
-
         if (hit !== s.hoveredCard) {
-          // Reset old
-          if (s.hoveredCard) {
-            s.hoveredCard.scale.setScalar(1)
-            setHoveredId(null)
-          }
+          if (s.hoveredCard) { s.hoveredCard.scale.setScalar(1); setHoveredId(null) }
           s.hoveredCard = hit
           if (hit) setHoveredId(hit.userData.photoId)
         }
-        // Animate hovered card scale
         s.cards.forEach(card => {
-          const isHovered = card === s.hoveredCard
-          const targetS   = isHovered ? 1.18 : 1
+          const targetS = card === s.hoveredCard ? 1.18 : 1
           card.scale.lerp(new THREE.Vector3(targetS, targetS, targetS), 0.12)
         })
-
         mount.style.cursor = hit ? 'pointer' : 'default'
       }
 
@@ -470,19 +365,14 @@ export default function Gallery() {
     }
     animate()
 
-    // ── Resize ────────────────────────────────────────────────────────
     const onResize = () => {
-      const w = mount.clientWidth
-      const h = mount.clientHeight
-      camera.aspect = w / h
-      camera.updateProjectionMatrix()
-      renderer.setSize(w, h)
+      const w = mount.clientWidth; const h = mount.clientHeight
+      camera.aspect = w / h; camera.updateProjectionMatrix(); renderer.setSize(w, h)
     }
     window.addEventListener('resize', onResize)
 
     return () => {
-      const s = sceneRef.current
-      if (s) cancelAnimationFrame(s.rafId)
+      const s = sceneRef.current; if (s) cancelAnimationFrame(s.rafId)
       window.removeEventListener('scroll',  onScroll)
       window.removeEventListener('resize',  onResize)
       mount.removeEventListener('mousemove', onMouseMove)
@@ -517,48 +407,23 @@ export default function Gallery() {
 
   return (
     <div style={{ background: '#07100d', minHeight: '100vh', fontFamily: "'DM Sans',sans-serif" }}>
-
-      {/* Nav always on top */}
       <Nav />
-
-      {/* ── Full-screen Three.js canvas ── */}
-      <div
-        ref={mountRef}
-        style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 1,
-          background: '#07100d',
-        }}
-      />
-
-      {/* ── Scrollable spacer — drives helix rotation ── */}
+      <div ref={mountRef} style={{ position: 'fixed', inset: 0, zIndex: 1, background: '#07100d' }} />
       <div style={{ height: '400vh', position: 'relative', zIndex: 2, pointerEvents: 'none' }} />
 
-      {/* ── Overlay UI ── */}
-      <div style={{
-        position: 'fixed', inset: 0, zIndex: 10,
-        pointerEvents: 'none',
-        display: 'flex', flexDirection: 'column',
-        justifyContent: 'space-between', padding: isMobile ? '80px 20px 32px' : '88px 48px 40px',
-      }}>
-        {/* Top label */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 10, pointerEvents: 'none', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: isMobile ? '80px 20px 32px' : '88px 48px 40px' }}>
         <div>
-          <motion.p
-            initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.8 }}
-            style={{ fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(232,228,217,0.3)', marginBottom: 10 }}
-          >Gallery · Photography & Editing</motion.p>
-          <motion.h1
-            initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.9 }}
-            style={{ fontFamily: "'Instrument Serif', serif", fontSize: 'clamp(28px,4vw,54px)', fontWeight: 400, color: '#e8e4d9', letterSpacing: '-0.03em', lineHeight: 1 }}
-          >Browse <em style={{ color: 'rgba(232,228,217,0.25)' }}>the shots.</em></motion.h1>
+          <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.8 }}
+            style={{ fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(232,228,217,0.3)', marginBottom: 10 }}>
+            Gallery · Photography & Editing
+          </motion.p>
+          <motion.h1 initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.9 }}
+            style={{ fontFamily: "'Instrument Serif', serif", fontSize: 'clamp(28px,4vw,54px)', fontWeight: 400, color: '#e8e4d9', letterSpacing: '-0.03em', lineHeight: 1 }}>
+            Browse <em style={{ color: 'rgba(232,228,217,0.25)' }}>the shots.</em>
+          </motion.h1>
         </div>
-
-        {/* Bottom hints */}
-        <motion.div
-          initial={{ opacity: 0 }} animate={{ opacity: phase === 'done' ? 1 : 0 }} transition={{ duration: 1 }}
-          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}
-        >
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: phase === 'done' ? 1 : 0 }} transition={{ duration: 1 }}
+          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
           <p style={{ fontSize: 11, letterSpacing: '0.14em', color: 'rgba(232,228,217,0.22)', textTransform: 'uppercase', textAlign: 'center' }}>
             {isMobile ? 'Drag to rotate · Tap a card' : 'Scroll to rotate · Click a card · Mouse to parallax'}
           </p>
@@ -566,23 +431,12 @@ export default function Gallery() {
         </motion.div>
       </div>
 
-      {/* ── Hovered card label ── */}
       <AnimatePresence>
         {hoveredId !== null && phase === 'done' && (() => {
           const p = photos.find(ph => ph.id === hoveredId)!
           return (
-            <motion.div
-              key={hoveredId}
-              initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }}
-              transition={{ duration: 0.2 }}
-              style={{
-                position: 'fixed', bottom: 80, left: '50%', transform: 'translateX(-50%)',
-                zIndex: 20, pointerEvents: 'none', textAlign: 'center',
-                background: 'rgba(7,16,13,0.7)', backdropFilter: 'blur(12px)',
-                border: `0.5px solid ${p.accent}40`, borderRadius: 9999,
-                padding: '8px 24px',
-              }}
-            >
+            <motion.div key={hoveredId} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }} transition={{ duration: 0.2 }}
+              style={{ position: 'fixed', bottom: 80, left: '50%', transform: 'translateX(-50%)', zIndex: 20, pointerEvents: 'none', textAlign: 'center', background: 'rgba(7,16,13,0.7)', backdropFilter: 'blur(12px)', border: `0.5px solid ${p.accent}40`, borderRadius: 9999, padding: '8px 24px' }}>
               <span style={{ fontFamily: "'Instrument Serif',serif", fontSize: 15, color: '#e8e4d9', fontStyle: 'italic' }}>{p.title}</span>
               <span style={{ fontSize: 10, color: 'rgba(232,228,217,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginLeft: 12 }}>{p.category}</span>
             </motion.div>
@@ -590,34 +444,25 @@ export default function Gallery() {
         })()}
       </AnimatePresence>
 
-      {/* ── Loading overlay ── */}
       <AnimatePresence>
         {phase === 'loading' && (
           <motion.div exit={{ opacity: 0 }} transition={{ duration: 0.8 }}
             style={{ position: 'fixed', inset: 0, zIndex: 50, background: '#07100d', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, pointerEvents: 'none' }}>
-            <motion.div
-              animate={{ scale: [1, 1.15, 1], opacity: [0.4, 1, 0.4] }}
-              transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
-              style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80' }}
-            />
+            <motion.div animate={{ scale: [1, 1.15, 1], opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
+              style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80' }} />
             <p style={{ fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(232,228,217,0.25)' }}>Assembling helix</p>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── Lightbox ── */}
       <AnimatePresence>
         {selectedPhoto && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}
             style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(0,0,0,0.94)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(28px)', padding: isMobile ? 16 : 0 }}
             onClick={() => setSelected(null)}>
-            <button
-              style={{ position: 'absolute', top: 16, right: 16, width: 40, height: 40, borderRadius: '50%', background: 'rgba(232,228,217,0.08)', border: '0.5px solid rgba(232,228,217,0.15)', color: '#e8e4d9', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-              onClick={() => setSelected(null)}>
-              <X size={16} />
-            </button>
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+            <button style={{ position: 'absolute', top: 16, right: 16, width: 40, height: 40, borderRadius: '50%', background: 'rgba(232,228,217,0.08)', border: '0.5px solid rgba(232,228,217,0.15)', color: '#e8e4d9', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+              onClick={() => setSelected(null)}><X size={16} /></button>
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
               transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
               style={{ width: isMobile ? '100%' : '65vw', maxWidth: 860, aspectRatio: '4/3', borderRadius: isMobile ? 16 : 22, background: selectedPhoto.color, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, position: 'relative', border: '0.5px solid rgba(232,228,217,0.1)' }}
               onClick={e => e.stopPropagation()}>
@@ -633,11 +478,7 @@ export default function Gallery() {
             {!isMobile && ['prev', 'next'].map(dir => (
               <button key={dir}
                 style={{ position: 'absolute', [dir === 'prev' ? 'left' : 'right']: 24, top: '50%', transform: 'translateY(-50%)', width: 44, height: 44, borderRadius: '50%', background: 'rgba(232,228,217,0.08)', border: '0.5px solid rgba(232,228,217,0.15)', color: '#e8e4d9', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-                onClick={e => {
-                  e.stopPropagation()
-                  const idx = photos.findIndex(p => p.id === selected)
-                  setSelected(photos[(idx + (dir === 'next' ? 1 : -1) + photos.length) % photos.length].id)
-                }}>
+                onClick={e => { e.stopPropagation(); const idx = photos.findIndex(p => p.id === selected); setSelected(photos[(idx + (dir === 'next' ? 1 : -1) + photos.length) % photos.length].id) }}>
                 {dir === 'prev' ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
               </button>
             ))}
@@ -648,12 +489,7 @@ export default function Gallery() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        @keyframes scrollPulse {
-          0%   { transform: scaleY(0); transform-origin: top; }
-          50%  { transform: scaleY(1); transform-origin: top; }
-          51%  { transform-origin: bottom; }
-          100% { transform: scaleY(0); transform-origin: bottom; }
-        }
+        @keyframes scrollPulse { 0%{transform:scaleY(0);transform-origin:top} 50%{transform:scaleY(1);transform-origin:top} 51%{transform-origin:bottom} 100%{transform:scaleY(0);transform-origin:bottom} }
       `}</style>
     </div>
   )

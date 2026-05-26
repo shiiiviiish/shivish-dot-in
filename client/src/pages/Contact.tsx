@@ -31,38 +31,23 @@ export default function Contact() {
         .lg{background:rgba(255,255,255,0.02);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:inset 0 1px 1px rgba(255,255,255,0.08);position:relative;overflow:hidden;}
         .lg::before{content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(180deg,rgba(255,255,255,0.35) 0%,rgba(255,255,255,0.08) 30%,rgba(255,255,255,0) 50%,rgba(255,255,255,0.08) 70%,rgba(255,255,255,0.35) 100%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;}
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
-        @keyframes spin{to{transform:rotate(360deg)}}
+        @keyframes robotReveal{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
         input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.3);}
         @media(min-width:769px){*{cursor:none;}.desktop-cursor{display:block!important;}}
         @media(max-width:768px){.desktop-cursor{display:none!important;}.contact-layout{grid-template-columns:1fr!important;}.robot-col{display:none!important;}}
       `}</style>
 
-      {/* Custom cursor */}
       <div ref={cursorRef} className="desktop-cursor" style={{position:'fixed',width:12,height:12,background:'#4ade80',borderRadius:'50%',pointerEvents:'none',zIndex:99999,transform:'translate(-50%,-50%)',left:'-100px',top:'-100px',boxShadow:'0 0 12px rgba(74,222,128,0.8)'}}/>
       <div ref={trailRef}  className="desktop-cursor" style={{position:'fixed',width:44,height:44,border:'1px solid rgba(74,222,128,0.25)',borderRadius:'50%',pointerEvents:'none',zIndex:99998,transform:'translate(-50%,-50%)',left:'-100px',top:'-100px'}}/>
 
-      {/* ── BACKGROUND — Glass Knot Vortex at low opacity ── */}
-      <div style={{position:'fixed',inset:0,zIndex:0,pointerEvents:'none',opacity:0.12}}>
-        <iframe
-          src="https://my.spline.design/glassknotvortex-fBFyIMaSojW2qVs0Tng5GZPe/"
-          frameBorder={0}
-          style={{width:'100%',height:'100%',border:'none'}}
-          title="Background"
-        />
-      </div>
-
-      {/* Dark overlay so background doesn't overpower content */}
-      <div style={{position:'fixed',inset:0,zIndex:1,background:'rgba(7,16,13,0.6)',pointerEvents:'none'}}/>
-
       <Nav/>
 
-      {/* ── MAIN LAYOUT ── */}
       <div
         id="tour-contact-form"
         className="contact-layout"
         style={{display:'grid',gridTemplateColumns:'1fr 1fr',minHeight:'100vh',paddingTop:80,position:'relative',zIndex:2}}>
 
-        {/* ── LEFT — contact info + form ── */}
+        {/* ── LEFT — form ── */}
         <motion.div
           initial={{opacity:0,x:-40}} animate={{opacity:1,x:0}} transition={{duration:1,ease:[0.16,1,0.3,1]}}
           style={{display:'flex',flexDirection:'column',justifyContent:'center',padding:'60px clamp(24px,4vw,64px)',overflowY:'auto'}}>
@@ -74,13 +59,11 @@ export default function Contact() {
             <em style={{fontStyle:'italic',color:'rgba(232,228,217,0.22)'}}>to contact.</em>
           </h1>
 
-          {/* Availability */}
           <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:24,padding:'9px 16px',background:'rgba(74,222,128,0.06)',border:'0.5px solid rgba(74,222,128,0.2)',borderRadius:9999,width:'fit-content'}}>
             <span style={{width:6,height:6,background:'#4ade80',borderRadius:'50%',boxShadow:'0 0 6px #4ade80',display:'inline-block',animation:'pulse 2s infinite'}}/>
             <span style={{fontFamily:mono,fontSize:10,color:'rgba(232,228,217,0.6)',letterSpacing:'0.06em'}}>Currently available · Response within 24h</span>
           </div>
 
-          {/* Big email */}
           <a href="mailto:hello@shivish.in"
             style={{display:'block',fontFamily:serif,fontStyle:'italic',fontSize:'clamp(15px,2vw,24px)',color:'rgba(232,228,217,0.45)',textDecoration:'none',marginBottom:24,transition:'color 0.3s'}}
             onMouseEnter={e=>(e.currentTarget.style.color='#e8e4d9')}
@@ -88,7 +71,6 @@ export default function Contact() {
             hello@shivish.in ↗
           </a>
 
-          {/* Socials */}
           <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:32}}>
             {[
               {icon:'↗',label:'GitHub',    url:'https://github.com/shiiiviiish'},
@@ -156,28 +138,37 @@ export default function Contact() {
             )}
           </div>
 
-          {/* Coordinates */}
           <p style={{fontFamily:mono,fontSize:9,color:'rgba(232,228,217,0.15)',letterSpacing:'0.1em',marginTop:20}}>
             30.7333° N, <span style={{color:'rgba(74,222,128,0.3)'}}>76.7794° E</span> — CHANDIGARH, IN
           </p>
         </motion.div>
 
-        {/* ── RIGHT — Robot 3D scene ── */}
+        {/* ── RIGHT — Robot ── */}
         <motion.div
           className="robot-col"
-          initial={{opacity:0,x:40}} animate={{opacity:1,x:0}} transition={{delay:0.3,duration:1.2,ease:[0.16,1,0.3,1]}}
-          style={{position:'relative',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden'}}>
+          initial={{opacity:0}} animate={{opacity:1}} transition={{delay:0.4,duration:1}}
+          style={{
+            position:'relative',
+            height:'100vh',
+            // sticky so robot stays in view while form scrolls
+            position:'sticky' as any,
+            top:0,
+          }}>
 
-          {/* Robot Spline scene */}
-          <div style={{width:'100%',height:'100%',position:'absolute',inset:0}}>
+          {/* Robot scene — full height */}
+          <div style={{position:'absolute',inset:0,width:'100%',height:'100%'}}>
             <SplineScene
               scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
               className="w-full h-full"
             />
           </div>
 
-          {/* Left edge fade — blends into form */}
-          <div style={{position:'absolute',top:0,left:0,bottom:0,width:60,background:'linear-gradient(to right,#07100d,transparent)',pointerEvents:'none',zIndex:3}}/>
+          {/* Left fade */}
+          <div style={{position:'absolute',top:0,left:0,bottom:0,width:80,background:'linear-gradient(to right,#07100d,transparent)',pointerEvents:'none',zIndex:3}}/>
+          {/* Top fade */}
+          <div style={{position:'absolute',top:0,left:0,right:0,height:100,background:'linear-gradient(to bottom,#07100d,transparent)',pointerEvents:'none',zIndex:3}}/>
+          {/* Bottom fade */}
+          <div style={{position:'absolute',bottom:0,left:0,right:0,height:80,background:'linear-gradient(to top,#07100d,transparent)',pointerEvents:'none',zIndex:3}}/>
 
           {/* Corner label */}
           <div style={{position:'absolute',bottom:32,right:32,zIndex:10,pointerEvents:'none'}}>
@@ -188,11 +179,10 @@ export default function Contact() {
         </motion.div>
       </div>
 
-      {/* ── FOOTER ── */}
-      <footer style={{padding:'20px clamp(20px,5vw,48px)',fontSize:12,color:'rgba(232,228,217,0.18)',borderTop:'0.5px solid rgba(232,228,217,0.05)',display:'flex',justifyContent:'space-between',flexWrap:'wrap',gap:12,background:'rgba(7,16,13,0.9)',backdropFilter:'blur(12px)',position:'relative',zIndex:2}}>
-        <span style={{fontFamily:mono,fontSize:10}}>Design & Dev by Shivish · 2025</span>
+      <footer style={{padding:'20px clamp(20px,5vw,48px)',borderTop:'0.5px solid rgba(232,228,217,0.05)',display:'flex',justifyContent:'space-between',flexWrap:'wrap',gap:12,background:'#07100d',position:'relative',zIndex:2}}>
+        <span style={{fontFamily:mono,fontSize:10,color:'rgba(232,228,217,0.18)'}}>Design & Dev by Shivish · 2025</span>
         <span style={{fontFamily:mono,fontSize:9,color:'rgba(232,228,217,0.12)',letterSpacing:'0.08em'}}>30.7333° N, 76.7794° E</span>
-        <span style={{fontFamily:serif,fontStyle:'italic'}}>Built with vibe.</span>
+        <span style={{fontFamily:serif,fontStyle:'italic',fontSize:12,color:'rgba(232,228,217,0.18)'}}>Built with vibe.</span>
       </footer>
     </div>
   )

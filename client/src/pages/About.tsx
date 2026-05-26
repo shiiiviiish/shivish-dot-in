@@ -77,7 +77,7 @@ function CountUp({ value, delay=0 }: { value: string; delay?: number }) {
 }
 
 // Animated skill bar
-function SkillBar({ pct, inf }: { pct: number; inf?: boolean }) {
+function SkillBar({ pct }: { pct: number; inf?: boolean }) {
   const ref = useRef<HTMLDivElement>(null)
   const isInView = useInView(ref,{once:true,margin:'-40px'})
   return (
