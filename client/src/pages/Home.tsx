@@ -3,6 +3,7 @@ import { motion, useInView } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import WhoIsShivish from '../components/WhoIsShivish'
 import Nav from '../components/Nav'
+import FaceTilt from '../components/FaceTilt'
 
 function WordPullUp({ text, delay = 0, style }: { text: string; delay?: number; style?: React.CSSProperties }) {
   const ref = useRef(null)
@@ -26,9 +27,9 @@ function WordPullUp({ text, delay = 0, style }: { text: string; delay?: number; 
 const serif = "'Instrument Serif', serif"
 
 export default function Home() {
-  const fogRef = useRef<HTMLCanvasElement>(null)
+  const fogRef    = useRef<HTMLCanvasElement>(null)
   const cursorRef = useRef<HTMLDivElement>(null)
-  const trailRef = useRef<HTMLDivElement>(null)
+  const trailRef  = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const canvas = fogRef.current; if (!canvas) return
@@ -71,12 +72,12 @@ export default function Home() {
   return (
     <div style={{background:'#07100d',color:'#e8e4d9',minHeight:'100vh',overflowX:'hidden',fontFamily:"'DM Sans',sans-serif"}}>
       <div ref={cursorRef} className="desktop-cursor" style={{position:'fixed',width:12,height:12,background:'#4ade80',borderRadius:'50%',pointerEvents:'none',zIndex:99999,transform:'translate(-50%,-50%)',left:'-100px',top:'-100px',boxShadow:'0 0 12px rgba(100,200,140,0.8)'}}/>
-      <div ref={trailRef} className="desktop-cursor" style={{position:'fixed',width:44,height:44,border:'1px solid rgba(100,200,140,0.25)',borderRadius:'50%',pointerEvents:'none',zIndex:99998,transform:'translate(-50%,-50%)',left:'-100px',top:'-100px'}}/>
+      <div ref={trailRef}  className="desktop-cursor" style={{position:'fixed',width:44,height:44,border:'1px solid rgba(100,200,140,0.25)',borderRadius:'50%',pointerEvents:'none',zIndex:99998,transform:'translate(-50%,-50%)',left:'-100px',top:'-100px'}}/>
       <canvas ref={fogRef} style={{position:'fixed',inset:0,width:'100%',height:'100%',zIndex:0,pointerEvents:'none'}}/>
 
       <Nav/>
 
-      {/* HERO */}
+      {/* ── HERO ── */}
       <section style={{position:'relative',minHeight:'100vh',display:'flex',flexDirection:'column',justifyContent:'flex-end',zIndex:10,overflow:'hidden',padding:12}}>
         <div style={{position:'absolute',inset:12,borderRadius:20,overflow:'hidden',zIndex:0,border:'1px solid rgba(255,255,255,0.1)'}}>
           <video autoPlay loop muted playsInline style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover',zIndex:0}}>
@@ -106,7 +107,6 @@ export default function Home() {
           </span>
         </motion.h1>
 
-        {/* Desc — mobile only shows below heading */}
         <motion.p initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{delay:1.2,duration:0.8}}
           className="hero-desc"
           style={{fontSize:13,color:'rgba(232,228,217,0.55)',lineHeight:1.65,fontWeight:300,position:'relative',zIndex:10,paddingLeft:'clamp(16px,4vw,32px)',paddingBottom:16,maxWidth:320}}>
@@ -135,6 +135,38 @@ export default function Home() {
           ))}
         </div>
       </div>
+
+      {/* ── FACE INTRO SECTION ── */}
+      <section style={{maxWidth:1100,margin:'0 auto',padding:'80px 20px',position:'relative',zIndex:10}}>
+        <div className="face-intro-grid">
+          {/* Left — text */}
+          <motion.div initial={{opacity:0,x:-40}} whileInView={{opacity:1,x:0}} viewport={{once:true}} transition={{duration:1,ease:[0.16,1,0.3,1]}}
+            style={{display:'flex',flexDirection:'column',justifyContent:'center'}}>
+            <p style={{fontSize:11,letterSpacing:'0.2em',textTransform:'uppercase',color:'rgba(232,228,217,0.3)',marginBottom:20}}>{'{HOLA}'}</p>
+            <h2 style={{fontFamily:serif,fontSize:'clamp(36px,6vw,72px)',fontWeight:400,lineHeight:1,letterSpacing:'-0.03em',marginBottom:24}}>
+              I'm Shivish.<br/>
+              <em style={{color:'rgba(232,228,217,0.25)',fontStyle:'italic'}}>Vibe Coder.</em>
+            </h2>
+            <p style={{fontSize:15,color:'rgba(232,228,217,0.45)',lineHeight:1.8,fontWeight:300,maxWidth:400,marginBottom:32}}>
+              19 year old BTech student from Chandigarh. I build cinematic websites, shoot street photography, and go down AI rabbit holes at 2am.
+            </p>
+            <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+              {['React','TypeScript','Framer Motion','Photography'].map(s=>(
+                <span key={s} style={{fontSize:11,padding:'5px 14px',borderRadius:9999,border:'0.5px solid rgba(232,228,217,0.1)',color:'rgba(232,228,217,0.4)',letterSpacing:'0.04em'}}>{s}</span>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Right — FaceTilt */}
+          <motion.div initial={{opacity:0,x:40}} whileInView={{opacity:1,x:0}} viewport={{once:true}} transition={{delay:0.2,duration:1,ease:[0.16,1,0.3,1]}}
+            style={{display:'flex',justifyContent:'center',alignItems:'center'}}>
+           <FaceTilt
+  width="clamp(260px,30vw,380px)"
+  noBackground={true}
+/>
+          </motion.div>
+        </div>
+      </section>
 
       {/* WHO IS SHIVISH */}
       <WhoIsShivish />
@@ -218,8 +250,6 @@ export default function Home() {
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
         @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
         @keyframes scrollPulse{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
-
-        /* Desktop only */
         @media (min-width: 769px) {
           * { cursor: none; }
           .desktop-cursor { display: block !important; }
@@ -227,12 +257,12 @@ export default function Home() {
           .what-section { padding: 80px 48px 120px !important; }
           section { padding-left: 48px !important; padding-right: 48px !important; }
           .hero-desc { display: none; }
+          .face-intro-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
         }
-
-        /* Mobile */
         @media (max-width: 768px) {
           .desktop-cursor { display: none !important; }
           .what-grid { display: block; }
+          .face-intro-grid { display: flex; flex-direction: column-reverse; gap: 40px; }
         }
       `}</style>
     </div>

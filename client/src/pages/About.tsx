@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import Nav from '../components/Nav'
+import FaceTilt from '../components/FaceTilt'
 
 const serif = "'Instrument Serif', serif"
 const mono  = "'DM Mono', monospace"
@@ -20,25 +21,24 @@ const skillGroups = {
 
 const skillsFlat = ['React', 'TypeScript', 'Tailwind CSS', 'Framer Motion', 'GSAP', 'Git & GitHub', 'Vercel', 'Figma', 'Photography', 'Video Editing']
 
-// skill bars for the KVS section
 const skillBars = [
-  { name: '{CODE}',       pct: 88 },
-  { name: '{DESIGN}',     pct: 78 },
-  { name: '{EDIT}',       pct: 75 },
-  { name: '{SHOOT}',      pct: 70 },
-  { name: '{VIBE}',       pct: 100, inf: true },
+  { name: '{CODE}',   pct: 88 },
+  { name: '{DESIGN}', pct: 78 },
+  { name: '{EDIT}',   pct: 75 },
+  { name: '{SHOOT}',  pct: 70 },
+  { name: '{VIBE}',   pct: 100, inf: true },
 ]
 
 const polaroids = [
-  { label: 'At my desk',         color: '#0d1f17', accent: '#4ade80',  rotate: -3   },
-  { label: 'Out shooting',       color: '#0f1525', accent: '#60a5fa',  rotate:  2   },
-  { label: 'Late night coding',  color: '#1f0a12', accent: '#f472b6',  rotate: -1.5 },
+  { label: 'At my desk',        color: '#0d1f17', accent: '#4ade80',  rotate: -3   },
+  { label: 'Out shooting',      color: '#0f1525', accent: '#60a5fa',  rotate:  2   },
+  { label: 'Late night coding', color: '#1f0a12', accent: '#f472b6',  rotate: -1.5 },
 ]
 
 const services = [
-  { num: '01', title: 'Web Design',          desc: 'Clean, cinematic websites that feel premium and work flawlessly.' },
-  { num: '02', title: 'Web Development',     desc: 'React, TypeScript, Tailwind. Fast, scalable, well-structured code.' },
-  { num: '03', title: 'Motion & Interaction',desc: 'Animations and interactions that bring interfaces to life.' },
+  { num: '01', title: 'Web Design',           desc: 'Clean, cinematic websites that feel premium and work flawlessly.' },
+  { num: '02', title: 'Web Development',      desc: 'React, TypeScript, Tailwind. Fast, scalable, well-structured code.' },
+  { num: '03', title: 'Motion & Interaction', desc: 'Animations and interactions that bring interfaces to life.' },
 ]
 
 function NameReveal({ trigger }: { trigger: boolean }) {
@@ -54,9 +54,9 @@ function NameReveal({ trigger }: { trigger: boolean }) {
 }
 
 function CountUp({ value, delay=0 }: { value: string; delay?: number }) {
-  const ref   = useRef<HTMLSpanElement>(null)
+  const ref      = useRef<HTMLSpanElement>(null)
   const isInView = useInView(ref,{once:true,margin:'-50px'})
-  const isNum = !isNaN(Number(value))
+  const isNum    = !isNaN(Number(value))
   useEffect(()=>{
     if(!isInView||!isNum||!ref.current)return
     const target=Number(value),duration=2000,start=performance.now(),chars='0123456789'
@@ -76,9 +76,8 @@ function CountUp({ value, delay=0 }: { value: string; delay?: number }) {
   return <span ref={ref} style={{display:'inline-block'}}>{isNum?'+0':`+${value}`}</span>
 }
 
-// Animated skill bar
 function SkillBar({ pct }: { pct: number; inf?: boolean }) {
-  const ref = useRef<HTMLDivElement>(null)
+  const ref      = useRef<HTMLDivElement>(null)
   const isInView = useInView(ref,{once:true,margin:'-40px'})
   return (
     <div ref={ref} style={{width:90,height:1,background:'rgba(232,228,217,0.08)',position:'relative',flexShrink:0}}>
@@ -126,8 +125,6 @@ export default function About() {
       {/* ── HERO ── */}
       <section id="tour-about-hero" style={{position:'relative',minHeight:'100vh',display:'flex',alignItems:'center',zIndex:10,overflow:'hidden',padding:'80px clamp(20px,5vw,48px) 0'}}>
         <div style={{flex:1,position:'relative',zIndex:2}}>
-
-          {/* KVS-style eyebrow */}
           <motion.div initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{delay:0.2,duration:0.8}}
             style={{display:'flex',alignItems:'center',gap:16,marginBottom:24}}>
             <span style={{fontFamily:mono,fontSize:10,letterSpacing:'0.2em',color:'rgba(232,228,217,0.25)'}}>{'{ABOUT · 2025}'}</span>
@@ -171,27 +168,21 @@ export default function About() {
 
           <motion.div initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{delay:1,duration:0.8}}
             style={{display:'flex',gap:12,flexWrap:'wrap',alignItems:'center',marginBottom:40}}>
-            <Link to="/work" style={{borderRadius:9999,padding:'12px 28px',background:'#e8e4d9',color:'#07100d',fontSize:13,fontWeight:500,textDecoration:'none'}}>
-              (See my work)
-            </Link>
-            <a href="mailto:hello@shivish.in" style={{fontSize:13,color:'rgba(232,228,217,0.4)',textDecoration:'none',letterSpacing:'0.05em',borderBottom:'0.5px solid rgba(232,228,217,0.15)',paddingBottom:2}}>
-              Say hello →
-            </a>
+            <Link to="/work" style={{borderRadius:9999,padding:'12px 28px',background:'#e8e4d9',color:'#07100d',fontSize:13,fontWeight:500,textDecoration:'none'}}>(See my work)</Link>
+            <a href="mailto:hello@shivish.in" style={{fontSize:13,color:'rgba(232,228,217,0.4)',textDecoration:'none',letterSpacing:'0.05em',borderBottom:'0.5px solid rgba(232,228,217,0.15)',paddingBottom:2}}>Say hello →</a>
           </motion.div>
 
           <motion.p initial={{opacity:0}} animate={{opacity:1}} transition={{delay:1.4,duration:0.8}}
-            style={{fontFamily:mono,fontSize:10,color:'rgba(232,228,217,0.2)',letterSpacing:'0.15em'}}>
-            {'{SCROLL DOWN ↓}'}
-          </motion.p>
+            style={{fontFamily:mono,fontSize:10,color:'rgba(232,228,217,0.2)',letterSpacing:'0.15em'}}>{'{SCROLL DOWN ↓}'}</motion.p>
         </div>
 
+        {/* Right — FaceTilt replaces static image */}
         <motion.div initial={{opacity:0,x:60}} animate={{opacity:1,x:0}} transition={{delay:0.4,duration:1.2,ease:[0.16,1,0.3,1]}}
           className="hero-face" style={{position:'relative',zIndex:2,flexShrink:0}}>
-          <div style={{position:'relative'}}>
-            <div style={{position:'absolute',inset:-40,background:'radial-gradient(circle at center, rgba(74,222,128,0.08) 0%, transparent 70%)',pointerEvents:'none'}}/>
-            <img src="/images/shivishanimated.png" alt="Shivish"
-              style={{width:'clamp(280px,35vw,480px)',height:'auto',objectFit:'contain',objectPosition:'bottom',filter:'drop-shadow(0 0 40px rgba(74,222,128,0.1))',position:'relative',zIndex:1}}/>
-          </div>
+          <FaceTilt
+  width="clamp(280px,35vw,480px)"
+  noBackground={true}
+/>
         </motion.div>
       </section>
 
@@ -199,7 +190,6 @@ export default function About() {
       <section style={{maxWidth:1200,margin:'0 auto',padding:'100px clamp(20px,5vw,48px)'}}>
         <div className="intro-grid">
           <motion.div initial={{opacity:0,y:40}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{duration:1,ease:[0.16,1,0.3,1]}}>
-            {/* KVS label */}
             <p style={{fontFamily:mono,fontSize:10,letterSpacing:'0.2em',color:'rgba(232,228,217,0.25)',marginBottom:24}}>{'{ABOUT_ME}'}</p>
             <h2 style={{fontFamily:serif,fontSize:'clamp(32px,5vw,64px)',fontWeight:400,lineHeight:1.05,letterSpacing:'-0.03em',color:'rgba(232,228,217,0.8)'}}>
               Shivish is a developer focused on digital experience and creative development.
@@ -207,7 +197,7 @@ export default function About() {
           </motion.div>
           <motion.div initial={{opacity:0,y:40}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{delay:0.2,duration:1}} style={{paddingTop:60}}>
             <p style={{fontSize:'clamp(14px,1.5vw,16px)',color:'rgba(232,228,217,0.5)',lineHeight:1.85,fontWeight:300,marginBottom:20}}>
-              With a strong eye for visual storytelling and interaction, I craft expressive, engaging websites that blend design with code. My work brings ideas to life through thoughtful aesthetics, smooth transitions, and immersive experiences.
+              With a strong eye for visual storytelling and interaction, I craft expressive, engaging websites that blend design with code.
             </p>
             <p style={{fontSize:'clamp(14px,1.5vw,16px)',color:'rgba(232,228,217,0.5)',lineHeight:1.85,fontWeight:300,marginBottom:32}}>
               I'm a 19 year old BTech student from Chandigarh. When I'm not building websites, I'm editing videos, shooting photos, or going down AI rabbit holes.
@@ -232,25 +222,15 @@ export default function About() {
       {/* ── PORTRAIT + EXPERIENCE ── */}
       <section style={{maxWidth:1200,margin:'0 auto',padding:'100px clamp(20px,5vw,48px)'}}>
         <div className="portrait-grid">
+
+          {/* Left — FaceTilt replaces portrait img */}
           <motion.div initial={{opacity:0,x:-40}} whileInView={{opacity:1,x:0}} viewport={{once:true}} transition={{duration:1,ease:[0.16,1,0.3,1]}}>
-            <div style={{position:'relative',maxWidth:420}}>
-              <div style={{aspectRatio:'3/4',borderRadius:16,overflow:'hidden',border:'0.5px solid rgba(232,228,217,0.08)',position:'relative'}}>
-                <img src="/images/shivishanimated.png" alt="Shivish" style={{width:'100%',height:'100%',objectFit:'cover',objectPosition:'center top'}}/>
-                <div style={{position:'absolute',inset:0,background:'linear-gradient(to bottom,transparent 60%,rgba(7,16,13,0.8) 100%)'}}/>
-                <div style={{position:'absolute',bottom:20,left:20,right:20}}>
-                  <div style={{background:'rgba(7,16,13,0.7)',backdropFilter:'blur(12px)',border:'0.5px solid rgba(74,222,128,0.15)',borderRadius:10,padding:'10px 14px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                    <div>
-                      <p style={{fontFamily:serif,fontSize:16,color:'#e8e4d9',margin:0}}>Shivish</p>
-                      <p style={{fontFamily:mono,fontSize:10,color:'rgba(232,228,217,0.4)',letterSpacing:'0.1em',textTransform:'uppercase',marginTop:2}}>{'{VIBE CODER}'}</p>
-                    </div>
-                    <div style={{display:'flex',alignItems:'center',gap:6}}>
-                      <span style={{width:6,height:6,background:'#4ade80',borderRadius:'50%',boxShadow:'0 0 6px #4ade80',display:'inline-block'}}/>
-                      <span style={{fontFamily:mono,fontSize:10,color:'rgba(232,228,217,0.6)',letterSpacing:'0.08em'}}>Open</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <FaceTilt
+              width="100%"
+              label="Shivish"
+              sublabel="{VIBE CODER}"
+              showBadge={true}
+            />
           </motion.div>
 
           <div>
@@ -272,8 +252,8 @@ export default function About() {
               </div>
             </motion.div>
 
-            {/* KVS skill bars */}
-            <motion.div initial={{opacity:0,y:20}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{delay:0.1,duration:0.8}} style={{marginBottom:40}}>
+            {/* Skill bars */}
+            <motion.div initial={{opacity:0,y:20}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{delay:0.1,duration:0.8}} style={{marginBottom:32}}>
               <p style={{fontFamily:mono,fontSize:10,letterSpacing:'0.2em',color:'rgba(232,228,217,0.25)',marginBottom:20}}>{'{SKILLS}'}</p>
               <div style={{display:'flex',flexDirection:'column',gap:0}}>
                 {skillBars.map((s,i)=>(
@@ -288,7 +268,7 @@ export default function About() {
               </div>
             </motion.div>
 
-            {/* Skills tags */}
+            {/* Skill tags */}
             <motion.div initial={{opacity:0,y:20}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{delay:0.2,duration:0.8}}>
               <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
                 {skillsFlat.map(s=>(
@@ -319,9 +299,7 @@ export default function About() {
                   {list.map((s,i)=>(
                     <motion.p key={s} initial={{opacity:0,x:-10}} whileInView={{opacity:1,x:0}} viewport={{once:true}}
                       transition={{delay:i*0.08,duration:0.5}}
-                      style={{fontSize:14,color:'rgba(232,228,217,0.55)',marginBottom:8,fontWeight:300}}>
-                      + {s}
-                    </motion.p>
+                      style={{fontSize:14,color:'rgba(232,228,217,0.55)',marginBottom:8,fontWeight:300}}>+ {s}</motion.p>
                   ))}
                 </div>
               ))}
@@ -386,8 +364,7 @@ export default function About() {
           <div style={{display:'flex',gap:16,justifyContent:'center',flexWrap:'wrap'}}>
             <a href="mailto:hello@shivish.in"
               style={{borderRadius:9999,padding:'14px 36px',background:'#e8e4d9',color:'#07100d',fontSize:13,fontWeight:500,textDecoration:'none',transition:'opacity 0.2s'}}
-              onMouseEnter={e=>(e.currentTarget.style.opacity='0.85')}
-              onMouseLeave={e=>(e.currentTarget.style.opacity='1')}>
+              onMouseEnter={e=>(e.currentTarget.style.opacity='0.85')} onMouseLeave={e=>(e.currentTarget.style.opacity='1')}>
               (Say hello) →
             </a>
             <Link to="/work"
@@ -400,21 +377,12 @@ export default function About() {
         </motion.div>
       </section>
 
-      {/* ── FOOTER — KVS coordinates ── */}
+      {/* ── FOOTER ── */}
       <footer style={{padding:'24px clamp(20px,5vw,48px)',borderTop:'0.5px solid rgba(232,228,217,0.05)',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:12}}>
         <span style={{fontFamily:mono,fontSize:11,color:'rgba(232,228,217,0.18)'}}>Design & Dev by Shivish · 2025</span>
-        {/* KVS-style coordinates */}
         <span style={{fontFamily:mono,fontSize:10,color:'rgba(232,228,217,0.15)',letterSpacing:'0.08em'}}>
           30.7333° N, <span style={{color:'rgba(74,222,128,0.35)'}}>76.7794° E</span> — CHANDIGARH, IN
         </span>
-        <div style={{display:'flex',gap:24}}>
-          <a href="https://github.com/shiiiviiish" target="_blank" style={{fontFamily:mono,fontSize:11,color:'rgba(232,228,217,0.25)',textDecoration:'none',transition:'color 0.2s'}}
-            onMouseEnter={e=>(e.currentTarget.style.color='#e8e4d9')}
-            onMouseLeave={e=>(e.currentTarget.style.color='rgba(232,228,217,0.25)')}>GitHub</a>
-          <a href="mailto:hello@shivish.in" style={{fontFamily:mono,fontSize:11,color:'rgba(232,228,217,0.25)',textDecoration:'none',transition:'color 0.2s'}}
-            onMouseEnter={e=>(e.currentTarget.style.color='#e8e4d9')}
-            onMouseLeave={e=>(e.currentTarget.style.color='rgba(232,228,217,0.25)')}>Email</a>
-        </div>
         <span style={{fontFamily:serif,fontStyle:'italic',fontSize:12,color:'rgba(232,228,217,0.18)'}}>Built with vibe.</span>
       </footer>
 

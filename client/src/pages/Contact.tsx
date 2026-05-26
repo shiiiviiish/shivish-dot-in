@@ -24,14 +24,13 @@ export default function Contact() {
   },[])
 
   return (
-    <div style={{background:'#07100d',color:'#e8e4d9',minHeight:'100vh',fontFamily:sans,overflowX:'hidden',position:'relative'}}>
+    <div style={{background:'#07100d',color:'#e8e4d9',minHeight:'100vh',fontFamily:sans,overflowX:'hidden'}}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap');
         *{box-sizing:border-box;margin:0;padding:0;}
         .lg{background:rgba(255,255,255,0.02);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:inset 0 1px 1px rgba(255,255,255,0.08);position:relative;overflow:hidden;}
         .lg::before{content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(180deg,rgba(255,255,255,0.35) 0%,rgba(255,255,255,0.08) 30%,rgba(255,255,255,0) 50%,rgba(255,255,255,0.08) 70%,rgba(255,255,255,0.35) 100%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;}
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
-        @keyframes robotReveal{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
         input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.3);}
         @media(min-width:769px){*{cursor:none;}.desktop-cursor{display:block!important;}}
         @media(max-width:768px){.desktop-cursor{display:none!important;}.contact-layout{grid-template-columns:1fr!important;}.robot-col{display:none!important;}}
@@ -42,10 +41,8 @@ export default function Contact() {
 
       <Nav/>
 
-      <div
-        id="tour-contact-form"
-        className="contact-layout"
-        style={{display:'grid',gridTemplateColumns:'1fr 1fr',minHeight:'100vh',paddingTop:80,position:'relative',zIndex:2}}>
+      <div id="tour-contact-form" className="contact-layout"
+        style={{display:'grid',gridTemplateColumns:'1fr 1fr',minHeight:'100vh',paddingTop:80}}>
 
         {/* ── LEFT — form ── */}
         <motion.div
@@ -143,43 +140,33 @@ export default function Contact() {
           </p>
         </motion.div>
 
-        {/* ── RIGHT — Robot ── */}
+        {/* ── RIGHT — Robot only ── */}
         <motion.div
           className="robot-col"
-          initial={{opacity:0}} animate={{opacity:1}} transition={{delay:0.4,duration:1}}
-          style={{
-            position:'relative',
-            height:'100vh',
-            // sticky so robot stays in view while form scrolls
-            position:'sticky' as any,
-            top:0,
-          }}>
+          initial={{opacity:0,x:40}} animate={{opacity:1,x:0}} transition={{delay:0.3,duration:1.2,ease:[0.16,1,0.3,1]}}
+          style={{position:'sticky',top:0,height:'100vh',overflow:'hidden'}}>
 
-          {/* Robot scene — full height */}
-          <div style={{position:'absolute',inset:0,width:'100%',height:'100%'}}>
+          <div style={{position:'absolute',inset:0}}>
             <SplineScene
               scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
               className="w-full h-full"
             />
           </div>
 
-          {/* Left fade */}
-          <div style={{position:'absolute',top:0,left:0,bottom:0,width:80,background:'linear-gradient(to right,#07100d,transparent)',pointerEvents:'none',zIndex:3}}/>
-          {/* Top fade */}
+          {/* Fades to blend into dark bg */}
           <div style={{position:'absolute',top:0,left:0,right:0,height:100,background:'linear-gradient(to bottom,#07100d,transparent)',pointerEvents:'none',zIndex:3}}/>
-          {/* Bottom fade */}
           <div style={{position:'absolute',bottom:0,left:0,right:0,height:80,background:'linear-gradient(to top,#07100d,transparent)',pointerEvents:'none',zIndex:3}}/>
+          <div style={{position:'absolute',top:0,left:0,bottom:0,width:80,background:'linear-gradient(to right,#07100d,transparent)',pointerEvents:'none',zIndex:3}}/>
 
-          {/* Corner label */}
-          <div style={{position:'absolute',bottom:32,right:32,zIndex:10,pointerEvents:'none'}}>
-            <div className="lg" style={{borderRadius:9999,padding:'6px 16px'}}>
+          <div style={{position:'absolute',bottom:28,right:28,zIndex:10,pointerEvents:'none'}}>
+            <div className="lg" style={{borderRadius:9999,padding:'5px 14px'}}>
               <span style={{fontFamily:mono,fontSize:9,letterSpacing:'0.16em',color:'rgba(232,228,217,0.3)'}}>Interactive · Drag me</span>
             </div>
           </div>
         </motion.div>
       </div>
 
-      <footer style={{padding:'20px clamp(20px,5vw,48px)',borderTop:'0.5px solid rgba(232,228,217,0.05)',display:'flex',justifyContent:'space-between',flexWrap:'wrap',gap:12,background:'#07100d',position:'relative',zIndex:2}}>
+      <footer style={{padding:'20px clamp(20px,5vw,48px)',borderTop:'0.5px solid rgba(232,228,217,0.05)',display:'flex',justifyContent:'space-between',flexWrap:'wrap',gap:12,background:'#07100d'}}>
         <span style={{fontFamily:mono,fontSize:10,color:'rgba(232,228,217,0.18)'}}>Design & Dev by Shivish · 2025</span>
         <span style={{fontFamily:mono,fontSize:9,color:'rgba(232,228,217,0.12)',letterSpacing:'0.08em'}}>30.7333° N, 76.7794° E</span>
         <span style={{fontFamily:serif,fontStyle:'italic',fontSize:12,color:'rgba(232,228,217,0.18)'}}>Built with vibe.</span>
