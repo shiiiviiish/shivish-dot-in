@@ -6,17 +6,21 @@ import Contact from './pages/Contact'
 import Gallery from './pages/Gallery'
 import Clients from './pages/Clients'
 import Vibes from './pages/Vibes'
+import GuidedTour from './components/GuidedTour'
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/work" element={<Work />} />
-      <Route path="/about" element={<About />} />
-      <Route path="/contact" element={<Contact />} />
-      <Route path="/gallery" element={<Gallery />} />
-<Route path="/clients" element={<Clients />} />
-<Route path="/vibes" element={<Vibes />} />
-    </Routes>
+    <>
+      <GuidedTour />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/work" element={<Work />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/gallery" element={<Gallery />} />
+        <Route path="/clients" element={<Clients />} />
+        <Route path="/vibes" element={<Vibes />} />
+      </Routes>
+    </>
   )
 }

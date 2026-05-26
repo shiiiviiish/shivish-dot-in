@@ -1,302 +1,659 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import * as THREE from 'three'
+import { AnimatePresence, motion } from 'framer-motion'
 import { Download, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import Nav from '../components/Nav'
 
-const featured = [
-  { id: 1, title: 'Urban Fog', category: 'Photography', bg: '#0d1f17', accent: '#4ade80' },
-  { id: 2, title: 'Night Lights', category: 'Editing', bg: '#0f1525', accent: '#60a5fa' },
-  { id: 3, title: 'Golden Hour', category: 'Photography', bg: '#1f150a', accent: '#fb923c' },
-  { id: 4, title: 'Abstract', category: 'Editing', bg: '#1f0a12', accent: '#a78bfa' },
-]
-
+// ── Photo data ───────────────────────────────────────────────────────────────
 const photos = [
-  { id: 1, title: 'Urban Fog', category: 'Photography', color: '#0d1f17', accent: '#4ade80' },
-  { id: 2, title: 'Night Lights', category: 'Editing', color: '#0f1525', accent: '#60a5fa' },
-  { id: 3, title: 'Street Life', category: 'Photography', color: '#1f100a', accent: '#f59e0b' },
-  { id: 4, title: 'Golden Hour', category: 'Photography', color: '#1f150a', accent: '#fb923c' },
-  { id: 5, title: 'Motion Blur', category: 'Editing', color: '#130a1f', accent: '#a78bfa' },
-  { id: 6, title: 'Chandigarh', category: 'Photography', color: '#0a1f12', accent: '#34d399' },
-  { id: 7, title: 'Abstract', category: 'Editing', color: '#1f0a12', accent: '#f472b6' },
+  { id: 1, title: 'Urban Fog',    category: 'Photography', color: '#0d1f17', accent: '#4ade80' },
+  { id: 2, title: 'Night Lights', category: 'Editing',     color: '#0f1525', accent: '#60a5fa' },
+  { id: 3, title: 'Golden Hour',  category: 'Photography', color: '#1f150a', accent: '#fb923c' },
+  { id: 4, title: 'Motion Blur',  category: 'Editing',     color: '#130a1f', accent: '#a78bfa' },
+  { id: 5, title: 'Chandigarh',   category: 'Photography', color: '#0a1f12', accent: '#34d399' },
+  { id: 6, title: 'Street Life',  category: 'Photography', color: '#1f100a', accent: '#f59e0b' },
+  { id: 7, title: 'Abstract',     category: 'Editing',     color: '#1f0a12', accent: '#f472b6' },
   { id: 8, title: 'Architecture', category: 'Photography', color: '#12121f', accent: '#818cf8' },
-  { id: 9, title: 'Portrait', category: 'Photography', color: '#1f1212', accent: '#f87171' },
+  { id: 9, title: 'Portrait',     category: 'Photography', color: '#1f1212', accent: '#f87171' },
 ]
 
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function hexToThreeColor(hex: string) {
+  return new THREE.Color(hex)
+}
+
+function makeRoundedRectTexture(
+  w: number, h: number, r: number,
+  bg: string, accent: string, title: string, category: string
+): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas')
+  canvas.width  = w
+  canvas.height = h
+  const ctx = canvas.getContext('2d')!
+
+  // Rounded rect clip
+  const path = new Path2D()
+  path.moveTo(r, 0)
+  path.lineTo(w - r, 0)
+  path.arcTo(w, 0, w, r, r)
+  path.lineTo(w, h - r)
+  path.arcTo(w, h, w - r, h, r)
+  path.lineTo(r, h)
+  path.arcTo(0, h, 0, h - r, r)
+  path.lineTo(0, r)
+  path.arcTo(0, 0, r, 0, r)
+  path.closePath()
+
+  ctx.save()
+  ctx.clip(path)
+
+  // Background
+  ctx.fillStyle = bg
+  ctx.fillRect(0, 0, w, h)
+
+  // Accent glow
+  const grd = ctx.createRadialGradient(w * 0.3, h * 0.3, 0, w * 0.3, h * 0.3, w * 0.7)
+  const ac = new THREE.Color(accent)
+  grd.addColorStop(0, `rgba(${Math.round(ac.r*255)},${Math.round(ac.g*255)},${Math.round(ac.b*255)},0.25)`)
+  grd.addColorStop(1, 'rgba(0,0,0,0)')
+  ctx.fillStyle = grd
+  ctx.fillRect(0, 0, w, h)
+
+  // Border
+  ctx.strokeStyle = 'rgba(232,228,217,0.12)'
+  ctx.lineWidth = 2
+  ctx.stroke(path)
+
+  // Dot
+  ctx.fillStyle = accent
+  ctx.globalAlpha = 0.6
+  ctx.beginPath()
+  ctx.arc(w / 2, h * 0.35, 8, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.globalAlpha = 1
+
+  // Title
+  ctx.fillStyle = 'rgba(232,228,217,0.9)'
+  ctx.font = `italic ${Math.round(w * 0.1)}px Georgia, serif`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillText(title, w / 2, h * 0.55)
+
+  // Category
+  ctx.fillStyle = 'rgba(232,228,217,0.3)'
+  ctx.font = `${Math.round(w * 0.065)}px sans-serif`
+  ctx.fillText(category.toUpperCase(), w / 2, h * 0.72)
+
+  ctx.restore()
+  return new THREE.CanvasTexture(canvas)
+}
+
+// ── Main Component ────────────────────────────────────────────────────────────
 export default function Gallery() {
-  const cursorRef = useRef<HTMLDivElement>(null)
-  const trailRef = useRef<HTMLDivElement>(null)
-  const [activeIndex, setActiveIndex] = useState(0)
-  const [isAnimating, setIsAnimating] = useState(false)
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
-  const [selected, setSelected] = useState<number | null>(null)
-  const [filter, setFilter] = useState('All')
+  const mountRef    = useRef<HTMLDivElement>(null)
+  const sceneRef    = useRef<{
+    renderer: THREE.WebGLRenderer
+    scene: THREE.Scene
+    camera: THREE.PerspectiveCamera
+    cards: THREE.Mesh[]
+    cardData: typeof photos
+    helixAngle: number        // current helix Y rotation
+    targetHelixAngle: number  // where we want to be
+    scrollY: number
+    rafId: number
+    particleSystem: THREE.Points | null
+    particleTargets: THREE.Vector3[]
+    particlePhase: 'exploding' | 'resolving' | 'done'
+    particleT: number
+    mouse: THREE.Vector2
+    raycaster: THREE.Raycaster
+    hoveredCard: THREE.Mesh | null
+    isMobile: boolean
+  } | null>(null)
+
+  const [selected,   setSelected]   = useState<number | null>(null)
+  const [isMobile,   setIsMobile]   = useState(window.innerWidth < 768)
+  const [phase,      setPhase]      = useState<'loading' | 'done'>('loading')
+  const [hoveredId,  setHoveredId]  = useState<number | null>(null)
   const serif = "'Instrument Serif', serif"
-  const touchStartX = useRef(0)
-  const touchStartY = useRef(0)
 
   useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth < 768)
-    window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
+    const check = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
   }, [])
 
+  // ── Three.js setup ──────────────────────────────────────────────────────
   useEffect(() => {
-    if (isMobile) return
-    let mX=0,mY=0,tX=0,tY=0,rafId:number
-    const onMove=(e:MouseEvent)=>{mX=e.clientX;mY=e.clientY;if(cursorRef.current){cursorRef.current.style.left=mX+'px';cursorRef.current.style.top=mY+'px'}}
-    const loop=()=>{tX+=(mX-tX)*0.08;tY+=(mY-tY)*0.08;if(trailRef.current){trailRef.current.style.left=tX+'px';trailRef.current.style.top=tY+'px'}rafId=requestAnimationFrame(loop)}
-    document.addEventListener('mousemove',onMove);loop()
-    return()=>{document.removeEventListener('mousemove',onMove);cancelAnimationFrame(rafId)}
-  },[isMobile])
+    const mount = mountRef.current
+    if (!mount) return
 
-  const navigate = (dir: 'next' | 'prev') => {
-    if (isAnimating) return
-    setIsAnimating(true)
-    setActiveIndex(prev => dir === 'next' ? (prev + 1) % featured.length : (prev + featured.length - 1) % featured.length)
-    setTimeout(() => setIsAnimating(false), 650)
-  }
+    const W = mount.clientWidth
+    const H = mount.clientHeight
 
-  // Touch handlers
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX
-    touchStartY.current = e.touches[0].clientY
-  }
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    const dx = e.changedTouches[0].clientX - touchStartX.current
-    const dy = Math.abs(e.changedTouches[0].clientY - touchStartY.current)
-    if (Math.abs(dx) > 50 && dy < 80) {
-      navigate(dx < 0 ? 'next' : 'prev')
+    // Renderer
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+    renderer.setSize(W, H)
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    renderer.setClearColor(0x07100d, 1)
+    mount.appendChild(renderer.domElement)
+
+    // Scene + camera
+    const scene  = new THREE.Scene()
+    const camera = new THREE.PerspectiveCamera(60, W / H, 0.1, 200)
+    camera.position.set(0, 0, 14)
+
+    // Fog
+    scene.fog = new THREE.FogExp2(0x07100d, 0.045)
+
+    // Ambient + directional light
+    scene.add(new THREE.AmbientLight(0xffffff, 0.6))
+    const dir = new THREE.DirectionalLight(0x4ade80, 0.8)
+    dir.position.set(5, 10, 5)
+    scene.add(dir)
+
+    // ── DNA helix positions ─────────────────────────────────────────────
+    const HELIX_RADIUS = isMobile ? 2.8 : 3.8
+    const HELIX_PITCH  = 2.2   // vertical distance per full turn
+    const TURNS        = 1.8
+    const N            = photos.length
+
+    // Each photo gets a position on one of two strands
+    const helixPositions = photos.map((_, i) => {
+      const t      = i / (N - 1)           // 0 → 1
+      const angle  = t * Math.PI * 2 * TURNS
+      const y      = (t - 0.5) * HELIX_PITCH * TURNS * 1.6
+      const strand = i % 2 === 0 ? 1 : -1  // alternate strands
+      return new THREE.Vector3(
+        Math.cos(angle + strand * Math.PI * 0.5) * HELIX_RADIUS,
+        y,
+        Math.sin(angle + strand * Math.PI * 0.5) * HELIX_RADIUS,
+      )
+    })
+
+    // ── Particle system (pre-helix explosion) ──────────────────────────
+    const PARTICLE_COUNT = 600
+    const pPositions = new Float32Array(PARTICLE_COUNT * 3)
+    const pColors    = new Float32Array(PARTICLE_COUNT * 3)
+    const accentColors = photos.map(p => new THREE.Color(p.accent))
+
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      // Start: random sphere burst
+      const theta = Math.random() * Math.PI * 2
+      const phi   = Math.acos(2 * Math.random() - 1)
+      const r     = 6 + Math.random() * 8
+      pPositions[i * 3]     = r * Math.sin(phi) * Math.cos(theta)
+      pPositions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta)
+      pPositions[i * 3 + 2] = r * Math.cos(phi)
+
+      const c = accentColors[i % accentColors.length]
+      pColors[i * 3]     = c.r
+      pColors[i * 3 + 1] = c.g
+      pColors[i * 3 + 2] = c.b
     }
-  }
 
-  // Mouse drag
-  const center = activeIndex
-  const left = (activeIndex + featured.length - 1) % featured.length
-  const right = (activeIndex + 1) % featured.length
+    const pGeo = new THREE.BufferGeometry()
+    pGeo.setAttribute('position', new THREE.BufferAttribute(pPositions, 3))
+    pGeo.setAttribute('color',    new THREE.BufferAttribute(pColors, 3))
+    const pMat = new THREE.PointsMaterial({
+      size: 0.12, vertexColors: true, transparent: true,
+      opacity: 1, sizeAttenuation: true,
+    })
+    const particleSystem = new THREE.Points(pGeo, pMat)
+    scene.add(particleSystem)
 
-  const getRole = (i: number) => {
-    if (i === center) return 'center'
-    if (i === left) return 'left'
-    if (i === right) return 'right'
-    return 'back'
-  }
+    // Particle targets: converge toward helix positions
+    const particleTargets = Array.from({ length: PARTICLE_COUNT }, (_, i) =>
+      helixPositions[i % helixPositions.length].clone().add(
+        new THREE.Vector3(
+          (Math.random() - 0.5) * 0.4,
+          (Math.random() - 0.5) * 0.4,
+          (Math.random() - 0.5) * 0.4,
+        )
+      )
+    )
 
-  const roleStyle = (role: string) => {
-    switch (role) {
-      case 'center': return {
-        left: '50%', height: isMobile ? '55%' : '82%', bottom: 0,
-        transform: `translateX(-50%) scale(${isMobile ? 1.1 : 1.45})`,
-        filter: 'none', opacity: 1, zIndex: 20
-      }
-      case 'left': return {
-        left: isMobile ? '12%' : '20%', height: isMobile ? '22%' : '30%',
-        bottom: isMobile ? '8%' : '4%',
-        transform: 'translateX(-50%) scale(1)', filter: 'blur(2px)', opacity: 0.65, zIndex: 10
-      }
-      case 'right': return {
-        left: isMobile ? '88%' : '80%', height: isMobile ? '22%' : '30%',
-        bottom: isMobile ? '8%' : '4%',
-        transform: 'translateX(-50%) scale(1)', filter: 'blur(2px)', opacity: 0.65, zIndex: 10
-      }
-      default: return {
-        left: '50%', height: isMobile ? '14%' : '20%',
-        bottom: isMobile ? '8%' : '4%',
-        transform: 'translateX(-50%) scale(1)', filter: 'blur(4px)', opacity: 0.4, zIndex: 5
+    // ── Photo cards ────────────────────────────────────────────────────
+    const cardW = isMobile ? 1.6 : 2.0
+    const cardH = cardW * 0.72
+    const cards: THREE.Mesh[] = []
+
+    photos.forEach((photo, i) => {
+      const tex  = makeRoundedRectTexture(512, 370, 40, photo.color, photo.accent, photo.title, photo.category)
+      const geo  = new THREE.PlaneGeometry(cardW, cardH)
+      const mat  = new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: 0 })
+      const mesh = new THREE.Mesh(geo, mat)
+
+      // Start at particle-cloud position, will animate to helix
+      mesh.position.copy(helixPositions[i])
+      mesh.position.x += (Math.random() - 0.5) * 12
+      mesh.position.y += (Math.random() - 0.5) * 12
+      mesh.position.z += (Math.random() - 0.5) * 12
+      mesh.userData = { photoId: photo.id, targetPos: helixPositions[i], index: i }
+
+      // Face outward from helix center
+      mesh.lookAt(new THREE.Vector3(0, helixPositions[i].y, 0))
+
+      scene.add(mesh)
+      cards.push(mesh)
+    })
+
+    // ── Helix backbone (two strands of dots) ───────────────────────────
+    const backboneGeo = new THREE.BufferGeometry()
+    const backbonePoints: number[] = []
+    const BACKBONE_SEGMENTS = 120
+    for (let strand = 0; strand < 2; strand++) {
+      for (let i = 0; i <= BACKBONE_SEGMENTS; i++) {
+        const t     = i / BACKBONE_SEGMENTS
+        const angle = t * Math.PI * 2 * TURNS + strand * Math.PI
+        const y     = (t - 0.5) * HELIX_PITCH * TURNS * 1.6
+        backbonePoints.push(
+          Math.cos(angle) * HELIX_RADIUS,
+          y,
+          Math.sin(angle) * HELIX_RADIUS,
+        )
       }
     }
-  }
+    backboneGeo.setAttribute('position', new THREE.Float32BufferAttribute(backbonePoints, 3))
+    const backboneMat = new THREE.PointsMaterial({ color: 0x4ade80, size: 0.04, transparent: true, opacity: 0.25 })
+    const backbone = new THREE.Points(backboneGeo, backboneMat)
+    scene.add(backbone)
 
-  const filtered = filter === 'All' ? photos : photos.filter(p => p.category === filter)
+    // ── Rungs (connecting lines between strands) ───────────────────────
+    const rungMat = new THREE.LineBasicMaterial({ color: 0x4ade80, transparent: true, opacity: 0.08 })
+    const RUNG_COUNT = 28
+    for (let i = 0; i <= RUNG_COUNT; i++) {
+      const t      = i / RUNG_COUNT
+      const angle  = t * Math.PI * 2 * TURNS
+      const y      = (t - 0.5) * HELIX_PITCH * TURNS * 1.6
+      const p1     = new THREE.Vector3(Math.cos(angle) * HELIX_RADIUS, y, Math.sin(angle) * HELIX_RADIUS)
+      const p2     = new THREE.Vector3(Math.cos(angle + Math.PI) * HELIX_RADIUS, y, Math.sin(angle + Math.PI) * HELIX_RADIUS)
+      const rGeo   = new THREE.BufferGeometry().setFromPoints([p1, p2])
+      scene.add(new THREE.Line(rGeo, rungMat))
+    }
+
+    // ── Store refs ─────────────────────────────────────────────────────
+    sceneRef.current = {
+      renderer, scene, camera, cards,
+      cardData: photos,
+      helixAngle: 0, targetHelixAngle: 0,
+      scrollY: 0,
+      rafId: 0,
+      particleSystem,
+      particleTargets,
+      particlePhase: 'exploding',
+      particleT: 0,
+      mouse: new THREE.Vector2(-999, -999),
+      raycaster: new THREE.Raycaster(),
+      hoveredCard: null,
+      isMobile,
+    }
+
+    // ── Scroll handler ─────────────────────────────────────────────────
+    const onScroll = () => {
+      const s = sceneRef.current
+      if (!s) return
+      const maxScroll = document.body.scrollHeight - window.innerHeight
+      const t = maxScroll > 0 ? window.scrollY / maxScroll : 0
+      s.targetHelixAngle = t * Math.PI * 4  // 2 full rotations on full scroll
+    }
+    window.addEventListener('scroll', onScroll)
+
+    // ── Mouse move ─────────────────────────────────────────────────────
+    const onMouseMove = (e: MouseEvent) => {
+      const s = sceneRef.current
+      if (!s) return
+      const rect = mount.getBoundingClientRect()
+      s.mouse.x =  ((e.clientX - rect.left) / rect.width)  * 2 - 1
+      s.mouse.y = -((e.clientY - rect.top)  / rect.height) * 2 + 1
+    }
+    mount.addEventListener('mousemove', onMouseMove)
+
+    // ── Click handler ──────────────────────────────────────────────────
+    const onClick = (e: MouseEvent) => {
+      const s = sceneRef.current
+      if (!s || s.particlePhase !== 'done') return
+      const rect = mount.getBoundingClientRect()
+      const mouse = new THREE.Vector2(
+         ((e.clientX - rect.left) / rect.width)  * 2 - 1,
+        -((e.clientY - rect.top)  / rect.height) * 2 + 1,
+      )
+      s.raycaster.setFromCamera(mouse, s.camera)
+      const hits = s.raycaster.intersectObjects(s.cards)
+      if (hits.length > 0) {
+        const id = hits[0].object.userData.photoId as number
+        setSelected(id)
+      }
+    }
+    mount.addEventListener('click', onClick)
+
+    // ── Touch scroll (mobile) ──────────────────────────────────────────
+    let touchStartY = 0
+    const onTouchStart = (e: TouchEvent) => { touchStartY = e.touches[0].clientY }
+    const onTouchMove  = (e: TouchEvent) => {
+      const s = sceneRef.current
+      if (!s) return
+      const dy = touchStartY - e.touches[0].clientY
+      s.targetHelixAngle += dy * 0.004
+      touchStartY = e.touches[0].clientY
+    }
+    mount.addEventListener('touchstart', onTouchStart, { passive: true })
+    mount.addEventListener('touchmove',  onTouchMove,  { passive: true })
+
+    // ── Animation loop ─────────────────────────────────────────────────
+    const clock = new THREE.Clock()
+    let introT = 0  // 0 → 1 over ~2.5s
+
+    const animate = () => {
+      const s = sceneRef.current
+      if (!s) return
+      s.rafId = requestAnimationFrame(animate)
+      const delta = clock.getDelta()
+      introT = Math.min(introT + delta * 0.38, 1)  // intro speed
+
+      // ── Phase: particles explode outward then resolve into helix ──
+      if (s.particlePhase === 'exploding') {
+        s.particleT += delta * 0.6
+        const pPos = pGeo.attributes.position.array as Float32Array
+        const t    = Math.min(s.particleT, 1)
+        const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
+
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+          // Spiral outward
+          const orig = {
+            x: pPos[i * 3],
+            y: pPos[i * 3 + 1],
+            z: pPos[i * 3 + 2],
+          }
+          const scale = 1 + ease * 0.5
+          pPos[i * 3]     = orig.x * scale
+          pPos[i * 3 + 1] = orig.y * scale
+          pPos[i * 3 + 2] = orig.z * scale
+        }
+        pGeo.attributes.position.needsUpdate = true
+
+        if (s.particleT >= 1) {
+          s.particlePhase = 'resolving'
+          s.particleT     = 0
+        }
+      } else if (s.particlePhase === 'resolving') {
+        s.particleT += delta * 0.55
+        const t    = Math.min(s.particleT, 1)
+        const ease = 1 - Math.pow(1 - t, 3)  // ease out cubic
+        const pPos = pGeo.attributes.position.array as Float32Array
+        ;(pMat as THREE.PointsMaterial).opacity = 1 - ease * 0.85
+
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+          const tgt = s.particleTargets[i]
+          pPos[i * 3]     += (tgt.x - pPos[i * 3])     * ease * 0.08
+          pPos[i * 3 + 1] += (tgt.y - pPos[i * 3 + 1]) * ease * 0.08
+          pPos[i * 3 + 2] += (tgt.z - pPos[i * 3 + 2]) * ease * 0.08
+        }
+        pGeo.attributes.position.needsUpdate = true
+
+        // Fade in cards as particles resolve
+        s.cards.forEach((card, i) => {
+          const mat = card.material as THREE.MeshBasicMaterial
+          mat.opacity = Math.min(mat.opacity + delta * 0.6, ease)
+        })
+
+        if (s.particleT >= 1) {
+          s.particlePhase = 'done'
+          s.scene.remove(s.particleSystem!)
+          s.cards.forEach(card => {
+            ;(card.material as THREE.MeshBasicMaterial).opacity = 1
+          })
+          setPhase('done')
+        }
+      }
+
+      // ── Smooth helix rotation ───────────────────────────────────────
+      s.helixAngle += (s.targetHelixAngle - s.helixAngle) * 0.06
+
+      // Rotate the whole helix group (cards + backbone + rungs)
+      // We rotate scene children that are part of the helix
+      s.scene.children.forEach(obj => {
+        if (obj !== s.particleSystem && obj.type !== 'AmbientLight' && obj.type !== 'DirectionalLight') {
+          obj.rotation.y = s.helixAngle
+        }
+      })
+
+      // ── Gentle auto-spin when not scrolling ────────────────────────
+      if (s.particlePhase === 'done') {
+        s.targetHelixAngle += delta * 0.08
+      }
+
+      // ── Camera subtle parallax to mouse ────────────────────────────
+      if (!s.isMobile && s.particlePhase === 'done') {
+        camera.position.x += (s.mouse.x * 1.5 - camera.position.x) * 0.03
+        camera.position.y += (s.mouse.y * 1.0 - camera.position.y) * 0.03
+        camera.lookAt(0, 0, 0)
+      }
+
+      // ── Card settle animation (intro) ──────────────────────────────
+      if (s.particlePhase !== 'done') {
+        s.cards.forEach((card, i) => {
+          const delay = i / N * 0.4
+          const t     = Math.max(0, Math.min((introT - delay) / (1 - delay), 1))
+          const ease  = 1 - Math.pow(1 - t, 3)
+          const tgt   = card.userData.targetPos as THREE.Vector3
+          card.position.lerp(tgt, ease * 0.05)
+        })
+      }
+
+      // ── Hover detection ────────────────────────────────────────────
+      if (s.particlePhase === 'done' && !s.isMobile) {
+        s.raycaster.setFromCamera(s.mouse, camera)
+        const hits = s.raycaster.intersectObjects(s.cards)
+        const hit  = hits.length > 0 ? hits[0].object as THREE.Mesh : null
+
+        if (hit !== s.hoveredCard) {
+          // Reset old
+          if (s.hoveredCard) {
+            s.hoveredCard.scale.setScalar(1)
+            setHoveredId(null)
+          }
+          s.hoveredCard = hit
+          if (hit) setHoveredId(hit.userData.photoId)
+        }
+        // Animate hovered card scale
+        s.cards.forEach(card => {
+          const isHovered = card === s.hoveredCard
+          const targetS   = isHovered ? 1.18 : 1
+          card.scale.lerp(new THREE.Vector3(targetS, targetS, targetS), 0.12)
+        })
+
+        mount.style.cursor = hit ? 'pointer' : 'default'
+      }
+
+      renderer.render(scene, camera)
+    }
+    animate()
+
+    // ── Resize ────────────────────────────────────────────────────────
+    const onResize = () => {
+      const w = mount.clientWidth
+      const h = mount.clientHeight
+      camera.aspect = w / h
+      camera.updateProjectionMatrix()
+      renderer.setSize(w, h)
+    }
+    window.addEventListener('resize', onResize)
+
+    return () => {
+      const s = sceneRef.current
+      if (s) cancelAnimationFrame(s.rafId)
+      window.removeEventListener('scroll',  onScroll)
+      window.removeEventListener('resize',  onResize)
+      mount.removeEventListener('mousemove', onMouseMove)
+      mount.removeEventListener('click',     onClick)
+      mount.removeEventListener('touchstart', onTouchStart)
+      mount.removeEventListener('touchmove',  onTouchMove)
+      renderer.dispose()
+      if (mount.contains(renderer.domElement)) mount.removeChild(renderer.domElement)
+      sceneRef.current = null
+    }
+  }, [isMobile])
+
   const selectedPhoto = selected !== null ? photos.find(p => p.id === selected) : null
 
   const handleDownload = (photo: typeof photos[0]) => {
     const canvas = document.createElement('canvas')
     canvas.width = 1920; canvas.height = 1080
     const ctx = canvas.getContext('2d')!
-    ctx.fillStyle = photo.color; ctx.fillRect(0,0,1920,1080)
-    const grad = ctx.createRadialGradient(960,540,0,960,540,700)
-    grad.addColorStop(0, photo.accent+'30'); grad.addColorStop(1,'transparent')
-    ctx.fillStyle=grad; ctx.fillRect(0,0,1920,1080)
-    ctx.globalAlpha=0.7; ctx.fillStyle=photo.accent
-    ctx.font='bold 72px serif'; ctx.textAlign='center'; ctx.fillText(photo.title,960,500)
-    ctx.globalAlpha=0.35; ctx.fillStyle='#e8e4d9'
-    ctx.font='28px sans-serif'; ctx.fillText('Shot by Shivish · shivish.in',960,590)
-    const a=document.createElement('a'); a.href=canvas.toDataURL('image/png')
-    a.download=`shivish-${photo.title.toLowerCase().replace(/ /g,'-')}.png`; a.click()
+    ctx.fillStyle = photo.color; ctx.fillRect(0, 0, 1920, 1080)
+    const grad = ctx.createRadialGradient(960, 540, 0, 960, 540, 700)
+    grad.addColorStop(0, photo.accent + '30'); grad.addColorStop(1, 'transparent')
+    ctx.fillStyle = grad; ctx.fillRect(0, 0, 1920, 1080)
+    ctx.globalAlpha = 0.7; ctx.fillStyle = photo.accent
+    ctx.font = 'bold 72px serif'; ctx.textAlign = 'center'; ctx.fillText(photo.title, 960, 500)
+    ctx.globalAlpha = 0.35; ctx.fillStyle = '#e8e4d9'
+    ctx.font = '28px sans-serif'; ctx.fillText('Shot by Shivish · shivish.in', 960, 590)
+    const a = document.createElement('a')
+    a.href = canvas.toDataURL('image/png')
+    a.download = `shivish-${photo.title.toLowerCase().replace(/ /g, '-')}.png`
+    a.click()
   }
 
-  const cols = isMobile ? 2 : 3
-
   return (
-    <div style={{background:'#07100d',color:'#e8e4d9',minHeight:'100vh',cursor:isMobile?'auto':'none',fontFamily:"'DM Sans',sans-serif"}}>
-      {!isMobile && <>
-        <div ref={cursorRef} style={{position:'fixed',width:12,height:12,background:'#4ade80',borderRadius:'50%',pointerEvents:'none',zIndex:99999,transform:'translate(-50%,-50%)',left:'-100px',top:'-100px',boxShadow:'0 0 12px rgba(74,222,128,0.8)'}}/>
-        <div ref={trailRef} style={{position:'fixed',width:40,height:40,border:'1px solid rgba(74,222,128,0.25)',borderRadius:'50%',pointerEvents:'none',zIndex:99998,transform:'translate(-50%,-50%)',left:'-100px',top:'-100px'}}/>
-      </>}
+    <div style={{ background: '#07100d', minHeight: '100vh', fontFamily: "'DM Sans',sans-serif" }}>
 
-      <Nav/>
+      {/* Nav always on top */}
+      <Nav />
 
-      {/* CAROUSEL */}
-      <motion.div
-       onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}
+      {/* ── Full-screen Three.js canvas ── */}
+      <div
+        ref={mountRef}
         style={{
-          position:'relative', width:'100%', height:'100vh', overflow:'hidden',
-          backgroundColor: featured[activeIndex].bg,
-          transition:'background-color 650ms cubic-bezier(0.4,0,0.2,1)',
-          touchAction:'pan-y', userSelect:'none'
-        }}>
+          position: 'fixed',
+          inset: 0,
+          zIndex: 1,
+          background: '#07100d',
+        }}
+      />
 
-        {/* Grain */}
-        <div style={{position:'absolute',inset:0,pointerEvents:'none',zIndex:50,opacity:0.35,
-          backgroundImage:`url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E")`,
-          backgroundSize:'200px 200px'}}/>
+      {/* ── Scrollable spacer — drives helix rotation ── */}
+      <div style={{ height: '400vh', position: 'relative', zIndex: 2, pointerEvents: 'none' }} />
 
-        {/* Ghost text */}
-        <div style={{position:'absolute',inset:0,display:'flex',alignItems:'flex-start',justifyContent:'center',paddingTop:'18%',pointerEvents:'none',zIndex:2}}>
-          <span style={{fontFamily:serif,fontStyle:'italic',fontSize:`clamp(60px,${isMobile?'16vw':'20vw'},280px)`,fontWeight:400,color:'rgba(232,228,217,0.05)',lineHeight:1,whiteSpace:'nowrap',letterSpacing:'-0.03em',userSelect:'none',transition:'all 650ms'}}>
-            {featured[activeIndex].title}
-          </span>
+      {/* ── Overlay UI ── */}
+      <div style={{
+        position: 'fixed', inset: 0, zIndex: 10,
+        pointerEvents: 'none',
+        display: 'flex', flexDirection: 'column',
+        justifyContent: 'space-between', padding: isMobile ? '80px 20px 32px' : '88px 48px 40px',
+      }}>
+        {/* Top label */}
+        <div>
+          <motion.p
+            initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.8 }}
+            style={{ fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(232,228,217,0.3)', marginBottom: 10 }}
+          >Gallery · Photography & Editing</motion.p>
+          <motion.h1
+            initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.9 }}
+            style={{ fontFamily: "'Instrument Serif', serif", fontSize: 'clamp(28px,4vw,54px)', fontWeight: 400, color: '#e8e4d9', letterSpacing: '-0.03em', lineHeight: 1 }}
+          >Browse <em style={{ color: 'rgba(232,228,217,0.25)' }}>the shots.</em></motion.h1>
         </div>
 
-        {/* Cards */}
-        <div style={{position:'absolute',inset:0,zIndex:3,pointerEvents:'none'}}>
-          {featured.map((item, i) => {
-            const role = getRole(i)
-            const rs = roleStyle(role)
-            return (
-              <div key={item.id} style={{
-                position:'absolute', aspectRatio:'0.65/1',
-                transition:'transform 650ms cubic-bezier(0.4,0,0.2,1), filter 650ms cubic-bezier(0.4,0,0.2,1), opacity 650ms cubic-bezier(0.4,0,0.2,1), left 650ms cubic-bezier(0.4,0,0.2,1), height 650ms cubic-bezier(0.4,0,0.2,1)',
-                willChange:'transform,filter,opacity', ...rs
-              }}>
-                <div style={{width:'100%',height:'100%',borderRadius:isMobile?12:16,background:item.bg,border:`1px solid ${item.accent}30`,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:10,overflow:'hidden',position:'relative'}}>
-                  <div style={{position:'absolute',inset:0,background:`radial-gradient(circle at center, ${item.accent}20 0%, transparent 70%)`}}/>
-                  <div style={{width:isMobile?28:40,height:isMobile?28:40,borderRadius:'50%',background:item.accent,opacity:0.5}}/>
-                  <p style={{fontFamily:serif,fontStyle:'italic',fontSize:isMobile?14:18,color:'rgba(232,228,217,0.7)',textAlign:'center',padding:'0 12px'}}>{item.title}</p>
-                  <p style={{fontSize:9,color:'rgba(232,228,217,0.35)',letterSpacing:'0.14em',textTransform:'uppercase'}}>{item.category}</p>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-
-        {/* Bottom info */}
-        <div style={{position:'absolute',bottom:isMobile?32:48,left:isMobile?24:48,zIndex:60}}>
-          <p style={{fontFamily:serif,fontSize:isMobile?'clamp(16px,5vw,22px)':'clamp(20px,3vw,36px)',fontWeight:400,color:'#e8e4d9',marginBottom:4,letterSpacing:'-0.02em'}}>
-            {featured[activeIndex].title}
+        {/* Bottom hints */}
+        <motion.div
+          initial={{ opacity: 0 }} animate={{ opacity: phase === 'done' ? 1 : 0 }} transition={{ duration: 1 }}
+          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}
+        >
+          <p style={{ fontSize: 11, letterSpacing: '0.14em', color: 'rgba(232,228,217,0.22)', textTransform: 'uppercase', textAlign: 'center' }}>
+            {isMobile ? 'Drag to rotate · Tap a card' : 'Scroll to rotate · Click a card · Mouse to parallax'}
           </p>
-          <p style={{fontSize:11,color:'rgba(232,228,217,0.4)',letterSpacing:'0.1em',textTransform:'uppercase',marginBottom:isMobile?16:20}}>
-            {featured[activeIndex].category} · Placeholder
-          </p>
-          {/* Dot indicators */}
-          <div style={{display:'flex',gap:8}}>
-            {featured.map((_,i)=>(
-              <button key={i} onClick={()=>{if(!isAnimating){setIsAnimating(true);setActiveIndex(i);setTimeout(()=>setIsAnimating(false),650)}}}
-                style={{width:i===activeIndex?24:8,height:8,borderRadius:9999,background:i===activeIndex?'#e8e4d9':'rgba(232,228,217,0.25)',border:'none',cursor:isMobile?'pointer':'none',transition:'all 0.4s',padding:0}}/>
-            ))}
-          </div>
-        </div>
-
-        {/* Counter */}
-        <div style={{position:'absolute',bottom:isMobile?32:48,right:isMobile?24:48,zIndex:60,textAlign:'right'}}>
-          <p style={{fontFamily:serif,fontStyle:'italic',fontSize:isMobile?16:24,color:'rgba(232,228,217,0.4)',letterSpacing:'-0.02em'}}>
-            {String(activeIndex+1).padStart(2,'0')} / {String(featured.length).padStart(2,'0')}
-          </p>
-          {!isMobile && <p style={{fontSize:11,color:'rgba(232,228,217,0.25)',letterSpacing:'0.1em',marginTop:4,textTransform:'uppercase'}}>Drag or swipe</p>}
-          {isMobile && <p style={{fontSize:10,color:'rgba(232,228,217,0.25)',letterSpacing:'0.08em',marginTop:4,textTransform:'uppercase'}}>Swipe</p>}
-        </div>
-      </motion.div>
-
-      {/* GRID */}
-      <div style={{maxWidth:1200,margin:'0 auto',padding:isMobile?'60px 20px 60px':'100px 48px 80px'}}>
-        <motion.div initial={{opacity:0,y:20}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{duration:0.8}}>
-          <p style={{fontSize:11,letterSpacing:'0.2em',textTransform:'uppercase',color:'rgba(232,228,217,0.3)',marginBottom:12}}>All Photos</p>
-          <h2 style={{fontFamily:serif,fontSize:'clamp(32px,6vw,72px)',fontWeight:400,lineHeight:0.95,letterSpacing:'-0.03em',marginBottom:36}}>
-            Browse <em style={{color:'rgba(232,228,217,0.22)',fontStyle:'italic'}}>the shots.</em>
-          </h2>
+          <div style={{ width: 1, height: 28, background: 'linear-gradient(to bottom,rgba(74,222,128,0.4),transparent)', animation: 'scrollPulse 1.5s ease infinite' }} />
         </motion.div>
-
-        {/* Filters */}
-        <div style={{display:'flex',gap:8,marginBottom:32,flexWrap:'wrap'}}>
-          {['All','Photography','Editing'].map(f=>(
-            <button key={f} onClick={()=>setFilter(f)} style={{
-              borderRadius:9999,padding:isMobile?'7px 16px':'8px 20px',
-              border:`0.5px solid ${filter===f?'rgba(232,228,217,0.35)':'rgba(232,228,217,0.1)'}`,
-              background:filter===f?'rgba(232,228,217,0.07)':'transparent',
-              color:filter===f?'#e8e4d9':'rgba(232,228,217,0.38)',
-              fontSize:isMobile?11:12,cursor:'pointer',transition:'all 0.25s',letterSpacing:'0.06em',textTransform:'uppercase'
-            }}>{f}</button>
-          ))}
-        </div>
-
-        {/* Grid */}
-        <div style={{display:'grid',gridTemplateColumns:`repeat(${cols},1fr)`,gap:isMobile?8:12}}>
-          {filtered.map((photo,i)=>(
-            <motion.div key={photo.id}
-              initial={{opacity:0,scale:0.95}} whileInView={{opacity:1,scale:1}} viewport={{once:true}}
-              transition={{delay:i*0.05,duration:0.7,ease:[0.16,1,0.3,1]}}
-              whileTap={{scale:0.97}}
-              onClick={()=>setSelected(photo.id)}
-              style={{borderRadius:isMobile?10:14,overflow:'hidden',cursor:'pointer',position:'relative',aspectRatio:'4/3',background:photo.color,border:'0.5px solid rgba(232,228,217,0.07)'}}>
-              <div style={{position:'absolute',inset:0,background:`radial-gradient(circle at 40% 50%, ${photo.accent}18 0%, transparent 65%)`}}/>
-              <div style={{position:'absolute',inset:0,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:8}}>
-                <div style={{width:20,height:20,borderRadius:'50%',background:photo.accent,opacity:0.4}}/>
-                <p style={{fontFamily:serif,fontSize:isMobile?13:16,color:'rgba(232,228,217,0.65)',fontStyle:'italic',textAlign:'center',padding:'0 8px'}}>{photo.title}</p>
-                <p style={{fontSize:9,color:'rgba(232,228,217,0.28)',letterSpacing:'0.12em',textTransform:'uppercase'}}>{photo.category}</p>
-              </div>
-              <button onClick={e=>{e.stopPropagation();handleDownload(photo)}}
-                style={{position:'absolute',bottom:8,right:8,borderRadius:9999,padding:'5px 10px',background:'rgba(232,228,217,0.1)',border:'0.5px solid rgba(232,228,217,0.15)',color:'rgba(232,228,217,0.6)',display:'flex',alignItems:'center',gap:4,fontSize:10,cursor:'pointer'}}>
-                <Download size={11}/> {!isMobile && 'Save'}
-              </button>
-            </motion.div>
-          ))}
-        </div>
-
-        <p style={{textAlign:'center',fontSize:12,color:'rgba(232,228,217,0.18)',marginTop:40,fontFamily:serif,fontStyle:'italic'}}>
-          Real photos coming soon.
-        </p>
       </div>
 
-      {/* Lightbox */}
+      {/* ── Hovered card label ── */}
+      <AnimatePresence>
+        {hoveredId !== null && phase === 'done' && (() => {
+          const p = photos.find(ph => ph.id === hoveredId)!
+          return (
+            <motion.div
+              key={hoveredId}
+              initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }}
+              transition={{ duration: 0.2 }}
+              style={{
+                position: 'fixed', bottom: 80, left: '50%', transform: 'translateX(-50%)',
+                zIndex: 20, pointerEvents: 'none', textAlign: 'center',
+                background: 'rgba(7,16,13,0.7)', backdropFilter: 'blur(12px)',
+                border: `0.5px solid ${p.accent}40`, borderRadius: 9999,
+                padding: '8px 24px',
+              }}
+            >
+              <span style={{ fontFamily: "'Instrument Serif',serif", fontSize: 15, color: '#e8e4d9', fontStyle: 'italic' }}>{p.title}</span>
+              <span style={{ fontSize: 10, color: 'rgba(232,228,217,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginLeft: 12 }}>{p.category}</span>
+            </motion.div>
+          )
+        })()}
+      </AnimatePresence>
+
+      {/* ── Loading overlay ── */}
+      <AnimatePresence>
+        {phase === 'loading' && (
+          <motion.div exit={{ opacity: 0 }} transition={{ duration: 0.8 }}
+            style={{ position: 'fixed', inset: 0, zIndex: 50, background: '#07100d', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, pointerEvents: 'none' }}>
+            <motion.div
+              animate={{ scale: [1, 1.15, 1], opacity: [0.4, 1, 0.4] }}
+              transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
+              style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80' }}
+            />
+            <p style={{ fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(232,228,217,0.25)' }}>Assembling helix</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Lightbox ── */}
       <AnimatePresence>
         {selectedPhoto && (
-          <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} transition={{duration:0.3}}
-            style={{position:'fixed',inset:0,zIndex:200,background:'rgba(0,0,0,0.94)',display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(28px)',padding:isMobile?16:0}}
-            onClick={()=>setSelected(null)}>
-            <button style={{position:'absolute',top:16,right:16,width:40,height:40,borderRadius:'50%',background:'rgba(232,228,217,0.08)',border:'0.5px solid rgba(232,228,217,0.15)',color:'#e8e4d9',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}} onClick={()=>setSelected(null)}>
-              <X size={16}/>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}
+            style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(0,0,0,0.94)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(28px)', padding: isMobile ? 16 : 0 }}
+            onClick={() => setSelected(null)}>
+            <button
+              style={{ position: 'absolute', top: 16, right: 16, width: 40, height: 40, borderRadius: '50%', background: 'rgba(232,228,217,0.08)', border: '0.5px solid rgba(232,228,217,0.15)', color: '#e8e4d9', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+              onClick={() => setSelected(null)}>
+              <X size={16} />
             </button>
-            <motion.div initial={{scale:0.9,opacity:0}} animate={{scale:1,opacity:1}} exit={{scale:0.9,opacity:0}} transition={{duration:0.4,ease:[0.16,1,0.3,1]}}
-              style={{width:isMobile?'100%':'65vw',maxWidth:860,aspectRatio:'4/3',borderRadius:isMobile?16:22,background:selectedPhoto.color,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:16,position:'relative',border:'0.5px solid rgba(232,228,217,0.1)'}}
-              onClick={e=>e.stopPropagation()}>
-              <div style={{position:'absolute',inset:0,borderRadius:'inherit',background:`radial-gradient(circle at center, ${selectedPhoto.accent}20 0%, transparent 65%)`}}/>
-              <div style={{width:48,height:48,borderRadius:'50%',background:selectedPhoto.accent,opacity:0.45}}/>
-              <p style={{fontFamily:serif,fontSize:isMobile?28:38,color:'rgba(232,228,217,0.85)',fontStyle:'italic',letterSpacing:'-0.02em'}}>{selectedPhoto.title}</p>
-              <p style={{fontSize:11,color:'rgba(232,228,217,0.35)',letterSpacing:'0.14em',textTransform:'uppercase'}}>{selectedPhoto.category}</p>
-              <button onClick={()=>handleDownload(selectedPhoto)}
-                style={{marginTop:8,borderRadius:9999,padding:'12px 28px',background:'#e8e4d9',color:'#07100d',fontSize:13,fontWeight:500,border:'none',cursor:'pointer',display:'flex',alignItems:'center',gap:8}}>
-                <Download size={14}/> Download Wallpaper
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              style={{ width: isMobile ? '100%' : '65vw', maxWidth: 860, aspectRatio: '4/3', borderRadius: isMobile ? 16 : 22, background: selectedPhoto.color, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, position: 'relative', border: '0.5px solid rgba(232,228,217,0.1)' }}
+              onClick={e => e.stopPropagation()}>
+              <div style={{ position: 'absolute', inset: 0, borderRadius: 'inherit', background: `radial-gradient(circle at center, ${selectedPhoto.accent}20, transparent 65%)` }} />
+              <div style={{ width: 48, height: 48, borderRadius: '50%', background: selectedPhoto.accent, opacity: 0.45 }} />
+              <p style={{ fontFamily: serif, fontSize: isMobile ? 28 : 38, color: 'rgba(232,228,217,0.85)', fontStyle: 'italic', letterSpacing: '-0.02em', margin: 0 }}>{selectedPhoto.title}</p>
+              <p style={{ fontSize: 11, color: 'rgba(232,228,217,0.35)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: 0 }}>{selectedPhoto.category}</p>
+              <button onClick={() => handleDownload(selectedPhoto)}
+                style={{ marginTop: 8, borderRadius: 9999, padding: '12px 28px', background: '#e8e4d9', color: '#07100d', fontSize: 13, fontWeight: 500, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Download size={14} /> Download Wallpaper
               </button>
             </motion.div>
-            {!isMobile && ['prev','next'].map(dir=>(
-              <button key={dir} style={{position:'absolute',[dir==='prev'?'left':'right']:24,top:'50%',transform:'translateY(-50%)',width:44,height:44,borderRadius:'50%',background:'rgba(232,228,217,0.08)',border:'0.5px solid rgba(232,228,217,0.15)',color:'#e8e4d9',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}}
-                onClick={e=>{e.stopPropagation();const idx=photos.findIndex(p=>p.id===selected);setSelected(photos[(idx+(dir==='next'?1:-1)+photos.length)%photos.length].id)}}>
-                {dir==='prev'?<ChevronLeft size={20}/>:<ChevronRight size={20}/>}
+            {!isMobile && ['prev', 'next'].map(dir => (
+              <button key={dir}
+                style={{ position: 'absolute', [dir === 'prev' ? 'left' : 'right']: 24, top: '50%', transform: 'translateY(-50%)', width: 44, height: 44, borderRadius: '50%', background: 'rgba(232,228,217,0.08)', border: '0.5px solid rgba(232,228,217,0.15)', color: '#e8e4d9', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                onClick={e => {
+                  e.stopPropagation()
+                  const idx = photos.findIndex(p => p.id === selected)
+                  setSelected(photos[(idx + (dir === 'next' ? 1 : -1) + photos.length) % photos.length].id)
+                }}>
+                {dir === 'prev' ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
               </button>
             ))}
           </motion.div>
         )}
       </AnimatePresence>
 
-      <footer style={{padding:isMobile?'20px 24px':'28px 48px',fontSize:12,color:'rgba(232,228,217,0.18)',borderTop:'0.5px solid rgba(232,228,217,0.05)',display:'flex',justifyContent:'space-between'}}>
-        <span>Shivish · 2025</span>
-        <span style={{fontFamily:serif,fontStyle:'italic'}}>Built with vibe.</span>
-      </footer>
-
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap');
-        *{box-sizing:border-box;margin:0;padding:0}
-        @keyframes scrollPulse{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        @keyframes scrollPulse {
+          0%   { transform: scaleY(0); transform-origin: top; }
+          50%  { transform: scaleY(1); transform-origin: top; }
+          51%  { transform-origin: bottom; }
+          100% { transform: scaleY(0); transform-origin: bottom; }
+        }
       `}</style>
     </div>
   )

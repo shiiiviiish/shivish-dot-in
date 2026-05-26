@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import Nav from '../components/Nav'
 
 const serif = "'Instrument Serif', serif"
+const mono  = "'DM Mono', monospace"
 
 const experience = [
   { year: '2025 — now', role: 'Freelance Web Developer', place: 'Chandigarh', desc: 'Built portfolio websites for clients. HTA — Happiness Through Art.' },
@@ -13,22 +14,31 @@ const experience = [
 
 const skillGroups = {
   'Frontend': ['React', 'TypeScript', 'Tailwind CSS', 'Framer Motion'],
-  'Tools': ['Git & GitHub', 'Vercel', 'VS Code', 'Figma'],
+  'Tools':    ['Git & GitHub', 'Vercel', 'VS Code', 'Figma'],
   'Creative': ['Photography', 'Video Editing', 'UI Design'],
 }
 
 const skillsFlat = ['React', 'TypeScript', 'Tailwind CSS', 'Framer Motion', 'GSAP', 'Git & GitHub', 'Vercel', 'Figma', 'Photography', 'Video Editing']
 
+// skill bars for the KVS section
+const skillBars = [
+  { name: '{CODE}',       pct: 88 },
+  { name: '{DESIGN}',     pct: 78 },
+  { name: '{EDIT}',       pct: 75 },
+  { name: '{SHOOT}',      pct: 70 },
+  { name: '{VIBE}',       pct: 100, inf: true },
+]
+
 const polaroids = [
-  { label: 'At my desk', color: '#0d1f17', accent: '#4ade80', rotate: -3 },
-  { label: 'Out shooting', color: '#0f1525', accent: '#60a5fa', rotate: 2 },
-  { label: 'Late night coding', color: '#1f0a12', accent: '#f472b6', rotate: -1.5 },
+  { label: 'At my desk',         color: '#0d1f17', accent: '#4ade80',  rotate: -3   },
+  { label: 'Out shooting',       color: '#0f1525', accent: '#60a5fa',  rotate:  2   },
+  { label: 'Late night coding',  color: '#1f0a12', accent: '#f472b6',  rotate: -1.5 },
 ]
 
 const services = [
-  { num: '01', title: 'Web Design', desc: 'Clean, cinematic websites that feel premium and work flawlessly.' },
-  { num: '02', title: 'Web Development', desc: 'React, TypeScript, Tailwind. Fast, scalable, well-structured code.' },
-  { num: '03', title: 'Motion & Interaction', desc: 'Animations and interactions that bring interfaces to life.' },
+  { num: '01', title: 'Web Design',          desc: 'Clean, cinematic websites that feel premium and work flawlessly.' },
+  { num: '02', title: 'Web Development',     desc: 'React, TypeScript, Tailwind. Fast, scalable, well-structured code.' },
+  { num: '03', title: 'Motion & Interaction',desc: 'Animations and interactions that bring interfaces to life.' },
 ]
 
 function NameReveal({ trigger }: { trigger: boolean }) {
@@ -36,51 +46,61 @@ function NameReveal({ trigger }: { trigger: boolean }) {
   if (!trigger) return <span style={{opacity:0}}>{text}</span>
   return (
     <span style={{display:'inline-flex'}}>
-      {text.split('').map((c,i) => (
+      {text.split('').map((c,i)=>(
         <span key={i} style={{display:'inline-block',animation:'blurIn 0.7s ease forwards',animationDelay:`${i*0.08}s`,opacity:0}}>{c}</span>
       ))}
     </span>
   )
 }
 
-function CountUp({ value, delay = 0 }: { value: string; delay?: number }) {
-  const ref = useRef<HTMLSpanElement>(null)
-  const isInView = useInView(ref, { once: true, margin: '-50px' })
+function CountUp({ value, delay=0 }: { value: string; delay?: number }) {
+  const ref   = useRef<HTMLSpanElement>(null)
+  const isInView = useInView(ref,{once:true,margin:'-50px'})
   const isNum = !isNaN(Number(value))
-  useEffect(() => {
-    if (!isInView || !isNum || !ref.current) return
-    const target = Number(value)
-    const duration = 2000
-    const start = performance.now()
-    const chars = '0123456789'
-    const tick = (now: number) => {
-      const progress = Math.min((now - start) / duration, 1)
-      const eased = 1 - Math.pow(1 - progress, 4)
-      const current = Math.floor(eased * target)
-      if (progress < 0.85) {
-        const scrambled = String(current).split('').map(d => Math.random() > 0.5 ? d : chars[Math.floor(Math.random()*chars.length)]).join('')
-        if (ref.current) ref.current.textContent = '+' + scrambled
-      } else {
-        if (ref.current) ref.current.textContent = '+' + current
-      }
-      if (progress < 1) requestAnimationFrame(tick)
-      else if (ref.current) ref.current.textContent = '+' + target
+  useEffect(()=>{
+    if(!isInView||!isNum||!ref.current)return
+    const target=Number(value),duration=2000,start=performance.now(),chars='0123456789'
+    const tick=(now:number)=>{
+      const progress=Math.min((now-start)/duration,1)
+      const eased=1-Math.pow(1-progress,4)
+      const current=Math.floor(eased*target)
+      if(progress<0.85){
+        const scrambled=String(current).split('').map(d=>Math.random()>0.5?d:chars[Math.floor(Math.random()*chars.length)]).join('')
+        if(ref.current)ref.current.textContent='+'+scrambled
+      }else{if(ref.current)ref.current.textContent='+'+current}
+      if(progress<1)requestAnimationFrame(tick)
+      else if(ref.current)ref.current.textContent='+'+target
     }
-    setTimeout(() => requestAnimationFrame(tick), delay)
-  }, [isInView])
-  return <span ref={ref} style={{display:'inline-block'}}>{isNum ? '+0' : `+${value}`}</span>
+    setTimeout(()=>requestAnimationFrame(tick),delay)
+  },[isInView])
+  return <span ref={ref} style={{display:'inline-block'}}>{isNum?'+0':`+${value}`}</span>
+}
+
+// Animated skill bar
+function SkillBar({ pct, inf }: { pct: number; inf?: boolean }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const isInView = useInView(ref,{once:true,margin:'-40px'})
+  return (
+    <div ref={ref} style={{width:90,height:1,background:'rgba(232,228,217,0.08)',position:'relative',flexShrink:0}}>
+      <div style={{
+        position:'absolute',left:0,top:0,height:1,background:'#4ade80',
+        width: isInView ? `${pct}%` : '0%',
+        transition:'width 1.2s cubic-bezier(0.16,1,0.3,1)',
+      }}/>
+    </div>
+  )
 }
 
 export default function About() {
-  const cursorRef = useRef<HTMLDivElement>(null)
-  const trailRef = useRef<HTMLDivElement>(null)
+  const cursorRef  = useRef<HTMLDivElement>(null)
+  const trailRef   = useRef<HTMLDivElement>(null)
   const marqueeRef = useRef<HTMLDivElement>(null)
   const [trigger, setTrigger] = useState(false)
 
-  useEffect(() => { setTrigger(true) }, [])
+  useEffect(()=>{ setTrigger(true) },[])
 
-  useEffect(() => {
-    if (window.innerWidth < 768) return
+  useEffect(()=>{
+    if(window.innerWidth<768)return
     let mX=0,mY=0,tX=0,tY=0,rafId:number
     const onMove=(e:MouseEvent)=>{mX=e.clientX;mY=e.clientY;if(cursorRef.current){cursorRef.current.style.left=mX+'px';cursorRef.current.style.top=mY+'px'}}
     const loop=()=>{tX+=(mX-tX)*0.08;tY+=(mY-tY)*0.08;if(trailRef.current){trailRef.current.style.left=tX+'px';trailRef.current.style.top=tY+'px'}rafId=requestAnimationFrame(loop)}
@@ -88,33 +108,32 @@ export default function About() {
     return()=>{document.removeEventListener('mousemove',onMove);cancelAnimationFrame(rafId)}
   },[])
 
-
-
-  useEffect(() => {
-    const el = marqueeRef.current; if (!el) return
-    let x = 0, raf: number
-    const tick = () => { x -= 0.35; if (x < -el.scrollWidth/2) x = 0; el.style.transform = `translateX(${x}px)`; raf = requestAnimationFrame(tick) }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
-  }, [])
+  useEffect(()=>{
+    const el=marqueeRef.current;if(!el)return
+    let x=0,raf:number
+    const tick=()=>{x-=0.35;if(x<-el.scrollWidth/2)x=0;el.style.transform=`translateX(${x}px)`;raf=requestAnimationFrame(tick)}
+    raf=requestAnimationFrame(tick)
+    return()=>cancelAnimationFrame(raf)
+  },[])
 
   return (
     <div style={{background:'#07100d',color:'#e8e4d9',minHeight:'100vh',fontFamily:"'DM Sans',sans-serif",overflowX:'hidden'}}>
       <div ref={cursorRef} className="desktop-cursor" style={{position:'fixed',width:12,height:12,background:'#4ade80',borderRadius:'50%',pointerEvents:'none',zIndex:99999,transform:'translate(-50%,-50%)',left:'-100px',top:'-100px',boxShadow:'0 0 12px rgba(74,222,128,0.8)'}}/>
-      <div ref={trailRef} className="desktop-cursor" style={{position:'fixed',width:44,height:44,border:'1px solid rgba(74,222,128,0.25)',borderRadius:'50%',pointerEvents:'none',zIndex:99998,transform:'translate(-50%,-50%)',left:'-100px',top:'-100px'}}/>
+      <div ref={trailRef}  className="desktop-cursor" style={{position:'fixed',width:44,height:44,border:'1px solid rgba(74,222,128,0.25)',borderRadius:'50%',pointerEvents:'none',zIndex:99998,transform:'translate(-50%,-50%)',left:'-100px',top:'-100px'}}/>
 
       <Nav/>
 
-      {/* HERO — Hola style */}
-      <section style={{position:'relative',minHeight:'100vh',display:'flex',alignItems:'center',zIndex:10,overflow:'hidden',padding:'80px clamp(20px,5vw,48px) 0'}}>
-        {/* Left content */}
+      {/* ── HERO ── */}
+      <section id="tour-about-hero" style={{position:'relative',minHeight:'100vh',display:'flex',alignItems:'center',zIndex:10,overflow:'hidden',padding:'80px clamp(20px,5vw,48px) 0'}}>
         <div style={{flex:1,position:'relative',zIndex:2}}>
+
+          {/* KVS-style eyebrow */}
           <motion.div initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{delay:0.2,duration:0.8}}
-            style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-            <span style={{fontSize:11,letterSpacing:'0.2em',textTransform:'uppercase',color:'rgba(232,228,217,0.3)'}}>About · 2025</span>
+            style={{display:'flex',alignItems:'center',gap:16,marginBottom:24}}>
+            <span style={{fontFamily:mono,fontSize:10,letterSpacing:'0.2em',color:'rgba(232,228,217,0.25)'}}>{'{ABOUT · 2025}'}</span>
             <div style={{display:'flex',alignItems:'center',gap:6,background:'rgba(255,255,255,0.06)',backdropFilter:'blur(12px)',border:'0.5px solid rgba(255,255,255,0.12)',borderRadius:9999,padding:'4px 10px'}}>
               <span style={{width:5,height:5,background:'#4ade80',borderRadius:'50%',boxShadow:'0 0 6px #4ade80',display:'inline-block'}}/>
-              <span style={{fontSize:10,color:'rgba(232,228,217,0.7)',letterSpacing:'0.08em',textTransform:'uppercase'}}>Open to work</span>
+              <span style={{fontFamily:mono,fontSize:10,color:'rgba(232,228,217,0.7)',letterSpacing:'0.08em',textTransform:'uppercase'}}>Open to work</span>
             </div>
           </motion.div>
 
@@ -128,19 +147,24 @@ export default function About() {
           </h1>
 
           <motion.p initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{delay:0.6,duration:0.8}}
-            style={{fontFamily:serif,fontStyle:'italic',fontSize:'clamp(14px,2vw,22px)',color:'rgba(232,228,217,0.3)',letterSpacing:'-0.01em',marginBottom:32,maxWidth:400}}>
-            — a developer & vibe coder from Chandigarh
+            style={{fontFamily:mono,fontSize:'clamp(11px,1.5vw,14px)',color:'rgba(232,228,217,0.3)',letterSpacing:'0.04em',marginBottom:32,maxWidth:420}}>
+            {'{ a developer & vibe coder from Chandigarh }'}
           </motion.p>
 
-          {/* Stats */}
+          {/* Stats — KVS style */}
           <motion.div initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{delay:0.8,duration:0.8}}
-            style={{display:'flex',gap:32,marginBottom:40,flexWrap:'wrap'}}>
-            {[{num:'2',label:'Projects Shipped'},{num:'19',label:'Years Old'},{num:'3',label:'Skills Areas'}].map((s,i)=>(
-              <motion.div key={i} initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{delay:0.9+i*0.15,duration:0.7}}>
+            style={{display:'flex',marginBottom:40,border:'0.5px solid rgba(232,228,217,0.07)',borderRadius:8,overflow:'hidden',flexWrap:'wrap'}}>
+            {[
+              {num:'2', label:'{PROJECTS}'},
+              {num:'19',label:'{YEARS OLD}'},
+              {num:'3', label:'{SKILL AREAS}'},
+            ].map((s,i)=>(
+              <motion.div key={i} initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{delay:0.9+i*0.15,duration:0.7}}
+                style={{flex:1,padding:'20px 24px',borderRight:i<2?'0.5px solid rgba(232,228,217,0.07)':'none',minWidth:100}}>
                 <p style={{fontFamily:serif,fontSize:'clamp(28px,4vw,52px)',fontWeight:400,color:'#e8e4d9',lineHeight:1,letterSpacing:'-0.03em',fontVariantNumeric:'tabular-nums'}}>
                   <CountUp value={s.num} delay={i*200}/>
                 </p>
-                <p style={{fontSize:11,color:'rgba(232,228,217,0.3)',letterSpacing:'0.08em',textTransform:'uppercase',marginTop:6}}>{s.label}</p>
+                <p style={{fontFamily:mono,fontSize:9,color:'rgba(232,228,217,0.25)',letterSpacing:'0.16em',marginTop:8}}>{s.label}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -156,12 +180,11 @@ export default function About() {
           </motion.div>
 
           <motion.p initial={{opacity:0}} animate={{opacity:1}} transition={{delay:1.4,duration:0.8}}
-            style={{fontSize:11,color:'rgba(232,228,217,0.2)',letterSpacing:'0.15em',textTransform:'uppercase'}}>
-            Scroll down ↓
+            style={{fontFamily:mono,fontSize:10,color:'rgba(232,228,217,0.2)',letterSpacing:'0.15em'}}>
+            {'{SCROLL DOWN ↓}'}
           </motion.p>
         </div>
 
-        {/* Right — face */}
         <motion.div initial={{opacity:0,x:60}} animate={{opacity:1,x:0}} transition={{delay:0.4,duration:1.2,ease:[0.16,1,0.3,1]}}
           className="hero-face" style={{position:'relative',zIndex:2,flexShrink:0}}>
           <div style={{position:'relative'}}>
@@ -172,11 +195,12 @@ export default function About() {
         </motion.div>
       </section>
 
-      {/* INTRO SPLIT */}
+      {/* ── INTRO SPLIT ── */}
       <section style={{maxWidth:1200,margin:'0 auto',padding:'100px clamp(20px,5vw,48px)'}}>
         <div className="intro-grid">
           <motion.div initial={{opacity:0,y:40}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{duration:1,ease:[0.16,1,0.3,1]}}>
-            <p style={{fontSize:11,letterSpacing:'0.2em',textTransform:'uppercase',color:'rgba(232,228,217,0.3)',marginBottom:24}}>(About)</p>
+            {/* KVS label */}
+            <p style={{fontFamily:mono,fontSize:10,letterSpacing:'0.2em',color:'rgba(232,228,217,0.25)',marginBottom:24}}>{'{ABOUT_ME}'}</p>
             <h2 style={{fontFamily:serif,fontSize:'clamp(32px,5vw,64px)',fontWeight:400,lineHeight:1.05,letterSpacing:'-0.03em',color:'rgba(232,228,217,0.8)'}}>
               Shivish is a developer focused on digital experience and creative development.
             </h2>
@@ -196,7 +220,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* SKILLS MARQUEE */}
+      {/* ── SKILLS MARQUEE ── */}
       <div style={{overflow:'hidden',borderTop:'0.5px solid rgba(232,228,217,0.06)',borderBottom:'0.5px solid rgba(232,228,217,0.06)',padding:'16px 0',position:'relative'}}>
         <div ref={marqueeRef} style={{display:'flex',gap:48,width:'max-content'}}>
           {[...skillsFlat,'·',...skillsFlat,'·',...skillsFlat].map((s,i)=>(
@@ -205,7 +229,7 @@ export default function About() {
         </div>
       </div>
 
-      {/* PORTRAIT + EXPERIENCE */}
+      {/* ── PORTRAIT + EXPERIENCE ── */}
       <section style={{maxWidth:1200,margin:'0 auto',padding:'100px clamp(20px,5vw,48px)'}}>
         <div className="portrait-grid">
           <motion.div initial={{opacity:0,x:-40}} whileInView={{opacity:1,x:0}} viewport={{once:true}} transition={{duration:1,ease:[0.16,1,0.3,1]}}>
@@ -217,11 +241,11 @@ export default function About() {
                   <div style={{background:'rgba(7,16,13,0.7)',backdropFilter:'blur(12px)',border:'0.5px solid rgba(74,222,128,0.15)',borderRadius:10,padding:'10px 14px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                     <div>
                       <p style={{fontFamily:serif,fontSize:16,color:'#e8e4d9',margin:0}}>Shivish</p>
-                      <p style={{fontSize:11,color:'rgba(232,228,217,0.4)',letterSpacing:'0.08em',textTransform:'uppercase',marginTop:2}}>Vibe Coder</p>
+                      <p style={{fontFamily:mono,fontSize:10,color:'rgba(232,228,217,0.4)',letterSpacing:'0.1em',textTransform:'uppercase',marginTop:2}}>{'{VIBE CODER}'}</p>
                     </div>
                     <div style={{display:'flex',alignItems:'center',gap:6}}>
                       <span style={{width:6,height:6,background:'#4ade80',borderRadius:'50%',boxShadow:'0 0 6px #4ade80',display:'inline-block'}}/>
-                      <span style={{fontSize:10,color:'rgba(232,228,217,0.6)',letterSpacing:'0.08em'}}>Open</span>
+                      <span style={{fontFamily:mono,fontSize:10,color:'rgba(232,228,217,0.6)',letterSpacing:'0.08em'}}>Open</span>
                     </div>
                   </div>
                 </div>
@@ -232,15 +256,15 @@ export default function About() {
           <div>
             {/* Experience */}
             <motion.div initial={{opacity:0,y:20}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{duration:0.8}} style={{marginBottom:48}}>
-              <p style={{fontSize:11,letterSpacing:'0.2em',textTransform:'uppercase',color:'rgba(232,228,217,0.3)',marginBottom:24}}>(Experiences)</p>
+              <p style={{fontFamily:mono,fontSize:10,letterSpacing:'0.2em',color:'rgba(232,228,217,0.25)',marginBottom:24}}>{'{EXPERIENCE}'}</p>
               <div style={{display:'flex',flexDirection:'column'}}>
                 {experience.map((e,i)=>(
                   <motion.div key={i} initial={{opacity:0,y:16}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{delay:i*0.1,duration:0.7}}
                     style={{padding:'20px 0',borderBottom:'0.5px solid rgba(232,228,217,0.07)',display:'grid',gridTemplateColumns:'140px 1fr',gap:20}}>
-                    <span style={{fontSize:12,color:'rgba(232,228,217,0.25)',letterSpacing:'0.05em',paddingTop:3}}>{e.year}</span>
+                    <span style={{fontFamily:mono,fontSize:10,color:'rgba(232,228,217,0.25)',letterSpacing:'0.05em',paddingTop:3}}>{e.year}</span>
                     <div>
                       <p style={{fontFamily:serif,fontSize:'clamp(16px,2.5vw,22px)',color:'#e8e4d9',fontWeight:400,marginBottom:2,letterSpacing:'-0.01em'}}>{e.role}</p>
-                      <p style={{fontSize:12,color:'rgba(232,228,217,0.35)',marginBottom:4}}>· {e.place}</p>
+                      <p style={{fontFamily:mono,fontSize:10,color:'rgba(232,228,217,0.3)',marginBottom:4,letterSpacing:'0.08em'}}>· {e.place}</p>
                       <p style={{fontSize:13,color:'rgba(232,228,217,0.4)',lineHeight:1.6,fontWeight:300}}>{e.desc}</p>
                     </div>
                   </motion.div>
@@ -248,13 +272,28 @@ export default function About() {
               </div>
             </motion.div>
 
+            {/* KVS skill bars */}
+            <motion.div initial={{opacity:0,y:20}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{delay:0.1,duration:0.8}} style={{marginBottom:40}}>
+              <p style={{fontFamily:mono,fontSize:10,letterSpacing:'0.2em',color:'rgba(232,228,217,0.25)',marginBottom:20}}>{'{SKILLS}'}</p>
+              <div style={{display:'flex',flexDirection:'column',gap:0}}>
+                {skillBars.map((s,i)=>(
+                  <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'11px 0',borderBottom:'0.5px solid rgba(232,228,217,0.05)'}}>
+                    <span style={{fontFamily:mono,fontSize:10,color:'rgba(232,228,217,0.45)',letterSpacing:'0.1em'}}>{s.name}</span>
+                    <SkillBar pct={s.pct} inf={s.inf}/>
+                    <span style={{fontFamily:mono,fontSize:9,color:'rgba(74,222,128,0.55)',minWidth:28,textAlign:'right'}}>
+                      {s.inf ? '∞%' : `${s.pct}%`}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
             {/* Skills tags */}
             <motion.div initial={{opacity:0,y:20}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{delay:0.2,duration:0.8}}>
-              <p style={{fontSize:11,letterSpacing:'0.2em',textTransform:'uppercase',color:'rgba(232,228,217,0.3)',marginBottom:20}}>(Skills)</p>
               <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
                 {skillsFlat.map(s=>(
-                  <span key={s} style={{fontSize:12,padding:'5px 14px',borderRadius:9999,border:'0.5px solid rgba(232,228,217,0.1)',color:'rgba(232,228,217,0.4)',letterSpacing:'0.04em',transition:'all 0.2s',cursor:'default'}}
-                    onMouseEnter={e=>{e.currentTarget.style.borderColor='rgba(232,228,217,0.3)';e.currentTarget.style.color='#e8e4d9'}}
+                  <span key={s} style={{fontFamily:mono,fontSize:10,padding:'5px 14px',borderRadius:9999,border:'0.5px solid rgba(232,228,217,0.1)',color:'rgba(232,228,217,0.4)',letterSpacing:'0.06em',transition:'all 0.2s',cursor:'default'}}
+                    onMouseEnter={e=>{e.currentTarget.style.borderColor='rgba(74,222,128,0.3)';e.currentTarget.style.color='#4ade80'}}
                     onMouseLeave={e=>{e.currentTarget.style.borderColor='rgba(232,228,217,0.1)';e.currentTarget.style.color='rgba(232,228,217,0.4)'}}>
                     {s}
                   </span>
@@ -265,18 +304,18 @@ export default function About() {
         </div>
       </section>
 
-      {/* SKILLS CLEARING CARD */}
+      {/* ── SKILLS CLEARING CARD ── */}
       <section style={{maxWidth:1200,margin:'0 auto',padding:'0 clamp(20px,5vw,48px) 80px'}}>
         <motion.div initial={{opacity:0,y:30}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{duration:0.9,ease:[0.16,1,0.3,1]}}>
           <div style={{background:'rgba(13,31,23,0.5)',backdropFilter:'blur(20px)',border:'0.5px solid rgba(74,222,128,0.1)',borderRadius:20,padding:'48px clamp(20px,4vw,48px)'}}>
             <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:40}}>
               <div style={{width:8,height:8,borderRadius:'50%',background:'#4ade80',boxShadow:'0 0 12px #4ade80'}}/>
-              <p style={{fontSize:11,letterSpacing:'0.2em',textTransform:'uppercase',color:'rgba(232,228,217,0.3)'}}>A clearing — Skills</p>
+              <p style={{fontFamily:mono,fontSize:10,letterSpacing:'0.2em',color:'rgba(232,228,217,0.25)'}}>{'{A CLEARING — SKILLS}'}</p>
             </div>
             <div className="skills-grid">
               {Object.entries(skillGroups).map(([cat,list])=>(
                 <div key={cat}>
-                  <p style={{fontSize:10,letterSpacing:'0.15em',textTransform:'uppercase',color:'rgba(232,228,217,0.3)',marginBottom:16}}>{cat}</p>
+                  <p style={{fontFamily:mono,fontSize:9,letterSpacing:'0.15em',textTransform:'uppercase',color:'rgba(232,228,217,0.25)',marginBottom:16}}>{`{${cat.toUpperCase()}}`}</p>
                   {list.map((s,i)=>(
                     <motion.p key={s} initial={{opacity:0,x:-10}} whileInView={{opacity:1,x:0}} viewport={{once:true}}
                       transition={{delay:i*0.08,duration:0.5}}
@@ -291,11 +330,11 @@ export default function About() {
         </motion.div>
       </section>
 
-      {/* POLAROIDS */}
+      {/* ── POLAROIDS ── */}
       <section style={{maxWidth:1200,margin:'0 auto',padding:'0 clamp(20px,5vw,48px) 80px'}}>
         <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:32}}>
           <div style={{width:8,height:8,borderRadius:'50%',background:'#4ade80',boxShadow:'0 0 12px #4ade80'}}/>
-          <p style={{fontSize:11,letterSpacing:'0.2em',textTransform:'uppercase',color:'rgba(232,228,217,0.3)'}}>Moments on the path</p>
+          <p style={{fontFamily:mono,fontSize:10,letterSpacing:'0.2em',color:'rgba(232,228,217,0.25)'}}>{'{MOMENTS ON THE PATH}'}</p>
         </div>
         <div className="polaroid-grid">
           {polaroids.map((p,i)=>(
@@ -307,7 +346,7 @@ export default function About() {
               <div style={{width:'100%',aspectRatio:'4/3',borderRadius:4,background:p.color,marginBottom:10,position:'relative',overflow:'hidden'}}>
                 <div style={{position:'absolute',inset:0,background:`radial-gradient(circle at center, ${p.accent}20 0%, transparent 70%)`}}/>
                 <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center'}}>
-                  <span style={{fontSize:10,color:'rgba(232,228,217,0.2)',letterSpacing:'0.1em',textTransform:'uppercase'}}>Photo placeholder</span>
+                  <span style={{fontFamily:mono,fontSize:9,color:'rgba(232,228,217,0.2)',letterSpacing:'0.1em',textTransform:'uppercase'}}>photo placeholder</span>
                 </div>
               </div>
               <p style={{fontFamily:serif,fontStyle:'italic',fontSize:13,color:'rgba(232,228,217,0.5)',textAlign:'center'}}>{p.label}</p>
@@ -316,16 +355,16 @@ export default function About() {
         </div>
       </section>
 
-      {/* SERVICES */}
+      {/* ── SERVICES ── */}
       <section style={{maxWidth:1200,margin:'0 auto',padding:'0 clamp(20px,5vw,48px) 80px'}}>
         <motion.p initial={{opacity:0,y:16}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{duration:0.7}}
-          style={{fontSize:11,letterSpacing:'0.2em',textTransform:'uppercase',color:'rgba(232,228,217,0.3)',marginBottom:40}}>(What I do)</motion.p>
+          style={{fontFamily:mono,fontSize:10,letterSpacing:'0.2em',color:'rgba(232,228,217,0.25)',marginBottom:40}}>{'{WHAT I DO}'}</motion.p>
         <div style={{display:'flex',flexDirection:'column'}}>
           {services.map((s,i)=>(
             <motion.div key={i} initial={{opacity:0,y:24}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{delay:i*0.1,duration:0.8}}
               style={{display:'grid',gridTemplateColumns:'60px 1fr auto',gap:24,padding:'28px 0',borderBottom:'0.5px solid rgba(232,228,217,0.07)',alignItems:'center',transition:'padding-left 0.4s',cursor:'default'}}
               onMouseEnter={e=>{e.currentTarget.style.paddingLeft='16px'}} onMouseLeave={e=>{e.currentTarget.style.paddingLeft='0'}}>
-              <span style={{fontFamily:serif,fontStyle:'italic',fontSize:13,color:'rgba(232,228,217,0.2)'}}>{s.num}</span>
+              <span style={{fontFamily:mono,fontSize:10,color:'rgba(232,228,217,0.2)',letterSpacing:'0.08em'}}>{s.num}</span>
               <div>
                 <h3 style={{fontFamily:serif,fontSize:'clamp(20px,3vw,36px)',fontWeight:400,color:'#e8e4d9',letterSpacing:'-0.02em',marginBottom:6}}>{s.title}</h3>
                 <p style={{fontSize:13,color:'rgba(232,228,217,0.4)',fontWeight:300,lineHeight:1.6}}>{s.desc}</p>
@@ -336,20 +375,23 @@ export default function About() {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* ── CTA ── */}
       <section style={{maxWidth:1200,margin:'0 auto',padding:'0 clamp(20px,5vw,48px) 100px'}}>
         <motion.div initial={{opacity:0,y:40}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{duration:1}}
           style={{borderTop:'0.5px solid rgba(232,228,217,0.06)',paddingTop:80,textAlign:'center'}}>
-          <p style={{fontSize:11,letterSpacing:'0.2em',textTransform:'uppercase',color:'rgba(232,228,217,0.3)',marginBottom:24}}>Have an idea in mind?</p>
+          <p style={{fontFamily:mono,fontSize:10,letterSpacing:'0.2em',color:'rgba(232,228,217,0.25)',marginBottom:24}}>{'{HAVE AN IDEA IN MIND?}'}</p>
           <h2 style={{fontFamily:serif,fontSize:'clamp(40px,8vw,100px)',fontWeight:400,lineHeight:0.9,letterSpacing:'-0.04em',marginBottom:40}}>
             Feel free<br/><em style={{fontStyle:'italic',color:'rgba(232,228,217,0.25)'}}>to contact.</em>
           </h2>
           <div style={{display:'flex',gap:16,justifyContent:'center',flexWrap:'wrap'}}>
-            <a href="mailto:hello@shivish.in" style={{borderRadius:9999,padding:'14px 36px',background:'#e8e4d9',color:'#07100d',fontSize:13,fontWeight:500,textDecoration:'none',transition:'opacity 0.2s'}}
-              onMouseEnter={e=>(e.currentTarget.style.opacity='0.85')} onMouseLeave={e=>(e.currentTarget.style.opacity='1')}>
+            <a href="mailto:hello@shivish.in"
+              style={{borderRadius:9999,padding:'14px 36px',background:'#e8e4d9',color:'#07100d',fontSize:13,fontWeight:500,textDecoration:'none',transition:'opacity 0.2s'}}
+              onMouseEnter={e=>(e.currentTarget.style.opacity='0.85')}
+              onMouseLeave={e=>(e.currentTarget.style.opacity='1')}>
               (Say hello) →
             </a>
-            <Link to="/work" style={{borderRadius:9999,padding:'14px 36px',border:'0.5px solid rgba(232,228,217,0.2)',color:'rgba(232,228,217,0.6)',fontSize:13,textDecoration:'none',transition:'all 0.2s'}}
+            <Link to="/work"
+              style={{borderRadius:9999,padding:'14px 36px',border:'0.5px solid rgba(232,228,217,0.2)',color:'rgba(232,228,217,0.6)',fontSize:13,textDecoration:'none',transition:'all 0.2s'}}
               onMouseEnter={e=>{e.currentTarget.style.borderColor='rgba(232,228,217,0.4)';e.currentTarget.style.color='#e8e4d9'}}
               onMouseLeave={e=>{e.currentTarget.style.borderColor='rgba(232,228,217,0.2)';e.currentTarget.style.color='rgba(232,228,217,0.6)'}}>
               (See my work)
@@ -358,34 +400,39 @@ export default function About() {
         </motion.div>
       </section>
 
-      <footer style={{padding:'24px clamp(20px,5vw,48px)',fontSize:12,color:'rgba(232,228,217,0.18)',borderTop:'0.5px solid rgba(232,228,217,0.05)',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:12}}>
-        <span>Design & Dev by Shivish · 2025</span>
+      {/* ── FOOTER — KVS coordinates ── */}
+      <footer style={{padding:'24px clamp(20px,5vw,48px)',borderTop:'0.5px solid rgba(232,228,217,0.05)',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:12}}>
+        <span style={{fontFamily:mono,fontSize:11,color:'rgba(232,228,217,0.18)'}}>Design & Dev by Shivish · 2025</span>
+        {/* KVS-style coordinates */}
+        <span style={{fontFamily:mono,fontSize:10,color:'rgba(232,228,217,0.15)',letterSpacing:'0.08em'}}>
+          30.7333° N, <span style={{color:'rgba(74,222,128,0.35)'}}>76.7794° E</span> — CHANDIGARH, IN
+        </span>
         <div style={{display:'flex',gap:24}}>
-          <a href="https://github.com/shiiiviiish" target="_blank" style={{color:'rgba(232,228,217,0.25)',textDecoration:'none',fontSize:12,transition:'color 0.2s'}}
-            onMouseEnter={e=>(e.currentTarget.style.color='#e8e4d9')} onMouseLeave={e=>(e.currentTarget.style.color='rgba(232,228,217,0.25)')}>GitHub</a>
-          <a href="mailto:hello@shivish.in" style={{color:'rgba(232,228,217,0.25)',textDecoration:'none',fontSize:12,transition:'color 0.2s'}}
-            onMouseEnter={e=>(e.currentTarget.style.color='#e8e4d9')} onMouseLeave={e=>(e.currentTarget.style.color='rgba(232,228,217,0.25)')}>Email</a>
+          <a href="https://github.com/shiiiviiish" target="_blank" style={{fontFamily:mono,fontSize:11,color:'rgba(232,228,217,0.25)',textDecoration:'none',transition:'color 0.2s'}}
+            onMouseEnter={e=>(e.currentTarget.style.color='#e8e4d9')}
+            onMouseLeave={e=>(e.currentTarget.style.color='rgba(232,228,217,0.25)')}>GitHub</a>
+          <a href="mailto:hello@shivish.in" style={{fontFamily:mono,fontSize:11,color:'rgba(232,228,217,0.25)',textDecoration:'none',transition:'color 0.2s'}}
+            onMouseEnter={e=>(e.currentTarget.style.color='#e8e4d9')}
+            onMouseLeave={e=>(e.currentTarget.style.color='rgba(232,228,217,0.25)')}>Email</a>
         </div>
-        <span style={{fontFamily:serif,fontStyle:'italic'}}>Built with vibe.</span>
+        <span style={{fontFamily:serif,fontStyle:'italic',fontSize:12,color:'rgba(232,228,217,0.18)'}}>Built with vibe.</span>
       </footer>
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        @keyframes blurIn{from{opacity:0;filter:blur(16px);transform:translateY(8px)}to{opacity:1;filter:blur(0);transform:translateY(0)}}
-        @keyframes scrollPulse{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
-        @keyframes blurIn{from{opacity:0;filter:blur(16px);transform:translateY(8px)}to{opacity:1;filter:blur(0);transform:translateY(0)}}
-        .intro-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+        @keyframes blurIn { from{opacity:0;filter:blur(16px);transform:translateY(8px)} to{opacity:1;filter:blur(0);transform:translateY(0)} }
+        .intro-grid    { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
         .portrait-grid { display: grid; grid-template-columns: 420px 1fr; gap: 80px; align-items: start; }
-        .skills-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 32px; }
+        .skills-grid   { display: grid; grid-template-columns: repeat(3,1fr); gap: 32px; }
         .polaroid-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
         @media (min-width: 769px) { * { cursor: none; } .desktop-cursor { display: block !important; } .hero-face { display: block !important; } }
-        @media (max-width: 768px) { .hero-face { display: none !important; } }
         @media (max-width: 768px) {
           .desktop-cursor { display: none !important; }
-          .intro-grid { grid-template-columns: 1fr; gap: 40px; }
+          .hero-face { display: none !important; }
+          .intro-grid    { grid-template-columns: 1fr; gap: 40px; }
           .portrait-grid { grid-template-columns: 1fr; gap: 40px; }
-          .skills-grid { grid-template-columns: 1fr; gap: 20px; }
+          .skills-grid   { grid-template-columns: 1fr; gap: 20px; }
           .polaroid-grid { grid-template-columns: repeat(2,1fr); gap: 12px; }
         }
       `}</style>
