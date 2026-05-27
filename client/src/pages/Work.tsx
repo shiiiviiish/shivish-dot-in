@@ -17,7 +17,13 @@ const projects = [
     tags: ['React', 'GSAP', 'Framer Motion'], url: 'https://shivish.in',
   },
   {
-    num: '03', title: 'Next Project', category: 'Coming Soon',
+    num: '03', title: 'Pixable Studios', category: 'Client Project',
+    year: '2025', type: 'Web Design', role: 'In Progress',
+    desc: 'Details will be published soon. Something big is in the works — stay tuned.',
+    tags: ['Coming Soon'], url: 'https://github.com/shiiiviiish',
+  },
+  {
+    num: '04', title: 'Next Project', category: 'Coming Soon',
     year: '2025', type: 'TBD', role: 'In Progress',
     desc: 'Something new is cooking. Watch the GitHub for updates.',
     tags: ['???'], url: 'https://github.com/shiiiviiish',
@@ -89,9 +95,7 @@ export default function Work() {
       <div style={{position:'fixed',inset:0,zIndex:1,backdropFilter:'blur(20px)',WebkitBackdropFilter:'blur(20px)',pointerEvents:'none',maskImage:'linear-gradient(to top, black 0%, transparent 45%)',WebkitMaskImage:'linear-gradient(to top, black 0%, transparent 45%)'}}/>
       <div style={{position:'fixed',inset:0,zIndex:1,background:'linear-gradient(to bottom,rgba(0,0,0,0.5) 0%,transparent 40%)',pointerEvents:'none'}}/>
 
-      <div style={{position:'relative',zIndex:50}}>
-        <Nav/>
-      </div>
+      <div style={{position:'relative',zIndex:50}}><Nav/></div>
 
       <div
         onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}
@@ -134,7 +138,7 @@ export default function Work() {
             <div className="animate-blur-fade-up" style={{fontSize:12,color:'rgba(255,255,255,0.3)',letterSpacing:'0.1em',textTransform:'uppercase',animationDelay:'700ms'}}>
               {String(active+1).padStart(2,'0')} / {String(projects.length).padStart(2,'0')}
             </div>
-            <div style={{display:'flex',gap:10}} >
+            <div style={{display:'flex',gap:10}}>
               <button onClick={()=>navigate(-1)} className="liquid-glass animate-blur-fade-up"
                 style={{borderRadius:9999,padding:'10px 18px',display:'flex',alignItems:'center',gap:6,color:'#fff',background:'transparent',border:'none',cursor:isMobile?'pointer':'none',fontSize:13,animationDelay:'800ms'}}>
                 <ChevronLeft size={18}/> {!isMobile && 'Prev'}
@@ -158,7 +162,6 @@ export default function Work() {
         .work-bottom { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; }
         @media (min-width: 769px) { * { cursor: none; } }
         @media (max-width: 768px) { .work-bottom { flex-direction: column; align-items: flex-start; } }
-
         .liquid-glass {
           background: rgba(255,255,255,0.01);
           backdrop-filter: blur(4px);
@@ -179,7 +182,6 @@ export default function Work() {
           mask-composite: exclude;
           pointer-events: none;
         }
-
         @keyframes blurFadeUp {
           from { opacity: 0; filter: blur(20px); transform: translateY(40px); }
           to { opacity: 1; filter: blur(0); transform: translateY(0); }

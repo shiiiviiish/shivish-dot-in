@@ -25,6 +25,7 @@ function WordPullUp({ text, delay = 0, style }: { text: string; delay?: number; 
 }
 
 const serif = "'Instrument Serif', serif"
+const marqueeItems = ['BTech Student','—','Vibe Coder','—','AI Enthusiast','—','Web Dev','—','Photography','—','Chandigarh','—']
 
 export default function Home() {
   const fogRef    = useRef<HTMLCanvasElement>(null)
@@ -46,7 +47,7 @@ export default function Home() {
     }
     resize(); ps=Array.from({length:8},makeP); draw()
     window.addEventListener('resize',resize)
-    return () => { cancelAnimationFrame(animId); window.removeEventListener('resize',resize); ctx.clearRect(0,0,W,H) }
+    return () => { cancelAnimationFrame(animId); window.removeEventListener('resize',resize) }
   }, [])
 
   useEffect(() => {
@@ -77,7 +78,7 @@ export default function Home() {
 
       <Nav/>
 
-      {/* ── HERO ── */}
+      {/* HERO */}
       <section style={{position:'relative',minHeight:'100vh',display:'flex',flexDirection:'column',justifyContent:'flex-end',zIndex:10,overflow:'hidden',padding:12}}>
         <div style={{position:'absolute',inset:12,borderRadius:20,overflow:'hidden',zIndex:0,border:'1px solid rgba(255,255,255,0.1)'}}>
           <video autoPlay loop muted playsInline style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover',zIndex:0}}>
@@ -87,7 +88,6 @@ export default function Home() {
           <div style={{position:'absolute',inset:0,zIndex:2,background:'linear-gradient(to bottom,rgba(0,0,0,0.4) 0%,transparent 40%,rgba(0,0,0,0.8) 100%)',pointerEvents:'none'}}/>
         </div>
 
-        {/* Hero heading */}
         <motion.h1 initial={{opacity:0}} animate={{opacity:1}} transition={{delay:0.3,duration:0.5}}
           style={{fontFamily:serif,fontSize:'clamp(72px,18vw,220px)',fontWeight:400,lineHeight:0.88,letterSpacing:'-0.04em',margin:0,position:'relative',zIndex:10,paddingBottom:'clamp(80px,12vw,120px)',paddingLeft:'clamp(16px,4vw,32px)'}}>
           <span style={{display:'block',overflow:'hidden'}}>
@@ -117,20 +117,24 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* MARQUEE */}
+      {/* MARQUEE — fixed: single source array, CSS duplicated, no React re-render issue */}
       <div style={{overflow:'hidden',borderTop:'0.5px solid rgba(232,228,217,0.06)',borderBottom:'0.5px solid rgba(232,228,217,0.06)',padding:'14px 0',position:'relative',zIndex:10}}>
-        <div style={{display:'flex',gap:40,width:'max-content',animation:'marquee 22s linear infinite'}}>
-          {['BTech Student','—','Vibe Coder','—','AI Enthusiast','—','Web Dev','—','Photography','—','Chandigarh','—',
-            'BTech Student','—','Vibe Coder','—','AI Enthusiast','—','Web Dev','—','Photography','—','Chandigarh','—'].map((t,i)=>(
-            <span key={i} style={{fontFamily:serif,fontStyle:'italic',fontSize:16,whiteSpace:'nowrap',color:t==='—'?'rgba(232,228,217,0.2)':'rgba(232,228,217,0.12)'}}>{t}</span>
+        <div style={{display:'flex',width:'max-content',animation:'marquee 22s linear infinite'}}>
+          {/* Render twice for seamless loop */}
+          {[...marqueeItems, ...marqueeItems].map((t,i)=>(
+            <span key={i} style={{
+              fontFamily:serif, fontStyle:'italic', fontSize:16,
+              whiteSpace:'nowrap',
+              marginRight:40,
+              color: t==='—' ? 'rgba(232,228,217,0.5)' : 'rgba(232,228,217,0.9)',
+            }}>{t}</span>
           ))}
         </div>
       </div>
 
-      {/* ── FACE INTRO SECTION ── */}
+      {/* FACE INTRO */}
       <section style={{maxWidth:1100,margin:'0 auto',padding:'80px 20px',position:'relative',zIndex:10}}>
         <div className="face-intro-grid">
-          {/* Left — text */}
           <motion.div initial={{opacity:0,x:-40}} whileInView={{opacity:1,x:0}} viewport={{once:true}} transition={{duration:1,ease:[0.16,1,0.3,1]}}
             style={{display:'flex',flexDirection:'column',justifyContent:'center'}}>
             <p style={{fontSize:11,letterSpacing:'0.2em',textTransform:'uppercase',color:'rgba(232,228,217,0.3)',marginBottom:20}}>{'{HOLA}'}</p>
@@ -147,19 +151,13 @@ export default function Home() {
               ))}
             </div>
           </motion.div>
-
-          {/* Right — FaceTilt */}
           <motion.div initial={{opacity:0,x:40}} whileInView={{opacity:1,x:0}} viewport={{once:true}} transition={{delay:0.2,duration:1,ease:[0.16,1,0.3,1]}}
             style={{display:'flex',justifyContent:'center',alignItems:'center'}}>
-           <FaceTilt
-  width="clamp(260px,30vw,380px)"
-  noBackground={true}
-/>
+            <FaceTilt width="clamp(260px,30vw,380px)" noBackground={true}/>
           </motion.div>
         </div>
       </section>
 
-      {/* WHO IS SHIVISH */}
       <WhoIsShivish />
 
       {/* WHAT I DO */}
@@ -239,7 +237,7 @@ export default function Home() {
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
-        @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+        @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
         @keyframes scrollPulse{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
         @media (min-width: 769px) {
           * { cursor: none; }

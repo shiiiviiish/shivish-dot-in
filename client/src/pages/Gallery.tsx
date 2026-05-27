@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Download, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import Nav from '../components/Nav'
 
+
 const featured = [
   { id: 1, title: 'Urban Fog',    category: 'Photography', bg: '#0d1f17', accent: '#4ade80' },
   { id: 2, title: 'Night Lights', category: 'Editing',     bg: '#0f1525', accent: '#60a5fa' },
@@ -104,10 +105,10 @@ export default function Gallery() {
     }
   }
 
-  const filtered     = filter === 'All' ? photos : photos.filter(p => p.category === filter)
+  const filtered      = filter === 'All' ? photos : photos.filter(p => p.category === filter)
   const selectedPhoto = selected !== null ? photos.find(p => p.id === selected) : null
-  const cols         = isMobile ? 2 : 3
-  const activeCard   = featured[activeIndex]
+  const cols          = isMobile ? 2 : 3
+  const activeCard    = featured[activeIndex]
 
   const handleDownload = (photo: typeof photos[0]) => {
     const canvas = document.createElement('canvas')
@@ -136,12 +137,11 @@ export default function Gallery() {
 
       <Nav/>
 
-      {/* ── CAROUSEL SECTION ── */}
+      {/* ── CAROUSEL ── */}
       <div
         style={{position:'relative',width:'100%',height:'100vh',overflow:'hidden',background:'#07100d'}}
         onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
 
-        {/* Ghost title bg */}
         <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',pointerEvents:'none',zIndex:1}}>
           <AnimatePresence mode="wait">
             <motion.p
@@ -154,12 +154,10 @@ export default function Gallery() {
           </AnimatePresence>
         </div>
 
-        {/* Side fades */}
         <div style={{position:'absolute',left:0,top:0,bottom:0,width:'12%',background:'linear-gradient(to right,#07100d,transparent)',zIndex:10,pointerEvents:'none'}}/>
         <div style={{position:'absolute',right:0,top:0,bottom:0,width:'12%',background:'linear-gradient(to left,#07100d,transparent)',zIndex:10,pointerEvents:'none'}}/>
         <div style={{position:'absolute',bottom:0,left:0,right:0,height:'30%',background:'linear-gradient(to top,#07100d,transparent)',zIndex:10,pointerEvents:'none'}}/>
 
-        {/* Top label */}
         <div style={{position:'absolute',top:90,left:'50%',transform:'translateX(-50%)',zIndex:20,textAlign:'center',whiteSpace:'nowrap'}}>
           <p style={{fontSize:11,letterSpacing:'0.2em',textTransform:'uppercase',color:'rgba(232,228,217,0.3)',marginBottom:8}}>Gallery · Photography & Editing</p>
           <h2 style={{fontFamily:serif,fontSize:'clamp(28px,4vw,52px)',fontWeight:400,lineHeight:0.95,letterSpacing:'-0.03em',color:'#e8e4d9'}}>
@@ -167,26 +165,14 @@ export default function Gallery() {
           </h2>
         </div>
 
-        {/* Cards */}
-        <div id="tour-gallery-grid" style={{position:'absolute',inset:0,zIndex:5}}>
+        <div style={{position:'absolute',inset:0,zIndex:5}}>
           {featured.map((card,i) => {
             const role = getRole(i)
             const rs   = roleStyle(role)
             return (
-              <div key={card.id} style={{
-                position:'absolute',aspectRatio:'0.65/1',
-                transition:'all 650ms cubic-bezier(0.4,0,0.2,1)',
-                willChange:'transform,opacity',
-                ...rs,
-              }}>
-                <div style={{
-                  width:'100%',height:'100%',borderRadius:20,
-                  background:card.bg,
-                  border:'0.5px solid rgba(232,228,217,0.08)',
-                  boxShadow:'0 20px 60px rgba(0,0,0,0.6)',
-                  display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:12,
-                  overflow:'hidden',position:'relative',cursor:'pointer',
-                }} onClick={()=>role==='center'&&setSelected(card.id)}>
+              <div key={card.id} style={{position:'absolute',aspectRatio:'0.65/1',transition:'all 650ms cubic-bezier(0.4,0,0.2,1)',willChange:'transform,opacity',...rs}}>
+                <div style={{width:'100%',height:'100%',borderRadius:20,background:card.bg,border:'0.5px solid rgba(232,228,217,0.08)',boxShadow:'0 20px 60px rgba(0,0,0,0.6)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:12,overflow:'hidden',position:'relative',cursor:'pointer'}}
+                  onClick={()=>role==='center'&&setSelected(card.id)}>
                   <div style={{position:'absolute',inset:0,background:`radial-gradient(circle at center, ${card.accent}18 0%, transparent 70%)`}}/>
                   <div style={{width:48,height:48,borderRadius:'50%',background:card.accent,opacity:0.5,boxShadow:`0 0 24px ${card.accent}60`}}/>
                   <p style={{fontFamily:serif,fontStyle:'italic',fontSize:18,color:'rgba(232,228,217,0.85)',zIndex:1}}>{card.title}</p>
@@ -198,46 +184,21 @@ export default function Gallery() {
           })}
         </div>
 
-        {/* ── LEFT ARROW — middle of screen ── */}
-        <button
-          onClick={()=>navigate('prev')}
-          style={{
-            position:'absolute',left:isMobile?12:32,top:'50%',transform:'translateY(-50%)',
-            zIndex:30,width:isMobile?40:52,height:isMobile?40:52,borderRadius:'50%',
-            background:'rgba(255,255,255,0.06)',backdropFilter:'blur(12px)',
-            border:'0.5px solid rgba(232,228,217,0.15)',color:'#e8e4d9',
-            display:'flex',alignItems:'center',justifyContent:'center',
-            cursor:'pointer',transition:'all 0.2s',
-          }}
-          onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,0.12)';e.currentTarget.style.borderColor='rgba(232,228,217,0.35)'}}
-          onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.06)';e.currentTarget.style.borderColor='rgba(232,228,217,0.15)'}}>
+        <button onClick={()=>navigate('prev')} style={{position:'absolute',left:isMobile?12:32,top:'50%',transform:'translateY(-50%)',zIndex:30,width:isMobile?40:52,height:isMobile?40:52,borderRadius:'50%',background:'rgba(255,255,255,0.06)',backdropFilter:'blur(12px)',border:'0.5px solid rgba(232,228,217,0.15)',color:'#e8e4d9',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',transition:'all 0.2s'}}
+          onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,0.12)'}} onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.06)'}}>
           <ChevronLeft size={isMobile?18:22} strokeWidth={1.5}/>
         </button>
 
-        {/* ── RIGHT ARROW — middle of screen ── */}
-        <button
-          onClick={()=>navigate('next')}
-          style={{
-            position:'absolute',right:isMobile?12:32,top:'50%',transform:'translateY(-50%)',
-            zIndex:30,width:isMobile?40:52,height:isMobile?40:52,borderRadius:'50%',
-            background:'rgba(255,255,255,0.06)',backdropFilter:'blur(12px)',
-            border:'0.5px solid rgba(232,228,217,0.15)',color:'#e8e4d9',
-            display:'flex',alignItems:'center',justifyContent:'center',
-            cursor:'pointer',transition:'all 0.2s',
-          }}
-          onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,0.12)';e.currentTarget.style.borderColor='rgba(232,228,217,0.35)'}}
-          onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.06)';e.currentTarget.style.borderColor='rgba(232,228,217,0.15)'}}>
+        <button onClick={()=>navigate('next')} style={{position:'absolute',right:isMobile?12:32,top:'50%',transform:'translateY(-50%)',zIndex:30,width:isMobile?40:52,height:isMobile?40:52,borderRadius:'50%',background:'rgba(255,255,255,0.06)',backdropFilter:'blur(12px)',border:'0.5px solid rgba(232,228,217,0.15)',color:'#e8e4d9',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',transition:'all 0.2s'}}
+          onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,0.12)'}} onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.06)'}}>
           <ChevronRight size={isMobile?18:22} strokeWidth={1.5}/>
         </button>
 
-        {/* Bottom — card name + counter + dots + hint */}
         <div style={{position:'absolute',bottom:isMobile?20:36,left:0,right:0,zIndex:20,display:'flex',alignItems:'flex-end',justifyContent:'space-between',padding:isMobile?'0 20px':'0 48px'}}>
-          {/* Left — active card info */}
           <AnimatePresence mode="wait">
             <motion.div key={activeIndex} initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-8}} transition={{duration:0.4}}>
               <p style={{fontFamily:serif,fontSize:isMobile?18:24,color:'#e8e4d9',marginBottom:4,letterSpacing:'-0.02em'}}>{activeCard.title}</p>
               <p style={{fontSize:10,color:'rgba(232,228,217,0.35)',letterSpacing:'0.1em',textTransform:'uppercase',marginBottom:12}}>{activeCard.category} · Placeholder</p>
-              {/* Dot indicators */}
               <div style={{display:'flex',gap:6}}>
                 {featured.map((_,i)=>(
                   <button key={i} onClick={()=>{if(!isAnimating){setIsAnimating(true);setActiveIndex(i);setTimeout(()=>setIsAnimating(false),650)}}}
@@ -246,8 +207,6 @@ export default function Gallery() {
               </div>
             </motion.div>
           </AnimatePresence>
-
-          {/* Right — counter + drag hint */}
           <div style={{textAlign:'right'}}>
             <p style={{fontFamily:serif,fontStyle:'italic',fontSize:isMobile?16:22,color:'rgba(232,228,217,0.3)',marginBottom:6,letterSpacing:'-0.02em'}}>
               {String(activeIndex+1).padStart(2,'0')} / {String(featured.length).padStart(2,'0')}
@@ -256,7 +215,6 @@ export default function Gallery() {
           </div>
         </div>
 
-        {/* Scroll hint */}
         <div style={{position:'absolute',bottom:isMobile?80:100,left:'50%',transform:'translateX(-50%)',zIndex:20,display:'flex',flexDirection:'column',alignItems:'center',gap:6,fontSize:9,letterSpacing:'0.2em',color:'rgba(232,228,217,0.15)',textTransform:'uppercase'}}>
           <span>Scroll for grid</span>
           <div style={{width:1,height:24,background:'linear-gradient(to bottom,rgba(74,222,128,0.3),transparent)',animation:'scrollPulse 1.5s ease infinite'}}/>
@@ -264,7 +222,7 @@ export default function Gallery() {
       </div>
 
       {/* ── GRID SECTION ── */}
-      <div style={{maxWidth:1200,margin:'0 auto',padding:isMobile?'60px 20px':'100px 48px 80px'}}>
+      <div style={{maxWidth:1200,margin:'0 auto',padding:isMobile?'60px 20px':'80px 48px 80px'}}>
         <motion.div initial={{opacity:0,y:20}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{duration:0.8}}>
           <p style={{fontSize:11,letterSpacing:'0.2em',textTransform:'uppercase',color:'rgba(232,228,217,0.3)',marginBottom:12}}>All Photos</p>
           <h2 style={{fontFamily:serif,fontSize:'clamp(32px,6vw,72px)',fontWeight:400,lineHeight:0.95,letterSpacing:'-0.03em',marginBottom:36}}>
@@ -272,21 +230,12 @@ export default function Gallery() {
           </h2>
         </motion.div>
 
-        {/* Filters */}
         <div style={{display:'flex',gap:8,marginBottom:32,flexWrap:'wrap'}}>
           {['All','Photography','Editing'].map(f=>(
-            <button key={f} onClick={()=>setFilter(f)} style={{
-              borderRadius:9999,padding:isMobile?'7px 16px':'8px 20px',
-              border:`0.5px solid ${filter===f?'rgba(232,228,217,0.35)':'rgba(232,228,217,0.1)'}`,
-              background:filter===f?'rgba(232,228,217,0.07)':'transparent',
-              color:filter===f?'#e8e4d9':'rgba(232,228,217,0.38)',
-              fontSize:isMobile?11:12,cursor:'pointer',transition:'all 0.25s',
-              letterSpacing:'0.06em',textTransform:'uppercase' as const,
-            }}>{f}</button>
+            <button key={f} onClick={()=>setFilter(f)} style={{borderRadius:9999,padding:isMobile?'7px 16px':'8px 20px',border:`0.5px solid ${filter===f?'rgba(232,228,217,0.35)':'rgba(232,228,217,0.1)'}`,background:filter===f?'rgba(232,228,217,0.07)':'transparent',color:filter===f?'#e8e4d9':'rgba(232,228,217,0.38)',fontSize:isMobile?11:12,cursor:'pointer',transition:'all 0.25s',letterSpacing:'0.06em',textTransform:'uppercase' as const}}>{f}</button>
           ))}
         </div>
 
-        {/* Grid */}
         <div style={{display:'grid',gridTemplateColumns:`repeat(${cols},1fr)`,gap:isMobile?8:12}}>
           {filtered.map((photo,i)=>(
             <motion.div key={photo.id}
