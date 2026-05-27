@@ -19,13 +19,19 @@ export default function Nav() {
 
   return (
     <>
-      <nav style={{position:'fixed',top:0,left:0,right:0,zIndex:50,padding:'20px 24px',display:'flex',alignItems:'center',justifyContent:'space-between',background:'rgba(7,16,13,0.85)',backdropFilter:'blur(12px)'}}>
+      <nav style={{
+        position:'fixed',top:0,left:0,right:0,zIndex:50,
+        padding:'20px 24px',
+        display:'flex',alignItems:'center',justifyContent:'space-between',
+        background:'transparent',  // ← no bg
+      }}>
         <Link to="/" onClick={()=>setOpen(false)} style={{fontFamily:serif,fontSize:20,color:'#e8e4d9',textDecoration:'none',letterSpacing:'-0.02em'}}>Shivish</Link>
 
         {/* Desktop nav */}
         <div style={{display:'flex',gap:32,alignItems:'center'}} className="desktop-nav">
           {links.map(([l,p])=>(
-            <Link key={l} to={p} style={{color:pathname===p?'#e8e4d9':'rgba(232,228,217,0.45)',fontSize:13,textDecoration:'none',textTransform:'uppercase',letterSpacing:'0.12em',transition:'color 0.3s'}}
+            <Link key={l} to={p}
+              style={{color:pathname===p?'#e8e4d9':'rgba(232,228,217,0.45)',fontSize:13,textDecoration:'none',textTransform:'uppercase',letterSpacing:'0.12em',transition:'color 0.3s'}}
               onMouseEnter={e=>(e.currentTarget.style.color='#e8e4d9')}
               onMouseLeave={e=>(e.currentTarget.style.color=pathname===p?'#e8e4d9':'rgba(232,228,217,0.45)')}>
               {l}
@@ -49,12 +55,13 @@ export default function Nav() {
         opacity:open?1:0,
         pointerEvents:open?'auto':'none',
         transition:'all 0.35s cubic-bezier(0.16,1,0.3,1)',
-        display:'none', flexDirection:'column', padding:'8px 0 16px'
+        display:'none',flexDirection:'column',padding:'8px 0 16px'
       }}>
         {links.map(([l,p],i)=>(
           <Link key={l} to={p} onClick={()=>setOpen(false)}
             style={{
-              padding:'14px 24px',fontSize:14,color:pathname===p?'#e8e4d9':'rgba(232,228,217,0.5)',
+              padding:'14px 24px',fontSize:14,
+              color:pathname===p?'#e8e4d9':'rgba(232,228,217,0.5)',
               textDecoration:'none',textTransform:'uppercase',letterSpacing:'0.12em',
               borderBottom:'0.5px solid rgba(232,228,217,0.05)',
               display:'flex',alignItems:'center',justifyContent:'space-between',
