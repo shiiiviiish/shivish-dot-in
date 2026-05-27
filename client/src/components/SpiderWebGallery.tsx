@@ -92,7 +92,7 @@ export default function SpiderWebGallery() {
 
     let lastT=0
     const loop=(t:number)=>{
-      const dt=Math.min(t-lastT,32); lastT=t
+      lastT=t
       ctx.clearRect(0,0,W,H)
 
       s.nodes.forEach(n=>{
