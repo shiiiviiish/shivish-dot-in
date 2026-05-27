@@ -87,15 +87,6 @@ export default function Home() {
           <div style={{position:'absolute',inset:0,zIndex:2,background:'linear-gradient(to bottom,rgba(0,0,0,0.4) 0%,transparent 40%,rgba(0,0,0,0.8) 100%)',pointerEvents:'none'}}/>
         </div>
 
-        {/* Available pill */}
-        <motion.div animate={{y:[0,-6,0]}} transition={{duration:3,repeat:Infinity,ease:'easeInOut'}}
-          style={{position:'absolute',top:28,right:20,zIndex:10}}>
-          <div style={{display:'flex',alignItems:'center',gap:6,background:'rgba(255,255,255,0.08)',backdropFilter:'blur(12px)',border:'0.5px solid rgba(255,255,255,0.15)',borderRadius:9999,padding:'6px 12px'}}>
-            <span style={{width:5,height:5,background:'#4ade80',borderRadius:'50%',boxShadow:'0 0 6px #4ade80',display:'inline-block'}}/>
-            <span style={{fontSize:10,color:'rgba(232,228,217,0.8)',letterSpacing:'0.08em',textTransform:'uppercase'}}>Available</span>
-          </div>
-        </motion.div>
-
         {/* Hero heading */}
         <motion.h1 initial={{opacity:0}} animate={{opacity:1}} transition={{delay:0.3,duration:0.5}}
           style={{fontFamily:serif,fontSize:'clamp(72px,18vw,220px)',fontWeight:400,lineHeight:0.88,letterSpacing:'-0.04em',margin:0,position:'relative',zIndex:10,paddingBottom:'clamp(80px,12vw,120px)',paddingLeft:'clamp(16px,4vw,32px)'}}>

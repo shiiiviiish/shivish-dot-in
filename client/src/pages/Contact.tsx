@@ -58,11 +58,6 @@ export default function Contact() {
             <em style={{fontStyle:'italic',color:'rgba(232,228,217,0.22)'}}>to contact.</em>
           </h1>
 
-          <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:24,padding:'9px 16px',background:'rgba(74,222,128,0.06)',border:'0.5px solid rgba(74,222,128,0.2)',borderRadius:9999,width:'fit-content'}}>
-            <span style={{width:6,height:6,background:'#4ade80',borderRadius:'50%',boxShadow:'0 0 6px #4ade80',display:'inline-block',animation:'pulse 2s infinite'}}/>
-            <span style={{fontFamily:mono,fontSize:10,color:'rgba(232,228,217,0.6)',letterSpacing:'0.06em'}}>Currently available · Response within 24h</span>
-          </div>
-
           <a href="mailto:hello@shivish.in"
             style={{display:'block',fontFamily:serif,fontStyle:'italic',fontSize:'clamp(15px,2vw,24px)',color:'rgba(232,228,217,0.45)',textDecoration:'none',marginBottom:24,transition:'color 0.3s'}}
             onMouseEnter={e=>(e.currentTarget.style.color='#e8e4d9')}
