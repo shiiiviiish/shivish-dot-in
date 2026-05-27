@@ -7,4 +7,14 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('@splinetool')) return 'spline'
+          if (id.includes('three')) return 'three'
+        }
+      }
+    }
+  }
 })
