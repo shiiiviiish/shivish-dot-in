@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-const serif = "'Instrument Serif', serif"
 const mono  = "'DM Mono', monospace"
 
 function playHorrorWelcome() {
@@ -199,7 +198,7 @@ export default function SplashScreen({ onEnter }: { onEnter: () => void }) {
                 }}
                 transition={glitch ? { duration: 0.5 } : { duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}>
                 <img
-                  src="/Favicon.png"
+                  src="/Favicon1.png"
                   alt="Shivish"
                   style={{ width: 130, height: 130, borderRadius: '50%', display: 'block' }}
                 />
