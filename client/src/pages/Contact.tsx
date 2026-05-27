@@ -41,7 +41,9 @@ export default function Contact() {
 
       <Nav/>
 
-      <div id="tour-contact-form" className="contact-layout"
+      <div
+        id="tour-contact-form"
+        className="contact-layout"
         style={{display:'grid',gridTemplateColumns:'1fr 1fr',minHeight:'100vh',paddingTop:80}}>
 
         {/* ── LEFT — form ── */}
@@ -140,24 +142,26 @@ export default function Contact() {
           </p>
         </motion.div>
 
-        {/* ── RIGHT — Robot only ── */}
+        {/* ── RIGHT — Robot ── */}
         <motion.div
           className="robot-col"
           initial={{opacity:0,x:40}} animate={{opacity:1,x:0}} transition={{delay:0.3,duration:1.2,ease:[0.16,1,0.3,1]}}
           style={{position:'sticky',top:0,height:'100vh',overflow:'hidden'}}>
 
-          <div style={{position:'absolute',inset:0}}>
+          {/* Spline robot — no lazy load, loads immediately */}
+          <div style={{position:'absolute',inset:0,width:'100%',height:'100%'}}>
             <SplineScene
               scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
               className="w-full h-full"
             />
           </div>
 
-          {/* Fades to blend into dark bg */}
+          {/* Fades */}
           <div style={{position:'absolute',top:0,left:0,right:0,height:100,background:'linear-gradient(to bottom,#07100d,transparent)',pointerEvents:'none',zIndex:3}}/>
           <div style={{position:'absolute',bottom:0,left:0,right:0,height:80,background:'linear-gradient(to top,#07100d,transparent)',pointerEvents:'none',zIndex:3}}/>
           <div style={{position:'absolute',top:0,left:0,bottom:0,width:80,background:'linear-gradient(to right,#07100d,transparent)',pointerEvents:'none',zIndex:3}}/>
 
+          {/* Label */}
           <div style={{position:'absolute',bottom:28,right:28,zIndex:10,pointerEvents:'none'}}>
             <div className="lg" style={{borderRadius:9999,padding:'5px 14px'}}>
               <span style={{fontFamily:mono,fontSize:9,letterSpacing:'0.16em',color:'rgba(232,228,217,0.3)'}}>Interactive · Drag me</span>
