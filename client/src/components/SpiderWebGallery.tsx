@@ -90,9 +90,7 @@ export default function SpiderWebGallery() {
     }
     canvas.addEventListener('mousemove',onMouseMove)
 
-    let lastT=0
     const loop=(t:number)=>{
-      lastT=t
       ctx.clearRect(0,0,W,H)
 
       s.nodes.forEach(n=>{
