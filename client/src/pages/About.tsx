@@ -180,9 +180,11 @@ export default function About() {
         <motion.div initial={{opacity:0,x:60}} animate={{opacity:1,x:0}} transition={{delay:0.4,duration:1.2,ease:[0.16,1,0.3,1]}}
           className="hero-face" style={{position:'relative',zIndex:2,flexShrink:0}}>
           <FaceTilt
-  width="clamp(280px,35vw,480px)"
-  noBackground={true}
-/>
+            width="clamp(280px,35vw,480px)"
+            label="Shivish"
+            sublabel="{VIBE CODER}"
+            showBadge={true}
+          />
         </motion.div>
       </section>
 
@@ -380,9 +382,6 @@ export default function About() {
       {/* ── FOOTER ── */}
       <footer style={{padding:'24px clamp(20px,5vw,48px)',borderTop:'0.5px solid rgba(232,228,217,0.05)',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:12}}>
         <span style={{fontFamily:mono,fontSize:11,color:'rgba(232,228,217,0.18)'}}>Design & Dev by Shivish · 2025</span>
-        <span style={{fontFamily:mono,fontSize:10,color:'rgba(232,228,217,0.15)',letterSpacing:'0.08em'}}>
-          30.7333° N, <span style={{color:'rgba(74,222,128,0.35)'}}>76.7794° E</span> — CHANDIGARH, IN
-        </span>
         <span style={{fontFamily:serif,fontStyle:'italic',fontSize:12,color:'rgba(232,228,217,0.18)'}}>Built with vibe.</span>
       </footer>
 

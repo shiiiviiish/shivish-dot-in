@@ -44,7 +44,6 @@ export default function GuidedTour() {
     sessionStorage.setItem('tour-seen', 'true')
   }
 
-  // Ball click — toggle bubble open/close
   const handleBallClick = () => {
     if (phase === 'hidden') setPhase('bubble')
     else if (phase === 'bubble') setPhase('hidden')
@@ -60,7 +59,7 @@ export default function GuidedTour() {
         display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 12,
       }}>
 
-        {/* ── BUBBLE: Initial ── */}
+        {/* Initial bubble */}
         <AnimatePresence>
           {phase === 'bubble' && (
             <motion.div
@@ -68,16 +67,7 @@ export default function GuidedTour() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.92 }}
               transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              style={{
-                width: 240,
-                background: 'rgba(8,18,12,0.97)',
-                backdropFilter: 'blur(24px)',
-                border: '1px solid rgba(74,222,128,0.2)',
-                borderRadius: 16, padding: 18,
-                boxShadow: '0 16px 48px rgba(0,0,0,0.7)',
-                position: 'relative',
-              }}>
-              {/* tail */}
+              style={{ width: 240, background: 'rgba(8,18,12,0.97)', backdropFilter: 'blur(24px)', border: '1px solid rgba(74,222,128,0.2)', borderRadius: 16, padding: 18, boxShadow: '0 16px 48px rgba(0,0,0,0.7)', position: 'relative' }}>
               <div style={{ position:'absolute', bottom:-8, right:22, width:14, height:14, background:'rgba(8,18,12,0.97)', border:'1px solid rgba(74,222,128,0.2)', transform:'rotate(45deg)', borderTop:'none', borderLeft:'none' }}/>
               <p style={{ fontFamily:serif, fontStyle:'italic', fontSize:15, color:'#e8e4d9', lineHeight:1.5, marginBottom:6 }}>Hey! I'm Shivish 👋</p>
               <p style={{ fontFamily:sans, fontSize:12, color:'rgba(232,228,217,0.45)', lineHeight:1.7, marginBottom:16, fontWeight:300 }}>Want a quick tour of my portfolio?</p>
@@ -89,7 +79,7 @@ export default function GuidedTour() {
           )}
         </AnimatePresence>
 
-        {/* ── BUBBLE: Touring ── */}
+        {/* Touring bubble */}
         <AnimatePresence>
           {phase === 'touring' && (
             <motion.div
@@ -100,7 +90,6 @@ export default function GuidedTour() {
               transition={{ duration:0.35, ease:[0.16,1,0.3,1] }}
               style={{ width:268, background:'rgba(8,18,12,0.97)', backdropFilter:'blur(24px)', border:'1px solid rgba(74,222,128,0.2)', borderRadius:16, padding:18, boxShadow:'0 16px 48px rgba(0,0,0,0.7)', position:'relative' }}>
               <div style={{ position:'absolute', bottom:-8, right:22, width:14, height:14, background:'rgba(8,18,12,0.97)', border:'1px solid rgba(74,222,128,0.2)', transform:'rotate(45deg)', borderTop:'none', borderLeft:'none' }}/>
-              {/* Progress */}
               <div style={{ display:'flex', gap:3, marginBottom:14 }}>
                 {tourStops.map((_,i)=>(
                   <div key={i} style={{ height:3, flex:1, borderRadius:9999, background: i<=step ? '#4ade80' : 'rgba(255,255,255,0.08)', transition:'background 0.4s' }}/>
@@ -125,7 +114,7 @@ export default function GuidedTour() {
           )}
         </AnimatePresence>
 
-        {/* ── BUBBLE: Done ── */}
+        {/* Done bubble */}
         <AnimatePresence>
           {phase === 'done' && (
             <motion.div
@@ -139,54 +128,28 @@ export default function GuidedTour() {
           )}
         </AnimatePresence>
 
-        {/* ── BOUNCING BALL BUTTON ── */}
+        {/* Photo ball button */}
         <motion.button
           onClick={handleBallClick}
-          animate={{
-            y: [0, -10, 0, -6, 0],
-            rotate: [0, -8, 8, -4, 0],
-          }}
-          transition={{
-            duration: 1.8,
-            repeat: Infinity,
-            ease: 'easeInOut',
-            repeatDelay: 1.2,
-          }}
+          animate={{ y: [0, -10, 0, -6, 0], rotate: [0, -8, 8, -4, 0] }}
+          transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1.2 }}
           whileHover={{ scale: 1.15 }}
           whileTap={{ scale: 0.9 }}
           style={{
             width: 52, height: 52,
             borderRadius: '50%',
-            background: 'radial-gradient(circle at 35% 35%, #6ee7a0, #4ade80 50%, #16a34a)',
-            border: 'none',
+            border: '2px solid rgba(74,222,128,0.5)',
             cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 0 20px rgba(74,222,128,0.5), 0 4px 12px rgba(0,0,0,0.4)',
-            position: 'relative',
+            padding: 0,
+            overflow: 'hidden',
+            boxShadow: '0 0 20px rgba(74,222,128,0.4), 0 4px 12px rgba(0,0,0,0.5)',
+            background: '#07100d',
           }}>
-          {/* Shine on ball */}
-          <div style={{
-            position: 'absolute',
-            top: 10, left: 12,
-            width: 14, height: 8,
-            borderRadius: '50%',
-            background: 'rgba(255,255,255,0.45)',
-            transform: 'rotate(-30deg)',
-            pointerEvents: 'none',
-          }}/>
-          {/* S letter */}
-          <span style={{
-            fontFamily: serif,
-            fontStyle: 'italic',
-            fontSize: 22,
-            fontWeight: 400,
-            color: '#07100d',
-            lineHeight: 1,
-            position: 'relative',
-            zIndex: 1,
-          }}>S</span>
+          <img
+            src="/images/guidedtour.jpeg"
+            alt="Shivish"
+            style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center top', display:'block' }}
+          />
         </motion.button>
       </div>
     </>

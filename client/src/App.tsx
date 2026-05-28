@@ -10,6 +10,16 @@ import Vibes from './pages/Vibes'
 import GuidedTour from './components/GuidedTour'
 import SplashScreen from './components/SplashScreen'
 
+
+function shouldShowSplash(): boolean {
+  try {
+    return !sessionStorage.getItem('splash-seen')
+
+  } catch {
+    return true
+  }
+}
+
 function SplinePreloader() {
   const location = useLocation()
   useEffect(() => {
@@ -34,12 +44,17 @@ function SplinePreloader() {
 }
 
 export default function App() {
-  const [showSplash, setShowSplash] = useState(true)
+  const [showSplash, setShowSplash] = useState(shouldShowSplash)
+
+  const handleEnter = () => {
+    try { sessionStorage.setItem('splash-seen', '1') } catch {}
+    setShowSplash(false)
+  }
 
   return (
     <>
       {showSplash && (
-        <SplashScreen onEnter={() => setShowSplash(false)} />
+        <SplashScreen onEnter={handleEnter} />
       )}
 
       {!showSplash && (

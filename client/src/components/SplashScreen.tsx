@@ -255,18 +255,7 @@ export default function SplashScreen({ onEnter }: { onEnter: () => void }) {
             </AnimatePresence>
           </div>
 
-          {/* Coordinates */}
-          <motion.p
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2, duration: 1 }}
-            style={{ position: 'absolute', bottom: 24, left: 24, fontFamily: mono, fontSize: 9, color: 'rgba(232,228,217,0.12)', letterSpacing: '0.1em', margin: 0, zIndex: 2 }}>
-            30.7333° N · 76.7794° E
-          </motion.p>
 
-          <motion.p
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2, duration: 1 }}
-            style={{ position: 'absolute', bottom: 24, right: 24, fontFamily: mono, fontSize: 9, color: 'rgba(232,228,217,0.12)', letterSpacing: '0.1em', margin: 0, zIndex: 2 }}>
-            CHANDIGARH · IN
-          </motion.p>
         </motion.div>
       )}
     </AnimatePresence>
