@@ -198,7 +198,7 @@ export default function SplashScreen({ onEnter }: { onEnter: () => void }) {
                 }}
                 transition={glitch ? { duration: 0.5 } : { duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}>
                 <img
-                  src="/Favicon1.png"
+                  src="/Favicon.png"
                   alt="Shivish"
                   style={{ width: 130, height: 130, borderRadius: '50%', display: 'block' }}
                 />

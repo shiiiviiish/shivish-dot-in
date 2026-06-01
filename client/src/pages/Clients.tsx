@@ -18,25 +18,25 @@ const clients = [
     tags: ['Web Design', 'React', 'TypeScript']
   },
   {
-    name: 'Client 2',
-    role: 'Coming Soon',
-    project: 'Project TBA',
+    name: 'Sahil Dev',
+    role: 'Founder, Pixable Studios',
+    project: 'Pixable Studios',
     year: '2025',
-    desc: 'Next client project in progress. Stay tuned.',
+    desc: 'Details coming soon. Something big is in the works.',
     url: '#',
-    initials: 'C2',
+    initials: 'SD',
     color: '#0f1525',
     accent: '#60a5fa',
-    tags: ['TBD']
+    tags: ['Web Design', 'Coming Soon']
   },
   {
-    name: 'Client 3',
+    name: 'You?',
     role: 'Coming Soon',
-    project: 'Project TBA',
+    project: 'Next Collab',
     year: '2025',
     desc: 'Always open to new collaborations. Get in touch.',
     url: '/contact',
-    initials: 'C3',
+    initials: '?',
     color: '#1f100a',
     accent: '#fb923c',
     tags: ['Open']
@@ -71,7 +71,6 @@ export default function Clients() {
       <Nav />
 
       <div style={{maxWidth:1100,margin:'0 auto',padding:'140px 48px 80px'}}>
-        {/* Header */}
         <motion.div initial={{opacity:0,y:30}} animate={{opacity:1,y:0}} transition={{duration:0.9,ease:[0.16,1,0.3,1]}} style={{marginBottom:80}}>
           <p style={{fontSize:11,letterSpacing:'0.2em',textTransform:'uppercase',color:'rgba(232,228,217,0.3)',marginBottom:20}}>Who I've worked with</p>
           <h1 style={{fontFamily:serif,fontSize:'clamp(56px,10vw,120px)',fontWeight:400,lineHeight:0.88,letterSpacing:'-0.04em',marginBottom:20}}>
@@ -82,7 +81,6 @@ export default function Clients() {
           </p>
         </motion.div>
 
-        {/* Stats row */}
         <motion.div initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{delay:0.2,duration:0.8}}
           style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:0,borderTop:'0.5px solid rgba(232,228,217,0.06)',borderBottom:'0.5px solid rgba(232,228,217,0.06)',marginBottom:80}}>
           {stats.map((s,i)=>(
@@ -93,17 +91,13 @@ export default function Clients() {
           ))}
         </motion.div>
 
-        {/* Client cards */}
         <div style={{display:'flex',flexDirection:'column',gap:0}}>
           {clients.map((client,i)=>(
             <motion.div key={i} initial={{opacity:0,y:32}} animate={{opacity:1,y:0}} transition={{delay:0.3+i*0.12,duration:0.9,ease:[0.16,1,0.3,1]}}
               style={{padding:'48px 0',borderBottom:'0.5px solid rgba(232,228,217,0.07)',display:'grid',gridTemplateColumns:'80px 1fr auto',gap:40,alignItems:'start'}}>
-              {/* Number */}
               <span style={{fontFamily:serif,fontStyle:'italic',fontSize:14,color:'rgba(232,228,217,0.2)',paddingTop:6}}>0{i+1}</span>
 
-              {/* Info */}
               <div>
-                {/* Client identity */}
                 <div style={{display:'flex',alignItems:'center',gap:16,marginBottom:20}}>
                   <div style={{width:52,height:52,borderRadius:'50%',background:client.color,border:`1px solid ${client.accent}30`,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:serif,fontSize:18,color:client.accent,flexShrink:0}}>
                     {client.initials}
@@ -123,7 +117,6 @@ export default function Clients() {
                 </div>
               </div>
 
-              {/* Link */}
               <a href={client.url} target={client.url.startsWith('http')?'_blank':'_self'}
                 style={{display:'flex',alignItems:'center',gap:6,fontSize:12,color:'rgba(232,228,217,0.35)',textDecoration:'none',textTransform:'uppercase',letterSpacing:'0.1em',paddingTop:8,transition:'color 0.3s',flexShrink:0}}
                 onMouseEnter={e=>(e.currentTarget.style.color='#e8e4d9')} onMouseLeave={e=>(e.currentTarget.style.color='rgba(232,228,217,0.35)')}>
@@ -133,7 +126,6 @@ export default function Clients() {
           ))}
         </div>
 
-        {/* CTA */}
         <motion.div initial={{opacity:0,y:24}} animate={{opacity:1,y:0}} transition={{delay:0.8,duration:0.8}}
           style={{marginTop:80,padding:'60px',borderRadius:20,border:'0.5px solid rgba(232,228,217,0.08)',background:'rgba(232,228,217,0.02)',textAlign:'center'}}>
           <p style={{fontFamily:serif,fontStyle:'italic',fontSize:'clamp(28px,4vw,52px)',color:'rgba(232,228,217,0.7)',marginBottom:24,letterSpacing:'-0.02em'}}>
