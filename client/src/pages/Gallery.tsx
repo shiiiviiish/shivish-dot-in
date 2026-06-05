@@ -3,6 +3,68 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Download, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import Nav from '../components/Nav'
 
+// ── Magnetic Card ──────────────────────────────────────────────────
+function MagneticCard({ photo, height, isMobile, onSelect, onDownload, serif, delay }:
+  { photo: { id:number; title:string; category:string; color:string; accent:string };
+    height: string; isMobile: boolean; onSelect: ()=>void; onDownload: ()=>void;
+    serif: string; delay: number }) {
+  const cardRef = useRef<HTMLDivElement>(null)
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isMobile || !cardRef.current) return
+    const rect = cardRef.current.getBoundingClientRect()
+    const x = e.clientX - rect.left - rect.width / 2
+    const y = e.clientY - rect.top - rect.height / 2
+    const rotX = -(y / rect.height) * 12
+    const rotY = (x / rect.width) * 12
+    const tx = x * 0.08
+    const ty = y * 0.08
+    cardRef.current.style.transform = `perspective(600px) rotateX(${rotX}deg) rotateY(${rotY}deg) translate(${tx}px,${ty}px) scale(1.03)`
+  }
+
+  const handleMouseLeave = () => {
+    if (!cardRef.current) return
+    cardRef.current.style.transform = 'perspective(600px) rotateX(0deg) rotateY(0deg) translate(0,0) scale(1)'
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+      style={{ breakInside: 'avoid', marginBottom: isMobile ? 8 : 14, display: 'block' }}>
+      <div
+        ref={cardRef}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        onClick={onSelect}
+        style={{
+          height, borderRadius: isMobile ? 10 : 16,
+          overflow: 'hidden', cursor: 'pointer', position: 'relative',
+          background: photo.color, border: `0.5px solid ${photo.accent}20`,
+          transition: 'transform 0.15s ease, box-shadow 0.3s ease',
+          boxShadow: `0 4px 24px rgba(0,0,0,0.4)`,
+          willChange: 'transform',
+        }}>
+        <div style={{ position:'absolute', inset:0, background:`radial-gradient(circle at 40% 40%, ${photo.accent}22 0%, transparent 70%)` }}/>
+        {/* Shine overlay on hover */}
+        <div style={{ position:'absolute', inset:0, background:'linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 60%)', pointerEvents:'none' }}/>
+        <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:8 }}>
+          <div style={{ width:16, height:16, borderRadius:'50%', background:photo.accent, opacity:0.5, boxShadow:`0 0 12px ${photo.accent}` }}/>
+          <p style={{ fontFamily:serif, fontSize:isMobile?12:15, color:'rgba(232,228,217,0.7)', fontStyle:'italic', textAlign:'center', padding:'0 12px', margin:0 }}>{photo.title}</p>
+          <p style={{ fontSize:8, color:'rgba(232,228,217,0.3)', letterSpacing:'0.14em', textTransform:'uppercase', margin:0 }}>{photo.category}</p>
+        </div>
+        <button
+          onClick={e=>{e.stopPropagation(); onDownload()}}
+          style={{ position:'absolute', bottom:8, right:8, borderRadius:9999, padding:'4px 10px', background:'rgba(232,228,217,0.08)', border:`0.5px solid ${photo.accent}30`, color:'rgba(232,228,217,0.5)', display:'flex', alignItems:'center', gap:4, fontSize:9, cursor:'pointer' }}>
+          <Download size={10}/> {!isMobile && 'Save'}
+        </button>
+      </div>
+    </motion.div>
+  )
+}
+
 
 const featured = [
   { id: 1, title: 'Urban Fog',    category: 'Photography', bg: '#0d1f17', accent: '#4ade80' },
@@ -107,7 +169,6 @@ export default function Gallery() {
 
   const filtered      = filter === 'All' ? photos : photos.filter(p => p.category === filter)
   const selectedPhoto = selected !== null ? photos.find(p => p.id === selected) : null
-  const cols          = isMobile ? 2 : 3
   const activeCard    = featured[activeIndex]
 
   const handleDownload = (photo: typeof photos[0]) => {
@@ -236,26 +297,17 @@ export default function Gallery() {
           ))}
         </div>
 
-        <div style={{display:'grid',gridTemplateColumns:`repeat(${cols},1fr)`,gap:isMobile?8:12}}>
-          {filtered.map((photo,i)=>(
-            <motion.div key={photo.id}
-              initial={{opacity:0,scale:0.95}} whileInView={{opacity:1,scale:1}} viewport={{once:true}}
-              transition={{delay:i*0.05,duration:0.7,ease:[0.16,1,0.3,1]}}
-              whileHover={{y:-4}} whileTap={{scale:0.97}}
-              onClick={()=>setSelected(photo.id)}
-              style={{borderRadius:isMobile?10:14,overflow:'hidden',cursor:'pointer',position:'relative',aspectRatio:'4/3',background:photo.color,border:'0.5px solid rgba(232,228,217,0.07)'}}>
-              <div style={{position:'absolute',inset:0,background:`radial-gradient(circle at 40% 50%, ${photo.accent}18 0%, transparent 65%)`}}/>
-              <div style={{position:'absolute',inset:0,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:8}}>
-                <div style={{width:20,height:20,borderRadius:'50%',background:photo.accent,opacity:0.4}}/>
-                <p style={{fontFamily:serif,fontSize:isMobile?13:16,color:'rgba(232,228,217,0.65)',fontStyle:'italic',textAlign:'center',padding:'0 8px',margin:0}}>{photo.title}</p>
-                <p style={{fontSize:9,color:'rgba(232,228,217,0.28)',letterSpacing:'0.12em',textTransform:'uppercase',margin:0}}>{photo.category}</p>
-              </div>
-              <button onClick={e=>{e.stopPropagation();handleDownload(photo)}}
-                style={{position:'absolute',bottom:8,right:8,borderRadius:9999,padding:'5px 10px',background:'rgba(232,228,217,0.1)',border:'0.5px solid rgba(232,228,217,0.15)',color:'rgba(232,228,217,0.6)',display:'flex',alignItems:'center',gap:4,fontSize:10,cursor:'pointer'}}>
-                <Download size={11}/> {!isMobile&&'Save'}
-              </button>
-            </motion.div>
-          ))}
+        {/* Masonry + Magnetic grid */}
+        <div style={{columns: isMobile ? 2 : 3, columnGap: isMobile ? 8 : 14}}>
+          {filtered.map((photo, i) => {
+            // Masonry heights — alternating tall/short
+            const heights = ['200px','280px','220px','260px','180px','300px','240px','200px','270px']
+            const h = heights[i % heights.length]
+            return (
+              <MagneticCard key={photo.id} photo={photo} height={h} isMobile={isMobile}
+                onSelect={()=>setSelected(photo.id)} onDownload={()=>handleDownload(photo)} serif={serif} delay={i*0.06}/>
+            )
+          })}
         </div>
 
         <p style={{textAlign:'center',fontSize:12,color:'rgba(232,228,217,0.18)',marginTop:40,fontFamily:serif,fontStyle:'italic'}}>

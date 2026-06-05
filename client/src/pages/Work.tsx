@@ -67,7 +67,14 @@ export default function Work() {
     return()=>{v.removeEventListener('timeupdate',onTime);cancelAnimationFrame(raf)}
   },[])
 
+  const [showModal, setShowModal] = useState(false)
+
   const navigate=(dir:number)=>{
+    // If on last project and clicking Next — open client stories modal
+    if(dir===1 && active===projects.length-1){
+      setShowModal(true)
+      return
+    }
     setActive(prev=>(prev+dir+projects.length)%projects.length)
     setKey(k=>k+1)
   }
@@ -81,7 +88,7 @@ export default function Work() {
   const p=projects[active]
 
   return (
-    <div style={{background:'#000',height:'100vh',width:'100%',overflow:'hidden',fontFamily:"'Inter',sans-serif",position:'relative'}}>
+    <div style={{background:'#000',minHeight:'100vh',width:'100%',fontFamily:"'Inter',sans-serif",position:'relative'}}>
       {!isMobile && <>
         <div ref={cursorRef} style={{position:'fixed',width:12,height:12,background:'#4ade80',borderRadius:'50%',pointerEvents:'none',zIndex:99999,transform:'translate(-50%,-50%)',left:'-100px',top:'-100px',boxShadow:'0 0 12px rgba(74,222,128,0.8)'}}/>
         <div ref={trailRef} style={{position:'fixed',width:40,height:40,border:'1px solid rgba(74,222,128,0.25)',borderRadius:'50%',pointerEvents:'none',zIndex:99998,transform:'translate(-50%,-50%)',left:'-100px',top:'-100px'}}/>
@@ -152,9 +159,130 @@ export default function Work() {
               onMouseEnter={e=>(e.currentTarget.style.color='#fff')} onMouseLeave={e=>(e.currentTarget.style.color='rgba(255,255,255,0.35)')}>
               Say hello →
             </Link>}
+            {/* Client Stories button */}
+            <button
+              onClick={()=>setShowModal(true)}
+              className="animate-blur-fade-up liquid-glass"
+              style={{borderRadius:9999,padding:'8px 16px',fontSize:11,color:'rgba(255,255,255,0.5)',background:'transparent',border:'none',cursor:isMobile?'pointer':'none',letterSpacing:'0.1em',textTransform:'uppercase',animationDelay:'1100ms',marginTop:4}}>
+              Client Stories ↗
+            </button>
           </div>
         </div>
       </div>
+
+      {/* ── CLIENT STORIES MODAL ── */}
+      {showModal && (
+        <div
+          onClick={()=>setShowModal(false)}
+          style={{position:'fixed',inset:0,zIndex:200,background:'rgba(0,0,0,0.92)',backdropFilter:'blur(24px)',overflowY:'auto',display:'flex',alignItems:'flex-start',justifyContent:'center',padding:isMobile?'24px 16px':'48px'}}>
+          <div
+            onClick={e=>e.stopPropagation()}
+            style={{width:'100%',maxWidth:1000,position:'relative'}}>
+
+            {/* Close */}
+            <button
+              onClick={()=>setShowModal(false)}
+              style={{position:'sticky',top:0,left:'100%',display:'flex',marginLeft:'auto',width:40,height:40,borderRadius:'50%',background:'rgba(232,228,217,0.08)',border:'0.5px solid rgba(232,228,217,0.15)',color:'#e8e4d9',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:18,zIndex:10,marginBottom:32}}>
+              ×
+            </button>
+
+            {/* Heading */}
+            <p style={{fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:'0.2em',textTransform:'uppercase',color:'rgba(232,228,217,0.3)',marginBottom:12}}>Client experience</p>
+            <h2 style={{fontFamily:serif,fontSize:'clamp(36px,6vw,64px)',fontWeight:400,lineHeight:0.9,letterSpacing:'-0.04em',color:'#e8e4d9',marginBottom:48}}>
+              Working<br/><em style={{color:'rgba(232,228,217,0.22)',fontStyle:'italic'}}>with me.</em>
+            </h2>
+
+            {/* ── KAVYA — SPLIT SCREEN ── */}
+            <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:isMobile?24:0,borderRadius:16,overflow:'hidden',border:'0.5px solid rgba(232,228,217,0.08)',marginBottom:16}}>
+              {/* Left — photos */}
+              <div style={{background:'rgba(255,255,255,0.02)',padding:'32px',display:'flex',flexDirection:'column',gap:12,justifyContent:'center',alignItems:'center'}}>
+                <div style={{width:'100%',maxWidth:260,height:160,borderRadius:10,background:'rgba(255,255,255,0.04)',border:'0.5px solid rgba(74,222,128,0.1)',display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:8}}>
+                  <div style={{width:44,height:44,borderRadius:'50%',background:'rgba(74,222,128,0.1)',border:'0.5px solid rgba(74,222,128,0.2)',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:serif,fontSize:16,color:'rgba(74,222,128,0.6)'}}>KA</div>
+                  <span style={{fontFamily:"'DM Mono',monospace",fontSize:8,color:'rgba(232,228,217,0.15)',letterSpacing:'0.12em',textTransform:'uppercase'}}>Add photo here</span>
+                </div>
+                <div style={{display:'flex',gap:10,width:'100%',maxWidth:260}}>
+                  {['Working session','Launch day'].map((l,i)=>(
+                    <div key={i} style={{flex:1,height:88,borderRadius:8,background:'rgba(255,255,255,0.03)',border:'0.5px solid rgba(232,228,217,0.06)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                      <span style={{fontFamily:"'DM Mono',monospace",fontSize:8,color:'rgba(232,228,217,0.15)',letterSpacing:'0.1em',textTransform:'uppercase',textAlign:'center',padding:'0 6px'}}>{l}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Right — quote */}
+              <div style={{background:'rgba(0,0,0,0.4)',padding:'36px',display:'flex',flexDirection:'column',justifyContent:'center'}}>
+                <p style={{fontFamily:"'DM Mono',monospace",fontSize:9,color:'rgba(74,222,128,0.5)',letterSpacing:'0.15em',textTransform:'uppercase',marginBottom:16}}>Client · HTA · 2025</p>
+                <p style={{fontFamily:serif,fontStyle:'italic',fontSize:'clamp(16px,2vw,22px)',color:'rgba(232,228,217,0.9)',lineHeight:1.7,marginBottom:24,letterSpacing:'-0.01em'}}>
+                  "He understood the brand before I even finished explaining it. The site doesn't just look good — it actually feels like HTA."
+                </p>
+                <div style={{borderTop:'0.5px solid rgba(232,228,217,0.07)',paddingTop:16}}>
+                  <p style={{fontFamily:serif,fontSize:15,color:'#e8e4d9',marginBottom:2}}>Kavya Atray</p>
+                  <p style={{fontFamily:"'DM Mono',monospace",fontSize:9,color:'rgba(232,228,217,0.35)',letterSpacing:'0.08em'}}>Founder, Happiness Through Art</p>
+                  <a href="https://hta-seven.vercel.app" target="_blank" style={{display:'inline-block',marginTop:12,fontFamily:"'DM Mono',monospace",fontSize:9,color:'rgba(74,222,128,0.5)',letterSpacing:'0.1em',textDecoration:'none',borderBottom:'0.5px solid rgba(74,222,128,0.2)',paddingBottom:2}}>hta-seven.vercel.app ↗</a>
+                </div>
+              </div>
+            </div>
+
+            {/* Process timeline — Kavya */}
+            <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:12,marginBottom:40,position:'relative'}}>
+              {!isMobile && <div style={{position:'absolute',top:28,left:'calc(16.66% + 20px)',right:'calc(16.66% + 20px)',height:'0.5px',background:'linear-gradient(to right,rgba(74,222,128,0.25),rgba(74,222,128,0.05))',zIndex:0}}/>}
+              {[
+                {step:'01',phase:'Discovery',photo:'First call',quote:'"He asked the right questions — not just what I wanted, but why."'},
+                {step:'02',phase:'Design & Build',photo:'In progress',quote:'"Every revision came back better than I imagined."'},
+                {step:'03',phase:'Launch',photo:'Going live',quote:'"The day we launched, I couldn\'t stop sharing it with everyone."'},
+              ].map((t,i)=>(
+                <div key={i} style={{background:'rgba(255,255,255,0.02)',border:'0.5px solid rgba(74,222,128,0.1)',borderRadius:12,padding:'20px',display:'flex',flexDirection:'column',gap:12,position:'relative',zIndex:1}}>
+                  <div style={{display:'flex',alignItems:'center',gap:8}}>
+                    <div style={{width:28,height:28,borderRadius:'50%',background:'rgba(74,222,128,0.08)',border:'0.5px solid rgba(74,222,128,0.2)',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'DM Mono',monospace",fontSize:9,color:'rgba(74,222,128,0.6)',flexShrink:0}}>{t.step}</div>
+                    <p style={{fontFamily:"'DM Mono',monospace",fontSize:9,color:'rgba(232,228,217,0.4)',letterSpacing:'0.12em',textTransform:'uppercase'}}>{t.phase}</p>
+                  </div>
+                  <div style={{width:'100%',height:80,borderRadius:6,background:'rgba(255,255,255,0.03)',border:'0.5px solid rgba(232,228,217,0.05)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                    <span style={{fontFamily:"'DM Mono',monospace",fontSize:8,color:'rgba(232,228,217,0.12)',letterSpacing:'0.1em',textTransform:'uppercase'}}>{t.photo}</span>
+                  </div>
+                  <p style={{fontFamily:serif,fontStyle:'italic',fontSize:12,color:'rgba(232,228,217,0.55)',lineHeight:1.6}}>{t.quote}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* ── SAHIL — SPLIT SCREEN ── */}
+            <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:isMobile?24:0,borderRadius:16,overflow:'hidden',border:'0.5px solid rgba(232,228,217,0.08)',marginBottom:40}}>
+              <div style={{background:'rgba(0,0,0,0.4)',padding:'36px',display:'flex',flexDirection:'column',justifyContent:'center',order:isMobile?2:1}}>
+                <p style={{fontFamily:"'DM Mono',monospace",fontSize:9,color:'rgba(96,165,250,0.5)',letterSpacing:'0.15em',textTransform:'uppercase',marginBottom:16}}>Client · Pixable Studios · 2025</p>
+                <p style={{fontFamily:serif,fontStyle:'italic',fontSize:'clamp(16px,2vw,22px)',color:'rgba(232,228,217,0.9)',lineHeight:1.7,marginBottom:24,letterSpacing:'-0.01em'}}>
+                  "Shivish never just builds what you ask — he thinks about what you actually need. Quick to respond, honest about timelines."
+                </p>
+                <div style={{borderTop:'0.5px solid rgba(232,228,217,0.07)',paddingTop:16}}>
+                  <p style={{fontFamily:serif,fontSize:15,color:'#e8e4d9',marginBottom:2}}>Sahil Dev</p>
+                  <p style={{fontFamily:"'DM Mono',monospace",fontSize:9,color:'rgba(232,228,217,0.35)',letterSpacing:'0.08em'}}>Founder, Pixable Studios</p>
+                  <span style={{display:'inline-block',marginTop:12,fontFamily:"'DM Mono',monospace",fontSize:9,color:'rgba(251,146,60,0.5)',letterSpacing:'0.1em'}}>In Progress</span>
+                </div>
+              </div>
+              <div style={{background:'rgba(255,255,255,0.02)',padding:'32px',display:'flex',flexDirection:'column',gap:12,justifyContent:'center',alignItems:'center',order:isMobile?1:2}}>
+                <div style={{width:'100%',maxWidth:260,height:160,borderRadius:10,background:'rgba(255,255,255,0.04)',border:'0.5px solid rgba(96,165,250,0.1)',display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:8}}>
+                  <div style={{width:44,height:44,borderRadius:'50%',background:'rgba(96,165,250,0.1)',border:'0.5px solid rgba(96,165,250,0.2)',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:serif,fontSize:16,color:'rgba(96,165,250,0.6)'}}>SD</div>
+                  <span style={{fontFamily:"'DM Mono',monospace",fontSize:8,color:'rgba(232,228,217,0.15)',letterSpacing:'0.12em',textTransform:'uppercase'}}>Add photo here</span>
+                </div>
+                <div style={{display:'flex',gap:10,width:'100%',maxWidth:260}}>
+                  {['Planning','Design'].map((l,i)=>(
+                    <div key={i} style={{flex:1,height:88,borderRadius:8,background:'rgba(255,255,255,0.03)',border:'0.5px solid rgba(232,228,217,0.06)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                      <span style={{fontFamily:"'DM Mono',monospace",fontSize:8,color:'rgba(232,228,217,0.15)',letterSpacing:'0.1em',textTransform:'uppercase',textAlign:'center',padding:'0 6px'}}>{l}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom CTA */}
+            <div style={{textAlign:'center',paddingBottom:40}}>
+              <Link to="/contact" onClick={()=>setShowModal(false)}
+                style={{display:'inline-block',borderRadius:9999,padding:'14px 36px',background:'#e8e4d9',color:'#07100d',fontSize:13,fontWeight:500,textDecoration:'none'}}>
+                Let's work together →
+              </Link>
+            </div>
+
+          </div>
+        </div>
+      )}
+
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');

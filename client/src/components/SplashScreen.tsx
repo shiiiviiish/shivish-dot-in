@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-const mono  = "'DM Mono', monospace"
+const mono = "'DM Mono', monospace"
+
+// Foggy forest image — free from Unsplash
+const BG_IMAGE = 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80'
 
 function playHorrorWelcome() {
   try {
@@ -10,7 +13,6 @@ function playHorrorWelcome() {
     master.gain.setValueAtTime(0.7, ctx.currentTime)
     master.connect(ctx.destination)
 
-    // ── Deep drone/rumble ──────────────────────────────────────────
     const drone = ctx.createOscillator()
     const droneGain = ctx.createGain()
     drone.type = 'sawtooth'
@@ -20,12 +22,9 @@ function playHorrorWelcome() {
     droneGain.gain.linearRampToValueAtTime(0.4, ctx.currentTime + 0.3)
     droneGain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 3)
     droneGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 4)
-    drone.connect(droneGain)
-    droneGain.connect(master)
-    drone.start(ctx.currentTime)
-    drone.stop(ctx.currentTime + 4)
+    drone.connect(droneGain); droneGain.connect(master)
+    drone.start(ctx.currentTime); drone.stop(ctx.currentTime + 4)
 
-    // ── Creepy high whine ──────────────────────────────────────────
     const whine = ctx.createOscillator()
     const whineGain = ctx.createGain()
     whine.type = 'sine'
@@ -33,14 +32,10 @@ function playHorrorWelcome() {
     whine.frequency.exponentialRampToValueAtTime(320, ctx.currentTime + 2.5)
     whineGain.gain.setValueAtTime(0, ctx.currentTime + 0.5)
     whineGain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 1)
-    whineGain.gain.linearRampToValueAtTime(0.04, ctx.currentTime + 2.5)
     whineGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 3.5)
-    whine.connect(whineGain)
-    whineGain.connect(master)
-    whine.start(ctx.currentTime + 0.5)
-    whine.stop(ctx.currentTime + 3.5)
+    whine.connect(whineGain); whineGain.connect(master)
+    whine.start(ctx.currentTime + 0.5); whine.stop(ctx.currentTime + 3.5)
 
-    // ── Distorted impact hit ────────────────────────────────────────
     const impact = ctx.createOscillator()
     const impactGain = ctx.createGain()
     const impactDistort = ctx.createWaveShaper()
@@ -55,31 +50,21 @@ function playHorrorWelcome() {
     impact.frequency.exponentialRampToValueAtTime(25, ctx.currentTime + 1.2)
     impactGain.gain.setValueAtTime(0.8, ctx.currentTime)
     impactGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2)
-    impact.connect(impactDistort)
-    impactDistort.connect(impactGain)
-    impactGain.connect(master)
-    impact.start(ctx.currentTime)
-    impact.stop(ctx.currentTime + 1.2)
+    impact.connect(impactDistort); impactDistort.connect(impactGain); impactGain.connect(master)
+    impact.start(ctx.currentTime); impact.stop(ctx.currentTime + 1.2)
 
-    // ── "Welcome" whisper using speech synthesis ─────────────────────
     setTimeout(() => {
       if ('speechSynthesis' in window) {
         const utterance = new SpeechSynthesisUtterance('Welcome')
-        utterance.rate   = 0.5     // very slow
-        utterance.pitch  = 0.1     // very low pitch
-        utterance.volume = 1.0
-        // pick darkest voice available
+        utterance.rate = 0.5; utterance.pitch = 0.1; utterance.volume = 1.0
         const voices = window.speechSynthesis.getVoices()
-        const deep   = voices.find(v => v.name.toLowerCase().includes('daniel') ||
-                                        v.name.toLowerCase().includes('male')   ||
-                                        v.name.toLowerCase().includes('fred')   ||
-                                        v.name.toLowerCase().includes('alex'))
+        const deep = voices.find(v => v.name.toLowerCase().includes('daniel') ||
+          v.name.toLowerCase().includes('fred') || v.name.toLowerCase().includes('alex'))
         if (deep) utterance.voice = deep
         window.speechSynthesis.speak(utterance)
       }
     }, 200)
 
-    // ── Low reverb tail ────────────────────────────────────────────
     const tail = ctx.createOscillator()
     const tailGain = ctx.createGain()
     tail.type = 'sine'
@@ -87,44 +72,39 @@ function playHorrorWelcome() {
     tailGain.gain.setValueAtTime(0, ctx.currentTime + 1)
     tailGain.gain.linearRampToValueAtTime(0.2, ctx.currentTime + 1.5)
     tailGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 4.5)
-    tail.connect(tailGain)
-    tailGain.connect(master)
-    tail.start(ctx.currentTime + 1)
-    tail.stop(ctx.currentTime + 4.5)
-
-  } catch(e) {
-    console.log('Audio not supported')
-  }
+    tail.connect(tailGain); tailGain.connect(master)
+    tail.start(ctx.currentTime + 1); tail.stop(ctx.currentTime + 4.5)
+  } catch(e) { console.log('Audio not supported') }
 }
 
 export default function SplashScreen({ onEnter }: { onEnter: () => void }) {
-  const [phase, setPhase]   = useState<'intro'|'ready'|'exit'>('intro')
-  const [glitch, setGlitch] = useState(false)
+  const [phase, setPhase]     = useState<'intro'|'ready'|'exit'>('intro')
+  const [glitch, setGlitch]   = useState(false)
   const [flicker, setFlicker] = useState(false)
+  const [imgLoaded, setImgLoaded] = useState(false)
   const hasPlayed = useRef(false)
 
   useEffect(() => {
-    const t = setTimeout(() => setPhase('ready'), 1200)
+    const img = new Image()
+    img.src = BG_IMAGE
+    img.onload = () => setImgLoaded(true)
+    img.onerror = () => setImgLoaded(true) // fallback — show anyway
+    const t = setTimeout(() => setPhase('ready'), 1400)
     return () => clearTimeout(t)
   }, [])
 
   const handleEnter = () => {
     if (hasPlayed.current) return
     hasPlayed.current = true
-
     playHorrorWelcome()
-
-    // Screen flicker effect
     let flickerCount = 0
     const flickerInterval = setInterval(() => {
       setFlicker(f => !f)
       flickerCount++
       if (flickerCount > 6) clearInterval(flickerInterval)
     }, 80)
-
     setGlitch(true)
     setTimeout(() => setGlitch(false), 600)
-
     setTimeout(() => {
       setPhase('exit')
       setTimeout(onEnter, 1200)
@@ -141,121 +121,146 @@ export default function SplashScreen({ onEnter }: { onEnter: () => void }) {
           onClick={phase === 'ready' ? handleEnter : undefined}
           style={{
             position: 'fixed', inset: 0, zIndex: 99999,
-            background: flicker ? '#0a0a0a' : '#000',
-            display: 'flex', flexDirection: 'column',
-            alignItems: 'center', justifyContent: 'center',
             cursor: phase === 'ready' ? 'pointer' : 'default',
-            userSelect: 'none',
+            userSelect: 'none', overflow: 'hidden',
           }}>
 
-          {/* Noise overlay */}
+          {/* Background photo */}
           <div style={{
-            position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 1,
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-            backgroundSize: '180px', opacity: 0.04, mixBlendMode: 'overlay',
+            position: 'absolute', inset: 0,
+            backgroundImage: imgLoaded ? `url(${BG_IMAGE})` : 'none',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundColor: '#07100d',
+            filter: `brightness(${flicker ? 0.25 : 0.45}) saturate(0.6)`,
+            transition: 'filter 0.08s',
+            transform: 'scale(1.04)',
           }}/>
 
-          {/* Vignette */}
+          {/* Dark overlay gradient */}
           <div style={{
-            position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 1,
-            background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.85) 100%)',
+            position: 'absolute', inset: 0,
+            background: 'linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.75) 100%)',
           }}/>
 
-          {/* Horror font import */}
+          {/* Heavy vignette */}
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: 'radial-gradient(ellipse at center, transparent 25%, rgba(0,0,0,0.6) 65%, rgba(0,0,0,0.95) 100%)',
+          }}/>
+
+          {/* Film grain */}
+          <div style={{
+            position: 'absolute', inset: 0, pointerEvents: 'none',
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+            backgroundSize: '160px', opacity: 0.06, mixBlendMode: 'overlay',
+          }}/>
+
+          {/* Scan lines */}
+          <div style={{
+            position: 'absolute', inset: 0, pointerEvents: 'none',
+            backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.05) 2px,rgba(0,0,0,0.05) 4px)',
+          }}/>
+
           <style>{`
-            @import url('https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&display=swap');
-            @keyframes blurReveal {
-              0%   { filter: blur(40px); opacity: 0; letter-spacing: 0.8em; }
-              60%  { filter: blur(6px);  opacity: 0.7; letter-spacing: 0.15em; }
-              100% { filter: blur(0px);  opacity: 1; letter-spacing: 0.05em; }
-            }
-            @keyframes bloodDrip {
-              0%,100% { text-shadow: 0 0 20px rgba(74,222,128,0.4), 0 0 60px rgba(74,222,128,0.15); }
-              50%     { text-shadow: 0 0 40px rgba(74,222,128,0.7), 0 0 80px rgba(74,222,128,0.3), 0 2px 0 #4ade80; }
+            @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono&display=swap');
+            @keyframes glowPulse {
+              0%,100%{text-shadow:0 0 30px rgba(232,228,217,0.1)}
+              50%{text-shadow:0 0 60px rgba(232,228,217,0.25),0 0 100px rgba(232,228,217,0.1)}
             }
           `}</style>
 
-          {/* Content */}
-          <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 32 }}>
+          {/* POSTER LAYOUT */}
+          <div style={{
+            position: 'relative', zIndex: 2,
+            width: '100%', height: '100%',
+            display: 'flex', flexDirection: 'column',
+            justifyContent: 'space-between',
+            padding: 'clamp(24px,5vw,52px)',
+          }}>
 
-            {/* Favicon logo */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.4, filter: 'blur(20px)' }}
-              animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-              transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1] }}
-              style={{ position: 'relative' }}>
-
-              <motion.div
-                animate={glitch ? {
-                  x: [0, -10, 14, -5, 0],
-                  filter: ['none', 'hue-rotate(180deg) brightness(4)', 'invert(1)', 'none'],
-                } : {
-                  filter: [
-                    'drop-shadow(0 0 10px rgba(74,222,128,0.25))',
-                    'drop-shadow(0 0 35px rgba(74,222,128,0.6))',
-                    'drop-shadow(0 0 10px rgba(74,222,128,0.25))',
-                  ],
-                }}
-                transition={glitch ? { duration: 0.5 } : { duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}>
-                <img
-                  src="/Favicon.png"
-                  alt="Shivish"
-                  style={{ width: 130, height: 130, borderRadius: '50%', display: 'block' }}
+            {/* TOP */}
+            <motion.div initial={{opacity:0,y:-10}} animate={{opacity:1,y:0}} transition={{delay:0.3,duration:1}}
+              style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
+              <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                <div style={{ width:5, height:5, borderRadius:'50%', background:'#4ade80', boxShadow:'0 0 8px #4ade80' }}/>
+                <span style={{ fontFamily:mono, fontSize:'clamp(9px,1.2vw,11px)', letterSpacing:'0.25em', color:'rgba(232,228,217,0.5)', textTransform:'uppercase' }}>
+                  Portfolio · 2025
+                </span>
+              </div>
+              <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                <motion.img
+                  src="/Favicon1.png" alt="S"
+                  animate={glitch ? { filter:'hue-rotate(180deg) brightness(3)' } : { filter:'drop-shadow(0 0 8px rgba(74,222,128,0.4))' }}
+                  style={{ width:32, height:32, borderRadius:'50%' }}
                 />
-              </motion.div>
+              </div>
             </motion.div>
 
-            {/* Shivish — horror font + blur reveal animation */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6, duration: 0.3 }}>
-              <p style={{
-                fontFamily: "'Nosifer', cursive",
-                fontSize: 'clamp(28px,5.5vw,72px)',
-                color: glitch ? '#ff2200' : '#4ade80',
-                margin: 0,
-                animation: 'blurReveal 2s cubic-bezier(0.16,1,0.3,1) 0.6s both, bloodDrip 4s ease-in-out 2.6s infinite',
-                transition: 'color 0.08s',
-              }}>
-                Shivish
-              </p>
+            {/* CENTER — big name */}
+            <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-start' }}>
+              <motion.h1
+                initial={{ opacity:0, y:50, filter:'blur(20px)' }}
+                animate={{ opacity:1, y:0, filter:'blur(0px)' }}
+                transition={{ delay:0.5, duration:1.4, ease:[0.16,1,0.3,1] }}
+                style={{
+                  fontFamily:"'Instrument Serif', serif",
+                  fontSize: 'clamp(64px,15vw,180px)',
+                  fontWeight: 400,
+                  lineHeight: 0.85,
+                  letterSpacing: '-0.04em',
+                  color: glitch ? '#ff2200' : '#e8e4d9',
+                  margin: 0,
+                  transition: 'color 0.08s',
+                  animation: phase === 'ready' ? 'glowPulse 4s ease-in-out infinite' : 'none',
+                  textShadow: '0 4px 40px rgba(0,0,0,0.8)',
+                }}>
+                SHIVISH
+              </motion.h1>
+
+              {/* Green line */}
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: '60%' }}
+                transition={{ delay: 1.1, duration: 1.2, ease:[0.16,1,0.3,1] }}
+                style={{ height:1, background:'linear-gradient(to right, rgba(74,222,128,0.7), transparent)', marginTop:16, marginBottom:12, maxWidth:520 }}/>
+
+              <motion.p
+                initial={{ opacity:0, x:-20 }}
+                animate={{ opacity:1, x:0 }}
+                transition={{ delay:1.4, duration:0.8 }}
+                style={{ fontFamily:mono, fontSize:'clamp(9px,1.3vw,12px)', letterSpacing:'0.22em', textTransform:'uppercase', color:'rgba(232,228,217,0.5)', margin:0 }}>
+                Developer · Vibe Coder · Chandigarh
+              </motion.p>
+            </div>
+
+            {/* BOTTOM */}
+            <motion.div initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{delay:1.6,duration:0.8}}
+              style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end' }}>
+
+              <AnimatePresence>
+                {phase === 'ready' && (
+                  <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}
+                    style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                    <motion.p
+                      animate={{ opacity:[0.35,1,0.35] }}
+                      transition={{ duration:2.5, repeat:Infinity, ease:'easeInOut' }}
+                      style={{ fontFamily:mono, fontSize:'clamp(9px,1.1vw,11px)', letterSpacing:'0.3em', textTransform:'uppercase', color:'rgba(232,228,217,0.6)', margin:0 }}>
+                      Click anywhere to enter
+                    </motion.p>
+                    <motion.div
+                      animate={{ scaleX:[0,1,0] }}
+                      transition={{ duration:2.5, repeat:Infinity, ease:'easeInOut' }}
+                      style={{ width:80, height:1, background:'rgba(74,222,128,0.5)', transformOrigin:'left' }}/>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <span style={{ fontFamily:mono, fontSize:'clamp(8px,1vw,10px)', letterSpacing:'0.15em', color:'rgba(232,228,217,0.2)', textTransform:'uppercase' }}>
+                shivish.in
+              </span>
             </motion.div>
-
-            {/* Click to enter */}
-            <AnimatePresence>
-              {phase === 'ready' && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.6 }}
-                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-
-                  <motion.p
-                    animate={{ opacity: [0.3, 0.9, 0.3] }}
-                    transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-                    style={{
-                      fontFamily: mono,
-                      fontSize: 11,
-                      letterSpacing: '0.28em',
-                      textTransform: 'uppercase',
-                      color: 'rgba(232,228,217,0.45)',
-                      margin: 0,
-                    }}>
-                    Click to enter
-                  </motion.p>
-
-                  <motion.div
-                    animate={{ scaleX: [0, 1, 0] }}
-                    transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-                    style={{ width: 32, height: 1, background: 'rgba(74,222,128,0.3)', transformOrigin: 'center' }}/>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
-
-
         </motion.div>
       )}
     </AnimatePresence>

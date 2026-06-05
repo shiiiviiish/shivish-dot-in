@@ -8,7 +8,8 @@ const serif = "'Instrument Serif', serif"
 const mono  = "'DM Mono', monospace"
 
 const experience = [
-  { year: '2025 — now', role: 'Freelance Web Developer', place: 'Chandigarh', desc: 'Built portfolio websites for clients. HTA — Happiness Through Art.' },
+  { year: '2025 — now', role: 'Freelance Web Developer', place: 'Chandigarh', desc: 'Built portfolio websites for clients. HTA — Happiness Through Art. Pixable Studios — in progress.' },
+  { year: '2025', role: 'Pixable Studios', place: 'Chandigarh', desc: 'Web design project with Sahil Dev. Details coming soon.' },
   { year: '2024', role: 'Started Coding', place: 'Self-taught', desc: 'Picked up React, TypeScript and Tailwind. Never stopped.' },
   { year: '2023', role: 'BTech Started', place: 'Chandigarh', desc: 'Enrolled in BTech. Started exploring design and tech seriously.' },
 ]
@@ -26,13 +27,7 @@ const skillBars = [
   { name: '{DESIGN}', pct: 78 },
   { name: '{EDIT}',   pct: 75 },
   { name: '{SHOOT}',  pct: 70 },
-  { name: '{VIBE}',   pct: 100, inf: true },
-]
-
-const polaroids = [
-  { label: 'At my desk',        color: '#0d1f17', accent: '#4ade80',  rotate: -3   },
-  { label: 'Out shooting',      color: '#0f1525', accent: '#60a5fa',  rotate:  2   },
-  { label: 'Late night coding', color: '#1f0a12', accent: '#f472b6',  rotate: -1.5 },
+  { name: '{VIBE}',   pct: 100 },
 ]
 
 const services = [
@@ -76,7 +71,7 @@ function CountUp({ value, delay=0 }: { value: string; delay?: number }) {
   return <span ref={ref} style={{display:'inline-block'}}>{isNum?'+0':`+${value}`}</span>
 }
 
-function SkillBar({ pct }: { pct: number; inf?: boolean }) {
+function SkillBar({ pct }: { pct: number }) {
   const ref      = useRef<HTMLDivElement>(null)
   const isInView = useInView(ref,{once:true,margin:'-40px'})
   return (
@@ -123,7 +118,7 @@ export default function About() {
       <Nav/>
 
       {/* ── HERO ── */}
-      <section id="tour-about-hero" style={{position:'relative',minHeight:'100vh',display:'flex',alignItems:'center',zIndex:10,overflow:'hidden',padding:'80px clamp(20px,5vw,48px) 0'}}>
+      <section style={{position:'relative',minHeight:'100vh',display:'flex',alignItems:'center',zIndex:10,overflow:'hidden',padding:'80px clamp(20px,5vw,48px) 0'}}>
         <div style={{flex:1,position:'relative',zIndex:2}}>
           <motion.div initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{delay:0.2,duration:0.8}}
             style={{display:'flex',alignItems:'center',gap:16,marginBottom:24}}>
@@ -148,11 +143,11 @@ export default function About() {
             {'{ a developer & vibe coder from Chandigarh }'}
           </motion.p>
 
-          {/* Stats — KVS style */}
+          {/* Stats — +3 projects */}
           <motion.div initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{delay:0.8,duration:0.8}}
             style={{display:'flex',marginBottom:40,border:'0.5px solid rgba(232,228,217,0.07)',borderRadius:8,overflow:'hidden',flexWrap:'wrap'}}>
             {[
-              {num:'2', label:'{PROJECTS}'},
+              {num:'3', label:'{PROJECTS}'},
               {num:'19',label:'{YEARS OLD}'},
               {num:'3', label:'{SKILL AREAS}'},
             ].map((s,i)=>(
@@ -176,14 +171,12 @@ export default function About() {
             style={{fontFamily:mono,fontSize:10,color:'rgba(232,228,217,0.2)',letterSpacing:'0.15em'}}>{'{SCROLL DOWN ↓}'}</motion.p>
         </div>
 
-        {/* Right — FaceTilt replaces static image */}
+        {/* Right — FaceTilt no green bg */}
         <motion.div initial={{opacity:0,x:60}} animate={{opacity:1,x:0}} transition={{delay:0.4,duration:1.2,ease:[0.16,1,0.3,1]}}
           className="hero-face" style={{position:'relative',zIndex:2,flexShrink:0}}>
           <FaceTilt
             width="clamp(280px,35vw,480px)"
-            label="Shivish"
-            sublabel="{VIBE CODER}"
-            showBadge={true}
+            noBackground={true}
           />
         </motion.div>
       </section>
@@ -212,11 +205,13 @@ export default function About() {
         </div>
       </section>
 
-      {/* ── SKILLS MARQUEE ── */}
+      {/* ── SKILLS MARQUEE — white like home ── */}
       <div style={{overflow:'hidden',borderTop:'0.5px solid rgba(232,228,217,0.06)',borderBottom:'0.5px solid rgba(232,228,217,0.06)',padding:'16px 0',position:'relative'}}>
         <div ref={marqueeRef} style={{display:'flex',gap:48,width:'max-content'}}>
           {[...skillsFlat,'·',...skillsFlat,'·',...skillsFlat].map((s,i)=>(
-            <span key={i} style={{fontFamily:serif,fontStyle:'italic',fontSize:16,whiteSpace:'nowrap',color:s==='·'?'rgba(232,228,217,0.15)':'rgba(232,228,217,0.2)'}}>{s}</span>
+            <span key={i} style={{fontFamily:serif,fontStyle:'italic',fontSize:16,whiteSpace:'nowrap',
+              color: s==='·' ? 'rgba(232,228,217,0.5)' : 'rgba(232,228,217,0.9)'
+            }}>{s}</span>
           ))}
         </div>
       </div>
@@ -225,13 +220,11 @@ export default function About() {
       <section style={{maxWidth:1200,margin:'0 auto',padding:'100px clamp(20px,5vw,48px)'}}>
         <div className="portrait-grid">
 
-          {/* Left — FaceTilt replaces portrait img */}
+          {/* Left — FaceTilt no green bg */}
           <motion.div initial={{opacity:0,x:-40}} whileInView={{opacity:1,x:0}} viewport={{once:true}} transition={{duration:1,ease:[0.16,1,0.3,1]}}>
             <FaceTilt
               width="100%"
-              label="Shivish"
-              sublabel="{VIBE CODER}"
-              showBadge={true}
+              noBackground={true}
             />
           </motion.div>
 
@@ -261,9 +254,9 @@ export default function About() {
                 {skillBars.map((s,i)=>(
                   <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'11px 0',borderBottom:'0.5px solid rgba(232,228,217,0.05)'}}>
                     <span style={{fontFamily:mono,fontSize:10,color:'rgba(232,228,217,0.45)',letterSpacing:'0.1em'}}>{s.name}</span>
-                    <SkillBar pct={s.pct} inf={s.inf}/>
+                    <SkillBar pct={s.pct}/>
                     <span style={{fontFamily:mono,fontSize:9,color:'rgba(74,222,128,0.55)',minWidth:28,textAlign:'right'}}>
-                      {s.inf ? '∞%' : `${s.pct}%`}
+                      {s.name==='{VIBE}' ? '∞%' : `${s.pct}%`}
                     </span>
                   </div>
                 ))}
@@ -310,31 +303,6 @@ export default function About() {
         </motion.div>
       </section>
 
-      {/* ── POLAROIDS ── */}
-      <section style={{maxWidth:1200,margin:'0 auto',padding:'0 clamp(20px,5vw,48px) 80px'}}>
-        <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:32}}>
-          <div style={{width:8,height:8,borderRadius:'50%',background:'#4ade80',boxShadow:'0 0 12px #4ade80'}}/>
-          <p style={{fontFamily:mono,fontSize:10,letterSpacing:'0.2em',color:'rgba(232,228,217,0.25)'}}>{'{MOMENTS ON THE PATH}'}</p>
-        </div>
-        <div className="polaroid-grid">
-          {polaroids.map((p,i)=>(
-            <motion.div key={i}
-              initial={{opacity:0,y:40,rotate:0}} whileInView={{opacity:1,y:0,rotate:p.rotate}} viewport={{once:true}}
-              transition={{delay:i*0.15,duration:0.9,ease:[0.16,1,0.3,1]}}
-              whileHover={{scale:1.04,rotate:0,zIndex:10}}
-              style={{background:'rgba(13,31,23,0.7)',backdropFilter:'blur(8px)',border:'0.5px solid rgba(232,228,217,0.08)',borderRadius:8,padding:10,position:'relative',cursor:'default'}}>
-              <div style={{width:'100%',aspectRatio:'4/3',borderRadius:4,background:p.color,marginBottom:10,position:'relative',overflow:'hidden'}}>
-                <div style={{position:'absolute',inset:0,background:`radial-gradient(circle at center, ${p.accent}20 0%, transparent 70%)`}}/>
-                <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center'}}>
-                  <span style={{fontFamily:mono,fontSize:9,color:'rgba(232,228,217,0.2)',letterSpacing:'0.1em',textTransform:'uppercase'}}>photo placeholder</span>
-                </div>
-              </div>
-              <p style={{fontFamily:serif,fontStyle:'italic',fontSize:13,color:'rgba(232,228,217,0.5)',textAlign:'center'}}>{p.label}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
       {/* ── SERVICES ── */}
       <section style={{maxWidth:1200,margin:'0 auto',padding:'0 clamp(20px,5vw,48px) 80px'}}>
         <motion.p initial={{opacity:0,y:16}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{duration:0.7}}
@@ -379,7 +347,6 @@ export default function About() {
         </motion.div>
       </section>
 
-      {/* ── FOOTER ── */}
       <footer style={{padding:'24px clamp(20px,5vw,48px)',borderTop:'0.5px solid rgba(232,228,217,0.05)',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:12}}>
         <span style={{fontFamily:mono,fontSize:11,color:'rgba(232,228,217,0.18)'}}>Design & Dev by Shivish · 2025</span>
         <span style={{fontFamily:serif,fontStyle:'italic',fontSize:12,color:'rgba(232,228,217,0.18)'}}>Built with vibe.</span>
@@ -392,7 +359,6 @@ export default function About() {
         .intro-grid    { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
         .portrait-grid { display: grid; grid-template-columns: 420px 1fr; gap: 80px; align-items: start; }
         .skills-grid   { display: grid; grid-template-columns: repeat(3,1fr); gap: 32px; }
-        .polaroid-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
         @media (min-width: 769px) { * { cursor: none; } .desktop-cursor { display: block !important; } .hero-face { display: block !important; } }
         @media (max-width: 768px) {
           .desktop-cursor { display: none !important; }
@@ -400,7 +366,6 @@ export default function About() {
           .intro-grid    { grid-template-columns: 1fr; gap: 40px; }
           .portrait-grid { grid-template-columns: 1fr; gap: 40px; }
           .skills-grid   { grid-template-columns: 1fr; gap: 20px; }
-          .polaroid-grid { grid-template-columns: repeat(2,1fr); gap: 12px; }
         }
       `}</style>
     </div>
