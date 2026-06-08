@@ -9,6 +9,7 @@ import Clients from './pages/Clients'
 import Vibes from './pages/Vibes'
 import GuidedTour from './components/GuidedTour'
 import SplashScreen from './components/SplashScreen'
+import ClientStories from './pages/ClientStories'
 
 
 function shouldShowSplash(): boolean {
@@ -69,6 +70,7 @@ export default function App() {
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/clients" element={<Clients />} />
             <Route path="/vibes" element={<Vibes />} />
+            <Route path="/client-stories" element={<ClientStories />} />
           </Routes>
         </>
       )}

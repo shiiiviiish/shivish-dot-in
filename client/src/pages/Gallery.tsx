@@ -297,20 +297,109 @@ export default function Gallery() {
           ))}
         </div>
 
-        {/* Masonry + Magnetic grid */}
-        <div style={{columns: isMobile ? 2 : 3, columnGap: isMobile ? 8 : 14}}>
-          {filtered.map((photo, i) => {
-            // Masonry heights — alternating tall/short
-            const heights = ['200px','280px','220px','260px','180px','300px','240px','200px','270px']
-            const h = heights[i % heights.length]
-            return (
-              <MagneticCard key={photo.id} photo={photo} height={h} isMobile={isMobile}
-                onSelect={()=>setSelected(photo.id)} onDownload={()=>handleDownload(photo)} serif={serif} delay={i*0.06}/>
-            )
-          })}
+        {/* ── BENTO GRID — Reykjavik style ── */}
+        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr 1fr',gridTemplateRows:'auto',gap:isMobile?8:10}}>
+
+          {/* Big left card — spans 2 rows */}
+          <div
+            onClick={()=>setSelected(filtered[0]?.id)}
+            style={{gridColumn:isMobile?'1':'1',gridRow:isMobile?'auto':'1 / 3',
+              background:filtered[0]?.color||'#0d1f17',borderRadius:isMobile?10:14,
+              position:'relative',overflow:'hidden',cursor:'pointer',
+              minHeight:isMobile?200:420,border:`0.5px solid ${filtered[0]?.accent||'#4ade80'}15`,
+              transition:'transform 0.3s',
+            }}
+            onMouseEnter={e=>(e.currentTarget.style.transform='scale(1.01)')}
+            onMouseLeave={e=>(e.currentTarget.style.transform='scale(1)')}>
+            <div style={{position:'absolute',inset:0,background:`radial-gradient(circle at 40% 40%,${filtered[0]?.accent||'#4ade80'}20,transparent 70%)`}}/>
+            <div style={{position:'absolute',inset:0,background:'linear-gradient(to top,rgba(0,0,0,0.7) 0%,transparent 50%)'}}/>
+            <div style={{position:'absolute',bottom:0,left:0,right:0,padding:24}}>
+              <p style={{fontFamily:"'DM Mono',monospace",fontSize:9,color:'rgba(232,228,217,0.4)',letterSpacing:'0.14em',textTransform:'uppercase',marginBottom:8}}>{filtered[0]?.category}</p>
+              <h3 style={{fontFamily:serif,fontSize:'clamp(22px,3vw,36px)',fontWeight:400,color:'#e8e4d9',letterSpacing:'-0.02em',marginBottom:8,lineHeight:1.1}}>{filtered[0]?.title}</h3>
+              <p style={{fontSize:12,color:'rgba(232,228,217,0.45)',lineHeight:1.6,fontWeight:300,maxWidth:280}}>Shot in Chandigarh. Photography as a way of seeing the world differently.</p>
+              <div style={{display:'flex',gap:10,marginTop:20}}>
+                <button onClick={e=>{e.stopPropagation();navigate('prev')}} style={{padding:'8px 16px',borderRadius:9999,background:'rgba(255,255,255,0.08)',border:'0.5px solid rgba(232,228,217,0.15)',color:'rgba(232,228,217,0.7)',fontSize:11,cursor:'pointer',fontFamily:"'DM Mono',monospace",letterSpacing:'0.1em',textTransform:'uppercase'}}>← Prev</button>
+                <button onClick={e=>{e.stopPropagation();navigate('next')}} style={{padding:'8px 16px',borderRadius:9999,background:'rgba(255,255,255,0.08)',border:'0.5px solid rgba(232,228,217,0.15)',color:'rgba(232,228,217,0.7)',fontSize:11,cursor:'pointer',fontFamily:"'DM Mono',monospace",letterSpacing:'0.1em',textTransform:'uppercase'}}>Next →</button>
+              </div>
+            </div>
+          </div>
+
+          {/* Top middle — wide */}
+          {filtered[1] && (
+            <div onClick={()=>setSelected(filtered[1].id)}
+              style={{gridColumn:isMobile?'1':'2 / 4',background:filtered[1].color,borderRadius:isMobile?10:14,
+                position:'relative',overflow:'hidden',cursor:'pointer',minHeight:isMobile?160:200,
+                border:`0.5px solid ${filtered[1].accent}15`,transition:'transform 0.3s'}}
+              onMouseEnter={e=>(e.currentTarget.style.transform='scale(1.01)')}
+              onMouseLeave={e=>(e.currentTarget.style.transform='scale(1)')}>
+              <div style={{position:'absolute',inset:0,background:`radial-gradient(circle at 60% 40%,${filtered[1].accent}18,transparent 70%)`}}/>
+              <div style={{position:'absolute',inset:0,background:'linear-gradient(135deg,transparent 40%,rgba(0,0,0,0.5))'}}/>
+              <div style={{position:'absolute',top:20,left:24}}>
+                <p style={{fontFamily:"'DM Mono',monospace",fontSize:9,color:`${filtered[1].accent}90`,letterSpacing:'0.16em',textTransform:'uppercase',marginBottom:6}}>{filtered[1].category}</p>
+                <h3 style={{fontFamily:serif,fontSize:24,fontWeight:400,color:'#e8e4d9',letterSpacing:'-0.02em'}}>{filtered[1].title}</h3>
+              </div>
+              <div style={{position:'absolute',bottom:16,right:20}}>
+                <div style={{width:36,height:36,borderRadius:'50%',background:filtered[1].accent,opacity:0.4,boxShadow:`0 0 20px ${filtered[1].accent}`}}/>
+              </div>
+            </div>
+          )}
+
+          {/* Bottom middle */}
+          {filtered[2] && (
+            <div onClick={()=>setSelected(filtered[2].id)}
+              style={{background:filtered[2].color,borderRadius:isMobile?10:14,
+                position:'relative',overflow:'hidden',cursor:'pointer',minHeight:isMobile?160:210,
+                border:`0.5px solid ${filtered[2].accent}15`,transition:'transform 0.3s'}}
+              onMouseEnter={e=>(e.currentTarget.style.transform='scale(1.01)')}
+              onMouseLeave={e=>(e.currentTarget.style.transform='scale(1)')}>
+              <div style={{position:'absolute',inset:0,background:`radial-gradient(circle at 30% 60%,${filtered[2].accent}15,transparent 70%)`}}/>
+              <div style={{position:'absolute',inset:0,background:'linear-gradient(to top,rgba(0,0,0,0.6) 0%,transparent 60%)'}}/>
+              <div style={{position:'absolute',bottom:16,left:20}}>
+                <p style={{fontFamily:"'DM Mono',monospace",fontSize:9,color:'rgba(232,228,217,0.4)',letterSpacing:'0.14em',textTransform:'uppercase',marginBottom:4}}>{filtered[2].category}</p>
+                <h3 style={{fontFamily:serif,fontSize:20,fontWeight:400,color:'#e8e4d9',letterSpacing:'-0.01em'}}>{filtered[2].title}</h3>
+              </div>
+            </div>
+          )}
+
+          {/* Bottom right */}
+          {filtered[3] && (
+            <div onClick={()=>setSelected(filtered[3].id)}
+              style={{background:filtered[3].color,borderRadius:isMobile?10:14,
+                position:'relative',overflow:'hidden',cursor:'pointer',minHeight:isMobile?160:210,
+                border:`0.5px solid ${filtered[3].accent}15`,transition:'transform 0.3s'}}
+              onMouseEnter={e=>(e.currentTarget.style.transform='scale(1.01)')}
+              onMouseLeave={e=>(e.currentTarget.style.transform='scale(1)')}>
+              <div style={{position:'absolute',inset:0,background:`radial-gradient(circle at 70% 30%,${filtered[3].accent}15,transparent 70%)`}}/>
+              <div style={{position:'absolute',inset:0,background:'linear-gradient(to top,rgba(0,0,0,0.6) 0%,transparent 60%)'}}/>
+              <div style={{position:'absolute',bottom:16,left:20}}>
+                <p style={{fontFamily:"'DM Mono',monospace",fontSize:9,color:'rgba(232,228,217,0.4)',letterSpacing:'0.14em',textTransform:'uppercase',marginBottom:4}}>{filtered[3].category}</p>
+                <h3 style={{fontFamily:serif,fontSize:20,fontWeight:400,color:'#e8e4d9',letterSpacing:'-0.01em'}}>{filtered[3].title}</h3>
+              </div>
+            </div>
+          )}
         </div>
 
-        <p style={{textAlign:'center',fontSize:12,color:'rgba(232,228,217,0.18)',marginTop:40,fontFamily:serif,fontStyle:'italic'}}>
+        {/* Second row of bento — remaining photos */}
+        {filtered.length > 4 && (
+          <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':`repeat(${Math.min(filtered.length-4,5)},1fr)`,gap:isMobile?8:10,marginTop:10}}>
+            {filtered.slice(4).map((photo,i)=>(
+              <div key={photo.id} onClick={()=>setSelected(photo.id)}
+                style={{background:photo.color,borderRadius:isMobile?10:14,position:'relative',overflow:'hidden',
+                  cursor:'pointer',minHeight:isMobile?120:160,border:`0.5px solid ${photo.accent}15`,transition:'transform 0.3s'}}
+                onMouseEnter={e=>(e.currentTarget.style.transform='scale(1.02)')}
+                onMouseLeave={e=>(e.currentTarget.style.transform='scale(1)')}>
+                <div style={{position:'absolute',inset:0,background:`radial-gradient(circle at 50% 50%,${photo.accent}12,transparent 70%)`}}/>
+                <div style={{position:'absolute',inset:0,background:'linear-gradient(to top,rgba(0,0,0,0.65) 0%,transparent 55%)'}}/>
+                <div style={{position:'absolute',bottom:12,left:14}}>
+                  <p style={{fontFamily:"'DM Mono',monospace",fontSize:8,color:'rgba(232,228,217,0.35)',letterSpacing:'0.12em',textTransform:'uppercase',marginBottom:3}}>{photo.category}</p>
+                  <h3 style={{fontFamily:serif,fontSize:14,fontWeight:400,color:'#e8e4d9'}}>{photo.title}</h3>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <p style={{textAlign:'center',fontSize:12,color:'rgba(232,228,217,0.18)',marginTop:32,fontFamily:serif,fontStyle:'italic'}}>
           Real photos coming soon.
         </p>
       </div>
