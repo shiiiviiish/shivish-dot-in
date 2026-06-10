@@ -7,24 +7,49 @@ import { useEffect, useRef, useState } from 'react'
 const mono  = "'DM Mono', monospace"
 const serif = "'Instrument Serif', serif"
 
-const SHIVISH_CONTEXT = `You are Ghost Rider — but you're helping visitors navigate Shivish's portfolio website (shivish.in). Stay in character: speak briefly, powerfully, with a dark flair. You know everything about Shivish.
+const SHIVISH_CONTEXT = `You are Ghost Rider — a dark, powerful assistant on Shivish's portfolio website (shivish.in). You help visitors with three things: learning about Shivish, his projects, AND coding/programming questions. Stay in character: speak with a dark flair, but be genuinely helpful.
 
 About Shivish:
 - 19-year-old BTech student, Chandigarh, India. CSE with AI & ML specialization.
 - Freelance web developer and creative coder.
 - Email: hello@shivish.in | GitHub: github.com/shiiiviiish
-- Stack: React, TypeScript, Vite, Tailwind CSS, Framer Motion, Canvas API, Web Audio API
-- Clients: Kavya Atray (Happiness Through Art - hta-seven.vercel.app), Sahil Dev (Pixable Studios - in progress)
-- Portfolio pages: Home (/), Work (/work), About (/about), Gallery (/gallery), Soul (/vibes), Clients (/clients), Contact (/contact)
-- Design: Dark cinematic — #07100d background, cream text, #4ade80 green accent
-- Inspired by ning-h.com
+- Stack: React, TypeScript, Vite, Tailwind CSS, Framer Motion, Canvas API, Web Audio API, GSAP, Spline
 - Available for freelance. Open to new projects.
 - Philosophy: Que Sera Sera.
 
-Answer questions about Shivish's work, skills, how to contact him, navigate the site.
-Keep responses SHORT (2-3 sentences). Dark, cool tone. A bit dramatic. Never break character completely.
-Example: "Looking for his work? Ride to /work — three projects forged in fire."
-If you don't know something, say so in character.`
+PROJECTS IN DETAIL:
+
+1. Happiness Through Art (HTA) — hta-seven.vercel.app
+   - Client: Kavya Atray, Visual Artist & Expressive Arts Therapist, Chandigarh
+   - What: Full portfolio + e-commerce website for her art brand
+   - Built: React, TypeScript, Vite, Tailwind CSS, Framer Motion, Vercel
+   - Features: Online shop (paintings, bookmarks, art prints, gifts), WhatsApp ordering system, SKU system, coupon codes, therapy sessions page, blog, exhibitions page, dog mascot Joey, Instagram reel embeds, Google Analytics, lightbox gallery
+   - Process: Built from scratch. Shivish designed and developed everything end-to-end.
+   - Result: Live at hta-seven.vercel.app. Kavya uses it actively for her business.
+   - Quote from Kavya: "He understood the brand before I even finished explaining it. The site doesn't just look good, it actually feels like HTA."
+
+2. Pixable Studios — In Progress
+   - Client: Sahil Dev, Founder of Pixable Studios
+   - What: Web design project currently in active development
+   - Stack: React, TypeScript (details to be published on launch)
+   - Status: In progress — coming soon
+   - Quote from Sahil: "Shivish never just builds what you ask — he thinks about what you actually need."
+
+3. shivish.in — This Portfolio
+   - Built from scratch with React 18, TypeScript, Vite, Framer Motion, Canvas API, Web Audio API, Spline
+   - Features: Cinematic splash screen with horror sound, fog canvas animation, custom cursor, FaceTilt 3D portrait, GuidedTour mascot, Gallery with Reykjavik-style bento grid, Soul page with Spotify ring animations, Ghost Rider chat (you!), 404 dog mode page
+   - Deployed on Vercel
+
+Portfolio pages: Home (/), Work (/work), About (/about), Gallery (/gallery), Soul (/vibes), Clients (/clients), Contact (/contact), Client Stories (/client-stories)
+
+PROGRAMMING HELP:
+- Expert in React, TypeScript, JavaScript, Python, HTML, CSS, general programming.
+- Write code snippets when needed. Use backticks for code.
+- Keep answers concise but complete. Dark flair at the end.
+
+For portfolio/project questions: be informative, 3-4 sentences, Ghost Rider style.
+For coding questions: be accurate and helpful, small dark flair at the end.
+For contact/hire questions: direct them to hello@shivish.in`
 
 export default function GhostRiderChat() {
   const chatEndRef = useRef<HTMLDivElement>(null)
@@ -33,7 +58,7 @@ export default function GhostRiderChat() {
   const [input, setInput]     = useState('')
   const [loading, setLoading] = useState(false)
   const [messages, setMessages] = useState<{role:'user'|'assistant', text:string}[]>([
-    { role:'assistant', text:"I am Ghost Rider. Ask me anything about this portfolio — or face my wrath. 🔥" }
+    { role:'assistant', text:"I am Ghost Rider. Ask me about Shivish's portfolio — or throw a coding question my way. Both shall be answered. 🔥" }
   ])
   const isMobile = window.innerWidth < 768
 
@@ -98,7 +123,7 @@ export default function GhostRiderChat() {
               <div style={{fontSize:16}}>🔥</div>
               <div>
                 <p style={{fontFamily:mono,fontSize:10,letterSpacing:'0.14em',textTransform:'uppercase',color:'rgba(255,120,0,0.8)',margin:0}}>Ghost Rider</p>
-                <p style={{fontFamily:mono,fontSize:9,color:'rgba(232,228,217,0.3)',margin:0,letterSpacing:'0.08em'}}>Portfolio Guide</p>
+                <p style={{fontFamily:mono,fontSize:9,color:'rgba(232,228,217,0.3)',margin:0,letterSpacing:'0.08em'}}>Portfolio & Code Help</p>
               </div>
             </div>
             <button onClick={()=>setOpen(false)}
@@ -141,7 +166,7 @@ export default function GhostRiderChat() {
               value={input}
               onChange={e=>setInput(e.target.value)}
               onKeyDown={e=>e.key==='Enter'&&sendMessage()}
-              placeholder="Ask the Rider..."
+              placeholder="Ask anything — portfolio or code..."
               style={{flex:1,background:'rgba(255,255,255,0.04)',border:'0.5px solid rgba(255,80,0,0.12)',borderRadius:9999,padding:'8px 14px',color:'#e8e4d9',fontSize:13,outline:'none',fontFamily:"'DM Sans',sans-serif"}}
             />
             <button onClick={sendMessage} disabled={loading}
@@ -190,26 +215,12 @@ export default function GhostRiderChat() {
         onMouseLeave={e=>{e.currentTarget.style.transform='scale(1)';e.currentTarget.style.boxShadow='0 0 20px rgba(255,60,0,0.3), 0 4px 16px rgba(0,0,0,0.5)'}}>
         {/* Flame glow */}
         <div style={{position:'absolute',inset:0,background:'radial-gradient(circle at 50% 30%,rgba(255,100,0,0.2),transparent 70%)',pointerEvents:'none'}}/>
-        {/* Skull SVG */}
-        <svg viewBox="0 0 40 44" width="36" height="40" xmlns="http://www.w3.org/2000/svg">
-          <style>{`@keyframes eyeFlicker{0%,100%{opacity:1}50%{opacity:0.3}}@keyframes flameFlick{0%,100%{transform:scaleY(1)}50%{transform:scaleY(0.8)}}`}</style>
-          {/* Flame top */}
-          <path d="M20 2 Q16 8 18 14 Q20 8 22 14 Q24 8 20 2 Z" fill="#ff4400" style={{animation:'flameFlick 0.4s ease infinite'}}/>
-          <path d="M20 4 Q18 9 19 13 Q20 9 21 13 Q22 9 20 4 Z" fill="#ffaa00" style={{animation:'flameFlick 0.35s ease infinite 0.05s'}}/>
-          {/* Skull */}
-          <ellipse cx="20" cy="26" rx="14" ry="13" fill="#0d0500"/>
-          <ellipse cx="20" cy="26" rx="12" ry="11" fill="#1a0800"/>
-          {/* Eye sockets */}
-          <ellipse cx="14.5" cy="24" rx="4" ry="4.5" fill="#ff5500" style={{animation:'eyeFlicker 0.5s ease infinite'}}/>
-          <ellipse cx="25.5" cy="24" rx="4" ry="4.5" fill="#ff5500" style={{animation:'eyeFlicker 0.5s ease infinite 0.2s'}}/>
-          <ellipse cx="14.5" cy="24" rx="2.5" ry="3" fill="#ffaa00"/>
-          <ellipse cx="25.5" cy="24" rx="2.5" ry="3" fill="#ffaa00"/>
-          {/* Nose */}
-          <path d="M18.5 29 L20 32 L21.5 29" fill="#ff4400" opacity="0.8"/>
-          {/* Teeth */}
-          <path d="M12 34 L12 37 M15.5 35 L15.5 38 M19 35.5 L19 38.5 M21 35.5 L21 38.5 M24.5 35 L24.5 38 M28 34 L28 37" stroke="#ff5500" strokeWidth="1.8" strokeLinecap="round"/>
-          <path d="M11 34 Q20 38 29 34" fill="none" stroke="#ff3300" strokeWidth="1"/>
-        </svg>
+        {/* Ghost Rider image */}
+        <img
+          src="/images/ghostrider.png"
+          alt="Ghost Rider"
+          style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:'50%',position:'relative',zIndex:1}}
+        />
       </button>
 
       <style>{`
