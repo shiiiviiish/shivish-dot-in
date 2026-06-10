@@ -7,9 +7,11 @@ import Contact from './pages/Contact'
 import Gallery from './pages/Gallery'
 import Clients from './pages/Clients'
 import Vibes from './pages/Vibes'
-import GuidedTour from './components/GuidedTour'
-import SplashScreen from './components/SplashScreen'
+import NotFound from './pages/NotFound'
 import ClientStories from './pages/ClientStories'
+import GuidedTour from './components/GuidedTour'
+import GhostRiderChat from './components/GhostRiderChat'
+import SplashScreen from './components/SplashScreen'
 
 
 function shouldShowSplash(): boolean {
@@ -62,6 +64,7 @@ export default function App() {
         <>
           <SplinePreloader />
           <GuidedTour />
+          <GhostRiderChat />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/work" element={<Work />} />
@@ -71,6 +74,7 @@ export default function App() {
             <Route path="/clients" element={<Clients />} />
             <Route path="/vibes" element={<Vibes />} />
             <Route path="/client-stories" element={<ClientStories />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </>
       )}

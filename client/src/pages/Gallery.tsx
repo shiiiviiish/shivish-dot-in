@@ -3,67 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Download, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import Nav from '../components/Nav'
 
-// ── Magnetic Card ──────────────────────────────────────────────────
-function MagneticCard({ photo, height, isMobile, onSelect, onDownload, serif, delay }:
-  { photo: { id:number; title:string; category:string; color:string; accent:string };
-    height: string; isMobile: boolean; onSelect: ()=>void; onDownload: ()=>void;
-    serif: string; delay: number }) {
-  const cardRef = useRef<HTMLDivElement>(null)
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (isMobile || !cardRef.current) return
-    const rect = cardRef.current.getBoundingClientRect()
-    const x = e.clientX - rect.left - rect.width / 2
-    const y = e.clientY - rect.top - rect.height / 2
-    const rotX = -(y / rect.height) * 12
-    const rotY = (x / rect.width) * 12
-    const tx = x * 0.08
-    const ty = y * 0.08
-    cardRef.current.style.transform = `perspective(600px) rotateX(${rotX}deg) rotateY(${rotY}deg) translate(${tx}px,${ty}px) scale(1.03)`
-  }
-
-  const handleMouseLeave = () => {
-    if (!cardRef.current) return
-    cardRef.current.style.transform = 'perspective(600px) rotateX(0deg) rotateY(0deg) translate(0,0) scale(1)'
-  }
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-      style={{ breakInside: 'avoid', marginBottom: isMobile ? 8 : 14, display: 'block' }}>
-      <div
-        ref={cardRef}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        onClick={onSelect}
-        style={{
-          height, borderRadius: isMobile ? 10 : 16,
-          overflow: 'hidden', cursor: 'pointer', position: 'relative',
-          background: photo.color, border: `0.5px solid ${photo.accent}20`,
-          transition: 'transform 0.15s ease, box-shadow 0.3s ease',
-          boxShadow: `0 4px 24px rgba(0,0,0,0.4)`,
-          willChange: 'transform',
-        }}>
-        <div style={{ position:'absolute', inset:0, background:`radial-gradient(circle at 40% 40%, ${photo.accent}22 0%, transparent 70%)` }}/>
-        {/* Shine overlay on hover */}
-        <div style={{ position:'absolute', inset:0, background:'linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 60%)', pointerEvents:'none' }}/>
-        <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:8 }}>
-          <div style={{ width:16, height:16, borderRadius:'50%', background:photo.accent, opacity:0.5, boxShadow:`0 0 12px ${photo.accent}` }}/>
-          <p style={{ fontFamily:serif, fontSize:isMobile?12:15, color:'rgba(232,228,217,0.7)', fontStyle:'italic', textAlign:'center', padding:'0 12px', margin:0 }}>{photo.title}</p>
-          <p style={{ fontSize:8, color:'rgba(232,228,217,0.3)', letterSpacing:'0.14em', textTransform:'uppercase', margin:0 }}>{photo.category}</p>
-        </div>
-        <button
-          onClick={e=>{e.stopPropagation(); onDownload()}}
-          style={{ position:'absolute', bottom:8, right:8, borderRadius:9999, padding:'4px 10px', background:'rgba(232,228,217,0.08)', border:`0.5px solid ${photo.accent}30`, color:'rgba(232,228,217,0.5)', display:'flex', alignItems:'center', gap:4, fontSize:9, cursor:'pointer' }}>
-          <Download size={10}/> {!isMobile && 'Save'}
-        </button>
-      </div>
-    </motion.div>
-  )
-}
 
 
 const featured = [
@@ -382,7 +322,7 @@ export default function Gallery() {
         {/* Second row of bento — remaining photos */}
         {filtered.length > 4 && (
           <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':`repeat(${Math.min(filtered.length-4,5)},1fr)`,gap:isMobile?8:10,marginTop:10}}>
-            {filtered.slice(4).map((photo,i)=>(
+            {filtered.slice(4).map((photo)=>(
               <div key={photo.id} onClick={()=>setSelected(photo.id)}
                 style={{background:photo.color,borderRadius:isMobile?10:14,position:'relative',overflow:'hidden',
                   cursor:'pointer',minHeight:isMobile?120:160,border:`0.5px solid ${photo.accent}15`,transition:'transform 0.3s'}}
