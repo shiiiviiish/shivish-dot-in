@@ -23,8 +23,14 @@ const projects = [
     tags: ['Coming Soon'], url: 'https://github.com/shiiiviiish',
   },
   {
-    num: '04', title: 'Next Project', category: 'Coming Soon',
-    year: '2025', type: 'TBD', role: 'In Progress',
+    num: '04', title: 'TBD', category: 'Personal Project',
+    year: '2025', type: 'AI Companion', role: 'In Progress',
+    desc: '"A personal AI that knows me, speaks to me, and grows with me." — JARVIS is a personal AI companion. Details coming soon.',
+    tags: ['React', 'Claude API', 'ElevenLabs', 'Supabase', 'PWA'], url: 'https://github.com/shiiiviiish',
+  },
+  {
+    num: '05', title: 'Next Project', category: 'Coming Soon',
+    year: '2025', type: 'TBD', role: 'TBD',
     desc: 'Something new is cooking. Watch the GitHub for updates.',
     tags: ['???'], url: 'https://github.com/shiiiviiish',
   },
@@ -172,89 +178,182 @@ export default function Work() {
 
 
 
-      {/* ── HALF SCREEN POPUP ── */}
+      {/* ── CLIENT STORIES MODAL ── */}
       {showToast && (
-        <div style={{
-          position:'fixed',inset:0,zIndex:300,
-          display:'flex',alignItems:'center',justifyContent:'center',
-          background:'rgba(0,0,0,0.5)',backdropFilter:'blur(6px)',
-          animation:'fadeInOverlay 0.4s ease forwards',
-        }}>
-          <div style={{
-            width:'clamp(300px,92vw,1000px)',
-            height:'clamp(400px,90vh,90vh)',
-            background:'rgba(0,0,0,0.7)',
-            border:'0.5px solid rgba(74,222,128,0.15)',
-            borderRadius:24,
-            overflow:'hidden',
-            boxShadow:'0 32px 80px rgba(0,0,0,0.9)',
-            animation:'slideUp 0.5s cubic-bezier(0.16,1,0.3,1) forwards',
-            position:'relative',
-            display:'flex',
-            flexDirection:'column',
+        <div
+          onClick={()=>setShowToast(false)}
+          style={{
+            position:'fixed',inset:0,zIndex:300,
+            display:'flex',alignItems:'center',justifyContent:'center',
+            background:'rgba(0,0,0,0.45)',backdropFilter:'blur(6px)',
+            animation:'fadeInOverlay 0.4s ease forwards',
+            padding:'clamp(12px,2vw,24px)',
           }}>
-            {/* Close button */}
+          <div
+            onClick={e=>e.stopPropagation()}
+            style={{
+              width:'92vw', height:'90vh',
+              maxWidth:1100,
+              background:'rgba(0,0,0,0.7)',
+              border:'0.5px solid rgba(255,255,255,0.08)',
+              borderRadius:20,
+              overflow:'hidden',
+              boxShadow:'0 32px 80px rgba(0,0,0,0.9)',
+              animation:'slideUp 0.5s cubic-bezier(0.16,1,0.3,1) forwards',
+              display:'flex',flexDirection:'column',
+              position:'relative',
+            }}>
+
+            {/* Close */}
             <button onClick={()=>setShowToast(false)}
               style={{position:'absolute',top:20,right:20,width:40,height:40,borderRadius:'50%',
-                background:'rgba(232,228,217,0.06)',border:'0.5px solid rgba(232,228,217,0.12)',
+                background:'rgba(255,255,255,0.06)',border:'0.5px solid rgba(255,255,255,0.1)',
                 color:'rgba(232,228,217,0.5)',cursor:'pointer',display:'flex',alignItems:'center',
-                justifyContent:'center',fontSize:20,zIndex:10,transition:'all 0.2s'}}
-              onMouseEnter={e=>{e.currentTarget.style.background='rgba(232,228,217,0.12)';e.currentTarget.style.color='#e8e4d9'}}
-              onMouseLeave={e=>{e.currentTarget.style.background='rgba(232,228,217,0.06)';e.currentTarget.style.color='rgba(232,228,217,0.5)'}}>
+                justifyContent:'center',fontSize:20,zIndex:100,transition:'all 0.2s'}}
+              onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,0.12)';e.currentTarget.style.color='#e8e4d9'}}
+              onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.06)';e.currentTarget.style.color='rgba(232,228,217,0.5)'}}>
               ×
             </button>
 
-            {/* Photo area — top half */}
-            <div style={{
-              flex:1,
-              background:'linear-gradient(145deg,rgba(74,222,128,0.05),rgba(0,0,0,0.6))',
-              display:'flex',alignItems:'center',justifyContent:'center',
-              position:'relative',overflow:'hidden',
-              borderBottom:'0.5px solid rgba(232,228,217,0.06)',
-            }}>
-              <div style={{position:'absolute',inset:0,background:'radial-gradient(ellipse at 40% 60%,rgba(74,222,128,0.07) 0%,transparent 65%)',pointerEvents:'none'}}/>
-              <div style={{position:'absolute',inset:0,background:'radial-gradient(ellipse at 70% 30%,rgba(74,222,128,0.04) 0%,transparent 50%)',pointerEvents:'none'}}/>
-              {/* Photo — replace with real photo */}
-              <div style={{
-                width:160,height:160,borderRadius:'50%',
-                background:'radial-gradient(circle at 35% 35%,rgba(74,222,128,0.2),rgba(0,0,0,0.8))',
-                border:'2px solid rgba(74,222,128,0.25)',
-                display:'flex',alignItems:'center',justifyContent:'center',
-                fontFamily:"'Instrument Serif',serif",fontSize:48,color:'rgba(74,222,128,0.6)',
-                boxShadow:'0 0 60px rgba(74,222,128,0.1)',
-                position:'relative',overflow:'hidden',
-              }}>
-                {/* Replace with: <img src="/images/shivish.jpg" style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:'50%'}}/> */}
-                <div style={{position:'absolute',top:18,left:22,width:28,height:16,borderRadius:'50%',background:'rgba(255,255,255,0.15)',transform:'rotate(-30deg)'}}/>
-                S
-              </div>
-            </div>
+            {/* Scrollable content */}
+            <div style={{flex:1,overflowY:'auto',padding:isMobile?'40px 20px':'60px 64px'}}>
 
-            {/* Content — bottom */}
-            <div style={{padding:'36px 48px 44px',flexShrink:0}}>
-              <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:16}}>
-                <div style={{width:6,height:6,borderRadius:'50%',background:'#4ade80',boxShadow:'0 0 6px #4ade80'}}/>
-                <span style={{fontFamily:"'DM Mono',monospace",fontSize:9,letterSpacing:'0.18em',color:'rgba(74,222,128,0.55)',textTransform:'uppercase'}}>Shivish · Available</span>
-              </div>
-              <h3 style={{fontFamily:"'Instrument Serif',serif",fontSize:'clamp(22px,3.5vw,36px)',fontWeight:400,color:'#e8e4d9',lineHeight:1.2,marginBottom:12,letterSpacing:'-0.02em'}}>
-                Curious how I work<br/>with clients?
-              </h3>
-              <p style={{fontSize:14,color:'rgba(232,228,217,0.4)',lineHeight:1.75,fontWeight:300,marginBottom:28,maxWidth:480}}>
-                Real projects, real people — see the full journey from first call to launch day.
+              {/* Header */}
+              <p style={{fontFamily:"'DM Mono',monospace",fontSize:10,letterSpacing:'0.22em',textTransform:'uppercase',color:'rgba(232,228,217,0.3)',marginBottom:16}}>Client Stories</p>
+              <h2 style={{fontFamily:serif,fontSize:'clamp(40px,7vw,80px)',fontWeight:400,lineHeight:0.88,letterSpacing:'-0.04em',color:'#e8e4d9',marginBottom:16}}>
+                Working<br/><em style={{color:'rgba(232,228,217,0.2)'}}>with me.</em>
+              </h2>
+              <p style={{fontSize:14,color:'rgba(232,228,217,0.35)',fontWeight:300,lineHeight:1.8,maxWidth:460,marginBottom:60}}>
+                Real projects. Real people. The full journey.
               </p>
-              <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
-                <a href="/client-stories"
-                  style={{borderRadius:9999,padding:'13px 28px',background:'#e8e4d9',color:'#07100d',fontSize:13,fontWeight:500,textDecoration:'none',transition:'opacity 0.2s'}}
-                  onMouseEnter={e=>(e.currentTarget.style.opacity='0.85')}
-                  onMouseLeave={e=>(e.currentTarget.style.opacity='1')}>
-                  See the stories →
+
+              {/* KAVYA */}
+              <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',borderRadius:16,overflow:'hidden',border:'0.5px solid rgba(255,255,255,0.07)',marginBottom:16}}>
+                <div style={{background:'rgba(255,255,255,0.03)',padding:isMobile?'28px':'40px',display:'flex',flexDirection:'column',gap:14,justifyContent:'center',alignItems:'center'}}>
+                  <div style={{width:'100%',maxWidth:260,height:160,borderRadius:12,background:'rgba(255,255,255,0.04)',border:'0.5px solid rgba(74,222,128,0.12)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:8,position:'relative',overflow:'hidden'}}>
+                    <div style={{position:'absolute',inset:0,background:'linear-gradient(145deg,rgba(74,222,128,0.05),transparent)'}}/>
+                    {/* Ball avatar KA */}
+                    <div style={{width:56,height:56,borderRadius:'50%',background:'radial-gradient(circle at 35% 35%,rgba(74,222,128,0.25),rgba(0,0,0,0.8))',border:'1px solid rgba(74,222,128,0.3)',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:serif,fontSize:18,color:'rgba(74,222,128,0.75)',position:'relative',overflow:'hidden',cursor:'pointer',transition:'transform 0.4s cubic-bezier(0.34,1.56,0.64,1)',zIndex:1}}
+                      onMouseEnter={e=>{e.currentTarget.style.transform='rotate(25deg) scale(1.15)'}}
+                      onMouseLeave={e=>{e.currentTarget.style.transform='rotate(0deg) scale(1)'}}>
+                      <div style={{position:'absolute',top:10,left:12,width:14,height:8,borderRadius:'50%',background:'rgba(255,255,255,0.18)',transform:'rotate(-30deg)',pointerEvents:'none'}}/>
+                      KA
+                    </div>
+                    <span style={{fontFamily:"'DM Mono',monospace",fontSize:8,color:'rgba(232,228,217,0.15)',letterSpacing:'0.12em',textTransform:'uppercase',position:'relative',zIndex:1}}>Add photo here</span>
+                  </div>
+                  <div style={{display:'flex',gap:10,width:'100%',maxWidth:260}}>
+                    {['Working session','Launch day'].map((l,i)=>(
+                      <div key={i} style={{flex:1,height:80,borderRadius:8,background:'rgba(255,255,255,0.03)',border:'0.5px solid rgba(255,255,255,0.06)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                        <span style={{fontFamily:"'DM Mono',monospace",fontSize:8,color:'rgba(232,228,217,0.12)',letterSpacing:'0.1em',textTransform:'uppercase',textAlign:'center',padding:'0 6px'}}>{l}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div style={{background:'rgba(0,0,0,0.3)',padding:isMobile?'28px':'44px',display:'flex',flexDirection:'column',justifyContent:'center'}}>
+                  <p style={{fontFamily:"'DM Mono',monospace",fontSize:9,color:'rgba(74,222,128,0.5)',letterSpacing:'0.16em',textTransform:'uppercase',marginBottom:18}}>Web Design & Dev · 2025</p>
+                  <p style={{fontFamily:serif,fontStyle:'italic',fontSize:'clamp(16px,2.2vw,24px)',color:'rgba(232,228,217,0.9)',lineHeight:1.65,marginBottom:28,letterSpacing:'-0.01em'}}>
+                    "He understood the brand before I even finished explaining it. The site doesn't just look good — it actually feels like HTA."
+                  </p>
+                  <div style={{borderTop:'0.5px solid rgba(255,255,255,0.07)',paddingTop:20}}>
+                    <p style={{fontFamily:serif,fontSize:16,color:'#e8e4d9',marginBottom:3}}>Kavya Atray</p>
+                    <p style={{fontFamily:"'DM Mono',monospace",fontSize:9,color:'rgba(232,228,217,0.3)',letterSpacing:'0.08em',marginBottom:12}}>Founder, Happiness Through Art</p>
+                    <a href="https://hta-seven.vercel.app" target="_blank" rel="noopener noreferrer"
+                      style={{fontFamily:"'DM Mono',monospace",fontSize:9,color:'rgba(74,222,128,0.5)',letterSpacing:'0.1em',textDecoration:'none',borderBottom:'0.5px solid rgba(74,222,128,0.25)',paddingBottom:2}}>
+                      hta-seven.vercel.app ↗
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* HTA Timeline */}
+              <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:12,marginBottom:56,position:'relative'}}>
+                {!isMobile && <div style={{position:'absolute',top:22,left:'calc(16.66% + 12px)',right:'calc(16.66% + 12px)',height:'0.5px',background:'linear-gradient(to right,rgba(74,222,128,0.35),rgba(74,222,128,0.05))',zIndex:0}}/>}
+                {[
+                  {num:'01',phase:'Discovery',quote:'"He asked the right questions — not just what I wanted, but why."'},
+                  {num:'02',phase:'Design & Build',quote:'"Every revision came back better than I imagined."'},
+                  {num:'03',phase:'Launch',quote:'"The day we launched, I couldn\'t stop sharing it with everyone."'},
+                ].map((t,i)=>(
+                  <div key={i} style={{background:'rgba(255,255,255,0.02)',border:'0.5px solid rgba(74,222,128,0.12)',borderRadius:12,padding:'18px',display:'flex',flexDirection:'column',gap:10,position:'relative',zIndex:1}}>
+                    <div style={{display:'flex',alignItems:'center',gap:8}}>
+                      <div style={{width:26,height:26,borderRadius:'50%',background:'rgba(74,222,128,0.1)',border:'0.5px solid rgba(74,222,128,0.25)',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'DM Mono',monospace",fontSize:9,color:'rgba(74,222,128,0.7)',flexShrink:0}}>{t.num}</div>
+                      <p style={{fontFamily:"'DM Mono',monospace",fontSize:9,color:'rgba(232,228,217,0.35)',letterSpacing:'0.12em',textTransform:'uppercase'}}>{t.phase}</p>
+                    </div>
+                    <div style={{height:60,borderRadius:6,background:'rgba(255,255,255,0.02)',border:'0.5px solid rgba(255,255,255,0.04)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                      <span style={{fontFamily:"'DM Mono',monospace",fontSize:8,color:'rgba(232,228,217,0.08)',letterSpacing:'0.1em',textTransform:'uppercase'}}>photo</span>
+                    </div>
+                    <p style={{fontFamily:serif,fontStyle:'italic',fontSize:12,color:'rgba(74,222,128,0.6)',lineHeight:1.5}}>{t.quote}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Divider */}
+              <div style={{borderBottom:'0.5px solid rgba(255,255,255,0.06)',marginBottom:56}}/>
+
+              {/* SAHIL */}
+              <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',borderRadius:16,overflow:'hidden',border:'0.5px solid rgba(255,255,255,0.07)',marginBottom:16}}>
+                <div style={{background:'rgba(0,0,0,0.3)',padding:isMobile?'28px':'44px',display:'flex',flexDirection:'column',justifyContent:'center',order:isMobile?2:1}}>
+                  <p style={{fontFamily:"'DM Mono',monospace",fontSize:9,color:'rgba(96,165,250,0.5)',letterSpacing:'0.16em',textTransform:'uppercase',marginBottom:18}}>Web Design · 2025 · In Progress</p>
+                  <p style={{fontFamily:serif,fontStyle:'italic',fontSize:'clamp(16px,2.2vw,24px)',color:'rgba(232,228,217,0.9)',lineHeight:1.65,marginBottom:28,letterSpacing:'-0.01em'}}>
+                    "Shivish never just builds what you ask — he thinks about what you actually need. Quick to respond, honest about timelines."
+                  </p>
+                  <div style={{borderTop:'0.5px solid rgba(255,255,255,0.07)',paddingTop:20}}>
+                    <p style={{fontFamily:serif,fontSize:16,color:'#e8e4d9',marginBottom:3}}>Sahil Dev</p>
+                    <p style={{fontFamily:"'DM Mono',monospace",fontSize:9,color:'rgba(232,228,217,0.3)',letterSpacing:'0.08em',marginBottom:12}}>Founder, Pixable Studios</p>
+                    <span style={{fontFamily:"'DM Mono',monospace",fontSize:9,color:'rgba(251,146,60,0.5)',letterSpacing:'0.1em'}}>In Progress</span>
+                  </div>
+                </div>
+                <div style={{background:'rgba(255,255,255,0.03)',padding:isMobile?'28px':'40px',display:'flex',flexDirection:'column',gap:14,justifyContent:'center',alignItems:'center',order:isMobile?1:2}}>
+                  <div style={{width:'100%',maxWidth:260,height:160,borderRadius:12,background:'rgba(255,255,255,0.04)',border:'0.5px solid rgba(96,165,250,0.12)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:8,position:'relative',overflow:'hidden'}}>
+                    <div style={{position:'absolute',inset:0,background:'linear-gradient(145deg,rgba(96,165,250,0.05),transparent)'}}/>
+                    {/* Ball avatar SD */}
+                    <div style={{width:56,height:56,borderRadius:'50%',background:'radial-gradient(circle at 35% 35%,rgba(96,165,250,0.25),rgba(0,0,0,0.8))',border:'1px solid rgba(96,165,250,0.3)',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:serif,fontSize:18,color:'rgba(96,165,250,0.75)',position:'relative',overflow:'hidden',cursor:'pointer',transition:'transform 0.4s cubic-bezier(0.34,1.56,0.64,1)',zIndex:1}}
+                      onMouseEnter={e=>{e.currentTarget.style.transform='rotate(25deg) scale(1.15)'}}
+                      onMouseLeave={e=>{e.currentTarget.style.transform='rotate(0deg) scale(1)'}}>
+                      <div style={{position:'absolute',top:10,left:12,width:14,height:8,borderRadius:'50%',background:'rgba(255,255,255,0.18)',transform:'rotate(-30deg)',pointerEvents:'none'}}/>
+                      SD
+                    </div>
+                    <span style={{fontFamily:"'DM Mono',monospace",fontSize:8,color:'rgba(232,228,217,0.15)',letterSpacing:'0.12em',textTransform:'uppercase',position:'relative',zIndex:1}}>Add photo here</span>
+                  </div>
+                  <div style={{display:'flex',gap:10,width:'100%',maxWidth:260}}>
+                    {['Planning','Design'].map((l,i)=>(
+                      <div key={i} style={{flex:1,height:80,borderRadius:8,background:'rgba(255,255,255,0.03)',border:'0.5px solid rgba(255,255,255,0.06)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                        <span style={{fontFamily:"'DM Mono',monospace",fontSize:8,color:'rgba(232,228,217,0.12)',letterSpacing:'0.1em',textTransform:'uppercase',textAlign:'center',padding:'0 6px'}}>{l}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Sahil Timeline */}
+              <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:12,marginBottom:60,position:'relative'}}>
+                {!isMobile && <div style={{position:'absolute',top:22,left:'calc(16.66% + 12px)',right:'calc(16.66% + 12px)',height:'0.5px',background:'linear-gradient(to right,rgba(96,165,250,0.35),rgba(96,165,250,0.05))',zIndex:0}}/>}
+                {[
+                  {num:'01',phase:'Brief',quote:'"Clear communication from day one."'},
+                  {num:'02',phase:'Design',quote:'"Something big is in the works."'},
+                  {num:'03',phase:'Launch',quote:'"Stay tuned."'},
+                ].map((t,i)=>(
+                  <div key={i} style={{background:'rgba(255,255,255,0.02)',border:'0.5px solid rgba(96,165,250,0.12)',borderRadius:12,padding:'18px',display:'flex',flexDirection:'column',gap:10,position:'relative',zIndex:1}}>
+                    <div style={{display:'flex',alignItems:'center',gap:8}}>
+                      <div style={{width:26,height:26,borderRadius:'50%',background:'rgba(96,165,250,0.1)',border:'0.5px solid rgba(96,165,250,0.25)',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'DM Mono',monospace",fontSize:9,color:'rgba(96,165,250,0.7)',flexShrink:0}}>{t.num}</div>
+                      <p style={{fontFamily:"'DM Mono',monospace",fontSize:9,color:'rgba(232,228,217,0.35)',letterSpacing:'0.12em',textTransform:'uppercase'}}>{t.phase}</p>
+                    </div>
+                    <div style={{height:60,borderRadius:6,background:'rgba(255,255,255,0.02)',border:'0.5px solid rgba(255,255,255,0.04)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                      <span style={{fontFamily:"'DM Mono',monospace",fontSize:8,color:'rgba(232,228,217,0.08)',letterSpacing:'0.1em',textTransform:'uppercase'}}>photo</span>
+                    </div>
+                    <p style={{fontFamily:serif,fontStyle:'italic',fontSize:12,color:'rgba(96,165,250,0.6)',lineHeight:1.5}}>{t.quote}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* CTA */}
+              <div style={{textAlign:'center',paddingBottom:20}}>
+                <p style={{fontFamily:serif,fontStyle:'italic',fontSize:'clamp(20px,3vw,36px)',color:'rgba(232,228,217,0.5)',marginBottom:24,letterSpacing:'-0.02em'}}>
+                  "Want to work together?"
+                </p>
+                <a href="/contact"
+                  style={{display:'inline-block',borderRadius:9999,padding:'13px 32px',background:'#e8e4d9',color:'#07100d',fontSize:13,fontWeight:500,textDecoration:'none'}}>
+                  Say hello →
                 </a>
-                <button onClick={()=>setShowToast(false)}
-                  style={{borderRadius:9999,padding:'13px 24px',background:'transparent',border:'0.5px solid rgba(232,228,217,0.12)',color:'rgba(232,228,217,0.35)',fontSize:13,cursor:'pointer',transition:'all 0.2s'}}
-                  onMouseEnter={e=>{e.currentTarget.style.borderColor='rgba(232,228,217,0.25)';e.currentTarget.style.color='rgba(232,228,217,0.6)'}}
-                  onMouseLeave={e=>{e.currentTarget.style.borderColor='rgba(232,228,217,0.12)';e.currentTarget.style.color='rgba(232,228,217,0.35)'}}>
-                  Maybe later
-                </button>
               </div>
             </div>
           </div>
@@ -289,6 +388,7 @@ export default function Work() {
         }
         @keyframes fadeInOverlay { from{opacity:0} to{opacity:1} }
         @keyframes slideUp { from{opacity:0;transform:translateY(40px) scale(0.95)} to{opacity:1;transform:translateY(0) scale(1)} }
+        @keyframes blurFadeUp {
           from { opacity: 0; filter: blur(20px); transform: translateY(40px); }
           to { opacity: 1; filter: blur(0); transform: translateY(0); }
         }
